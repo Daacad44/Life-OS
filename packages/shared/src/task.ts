@@ -1,0 +1,28 @@
+import { z } from 'zod'
+import { Priority, TaskStatus } from './enums.js'
+
+// Validation rules from docs/.../02-PRD/Task Manager.md, Section 9.
+// Used on both the API (server-side enforcement) and the web app (form validation).
+export const createTaskSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().optional(),
+  priority: z.enum(Priority).default('MEDIUM'),
+  status: z.enum(TaskStatus).default('TODO'),
+  dueDate: z.coerce.date().optional(),
+  goalId: z.string().uuid().optional(),
+})
+
+export type CreateTaskInput = z.infer<typeof createTaskSchema>
+
+export interface Task {
+  id: string
+  userId: string
+  title: string
+  description: string | null
+  status: TaskStatus
+  priority: Priority
+  dueDate: string | null
+  goalId: string | null
+  createdAt: string
+  updatedAt: string
+}
