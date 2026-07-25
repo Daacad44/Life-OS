@@ -8,25 +8,25 @@ An AI-powered personal operating system — see [`docs/Life-OS-Blueprint`](docs/
 
 ```
 apps/
-├── web/       React + TypeScript frontend (Vite, Tailwind, shadcn/ui)
-└── api/       Node.js + Express + TypeScript backend
+├── frontend/    React + TypeScript (Vite, Tailwind, shadcn/ui)
+└── backend/     Node.js + Express + TypeScript API
 packages/
-└── shared/    Shared TS types and Zod schemas (used by both apps)
-prisma/        Prisma schema and migrations
-docs/          Life OS Blueprint (product, architecture, design, dev process)
+└── shared/      Types and Zod schemas shared by frontend and backend
+prisma/          Database schema and migrations
+docs/            Life OS Blueprint (product, architecture, design, dev process)
 ```
 
-See [`docs/.../05-Development/Folder Structure.md`](docs/Life-OS-Blueprint/Life-OS-Blueprint/05-Development/Folder%20Structure.md) for the full convention.
+One repo, three independent pieces — each also runs as its own Coolify service in production (frontend, backend, and a separate PostgreSQL database). See [`docs/.../05-Development/Folder Structure.md`](docs/Life-OS-Blueprint/Life-OS-Blueprint/05-Development/Folder%20Structure.md) for the full convention.
 
 ## Getting started
 
 ```bash
-npm install                # installs all workspaces
-cp .env.example .env       # Prisma CLI env (DATABASE_URL)
-cp apps/api/.env.example apps/api/.env   # API runtime env
+npm install                        # installs all workspaces
+cp .env.example .env                              # Prisma CLI env (DATABASE_URL)
+cp apps/backend/.env.example apps/backend/.env     # backend runtime env
 
-npm run dev:web            # http://localhost:5173
-npm run dev:api            # http://localhost:4000/health
+npm run dev:frontend    # http://localhost:5173
+npm run dev:backend     # http://localhost:4000/health
 ```
 
 Prisma requires a running PostgreSQL instance (with the `pgvector` extension) reachable at `DATABASE_URL` before running:
@@ -39,8 +39,8 @@ npm run prisma:migrate
 
 | Command                   | Description                                  |
 | ------------------------- | -------------------------------------------- |
-| `npm run dev:web`         | Start the frontend dev server                |
-| `npm run dev:api`         | Start the backend dev server                 |
+| `npm run dev:frontend`    | Start the frontend dev server                |
+| `npm run dev:backend`     | Start the backend dev server                 |
 | `npm run build`           | Build both apps                              |
 | `npm run lint`            | Lint the whole repo                          |
 | `npm run format`          | Format the whole repo with Prettier          |

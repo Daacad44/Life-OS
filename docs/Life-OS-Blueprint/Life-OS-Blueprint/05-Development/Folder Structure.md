@@ -31,8 +31,8 @@ Life OS uses a monorepo with a clear split between frontend and backend:
 ```
 life-os/
 ├── apps/
-│   ├── web/            # React frontend
-│   └── api/            # Node.js + Express backend
+│   ├── frontend/        # React frontend
+│   └── backend/         # Node.js + Express backend
 ├── packages/
 │   └── shared/         # Shared types, Zod schemas, constants
 ├── prisma/             # Prisma schema & migrations
@@ -47,7 +47,7 @@ life-os/
 ## 3. Frontend Structure
 
 ```
-apps/web/src/
+apps/frontend/src/
 ├── app/                # Entry, providers, router
 ├── pages/              # Route-level pages
 ├── features/           # Feature modules
@@ -69,7 +69,7 @@ apps/web/src/
 ## 4. Backend Structure
 
 ```
-apps/api/src/
+apps/backend/src/
 ├── config/             # Env, clients (db, redis)
 ├── routes/             # Express routers (per feature)
 ├── middleware/         # Auth, validation, errors

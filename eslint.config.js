@@ -18,7 +18,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['apps/web/**/*.{ts,tsx}'],
+    files: ['apps/frontend/**/*.{ts,tsx}'],
     languageOptions: {
       globals: globals.browser,
     },
@@ -33,13 +33,13 @@ export default tseslint.config(
   },
   {
     // shadcn/ui convention: component files also export cva variant helpers.
-    files: ['apps/web/src/components/ui/**/*.tsx'],
+    files: ['apps/frontend/src/components/ui/**/*.tsx'],
     rules: {
       'react-refresh/only-export-components': 'off',
     },
   },
   {
-    files: ['apps/api/**/*.ts', 'packages/**/*.ts'],
+    files: ['apps/backend/**/*.ts', 'packages/**/*.ts'],
     languageOptions: {
       globals: globals.node,
     },

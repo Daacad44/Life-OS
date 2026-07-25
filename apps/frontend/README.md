@@ -1,4 +1,4 @@
-# @life-os/web
+# @life-os/frontend
 
 React + TypeScript frontend for Life OS (Vite, Tailwind CSS v4, shadcn/ui).
 
