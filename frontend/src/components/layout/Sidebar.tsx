@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Settings } from 'lucide-react'
+import { LayoutDashboard, ListTodo, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-// More items are added here as each feature ships (Tasks, Goals, Calendar, Habits, ...)
+// More items are added here as each feature ships (Goals, Calendar, Habits, ...)
 // — see docs/.../Life OS Development Roadmap.md, Phase 2.
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/tasks', label: 'Tasks', icon: ListTodo, end: false },
   { to: '/settings', label: 'Settings', icon: Settings, end: false },
 ]
 

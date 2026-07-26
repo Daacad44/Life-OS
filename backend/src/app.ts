@@ -7,6 +7,7 @@ import { env } from './config/env.js'
 import { healthRouter } from './routes/health.js'
 import { authRouter } from './routes/auth.js'
 import { usersRouter } from './routes/users.js'
+import { tasksRouter } from './routes/tasks.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 
 export const app = express()
@@ -32,6 +33,7 @@ const v1 = express.Router()
 v1.use('/health', healthRouter)
 v1.use('/auth', authRouter)
 v1.use('/users', usersRouter)
+v1.use('/tasks', tasksRouter)
 app.use('/v1', v1)
 
 app.use(notFoundHandler)
