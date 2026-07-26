@@ -1,5 +1,5 @@
 # Build context: repo root (needed for npm workspaces — packages/shared, prisma/, root package-lock.json)
-# Coolify: set "Base Directory" to the repo root and "Dockerfile Location" to backend/Dockerfile
+# Coolify: set "Base Directory" to the repo root and "Dockerfile Location" to Dockerfile.backend
 
 FROM node:22-alpine AS deps
 WORKDIR /app

@@ -7,12 +7,15 @@ An AI-powered personal operating system — see [`docs/Life-OS-Blueprint`](docs/
 ## Structure
 
 ```
-frontend/        React + TypeScript (Vite, Tailwind, shadcn/ui) — own Dockerfile
-backend/         Node.js + Express + TypeScript API — own Dockerfile
+frontend/            React + TypeScript (Vite, Tailwind, shadcn/ui)
+backend/              Node.js + Express + TypeScript API
 packages/
-└── shared/      Types and Zod schemas shared by frontend and backend
-prisma/          Database schema and migrations
-docs/             Life OS Blueprint (product, architecture, design, dev process)
+└── shared/          Types and Zod schemas shared by frontend and backend
+prisma/               Database schema and migrations
+docs/                  Life OS Blueprint (product, architecture, design, dev process)
+Dockerfile.frontend
+Dockerfile.backend
+docker-compose.yml     Local dev stack (frontend + backend + Postgres + Redis)
 ```
 
 Three independent top-level projects sharing one repo — each also runs as its own Coolify service in production (frontend, backend, and a separate PostgreSQL database). See [`docs/.../05-Development/Folder Structure.md`](docs/Life-OS-Blueprint/Life-OS-Blueprint/05-Development/Folder%20Structure.md) for the full convention.
@@ -49,7 +52,15 @@ npm run prisma:migrate
 
 ## Deployment
 
-`frontend/Dockerfile` and `backend/Dockerfile` each build their own image, independently deployable as separate Coolify resources. Both need the **repo root as build context** (Coolify Base Directory `.`) because of npm workspaces — see the comment at the top of each Dockerfile.
+`Dockerfile.frontend` and `Dockerfile.backend` (repo root) each build one image, independently deployable as separate Coolify resources. Both need the **repo root as build context** (Coolify Base Directory `.`) because of npm workspaces — see the comment at the top of each Dockerfile.
+
+### Running the full stack locally with Docker
+
+```bash
+docker compose up --build
+```
+
+Starts Postgres (with pgvector), Redis, the backend (runs `prisma migrate deploy` on boot), and the frontend — frontend on `:5173`, backend on `:4000`. Useful for testing the whole app end-to-end without depending on the Coolify VPS being reachable. Requires Docker Desktop (or another Docker engine) installed locally.
 
 ## Build order
 
