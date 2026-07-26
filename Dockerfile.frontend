@@ -7,7 +7,10 @@ COPY package.json package-lock.json ./
 COPY frontend/package.json frontend/package.json
 COPY backend/package.json backend/package.json
 COPY packages/shared/package.json packages/shared/package.json
-RUN npm ci
+# --ignore-scripts: postinstall builds packages/shared, but its source isn't
+# copied into this layer yet (kept minimal for caching) — the builder stage
+# below builds it properly once the full source is present.
+RUN npm ci --ignore-scripts
 
 FROM node:22-alpine AS builder
 WORKDIR /app
