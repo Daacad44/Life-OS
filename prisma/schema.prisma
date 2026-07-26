@@ -13,11 +13,17 @@ datasource db {
   extensions = [vector]
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
   name         String?
   passwordHash String?
+  role         Role     @default(USER)
   timezone     String   @default("UTC")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -46,7 +52,7 @@ enum Priority {
 model Task {
   id          String     @id @default(uuid())
   userId      String
-  user        User       @relation(fields: [userId], references: [id])
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   title       String
   description String?
   status      TaskStatus @default(TODO)
@@ -65,7 +71,7 @@ model Task {
 model Goal {
   id          String    @id @default(uuid())
   userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   title       String
   description String?
   progress    Int       @default(0)
@@ -82,7 +88,7 @@ model Goal {
 model SubGoal {
   id        String   @id @default(uuid())
   goalId    String
-  goal      Goal     @relation(fields: [goalId], references: [id])
+  goal      Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
   title     String
   done      Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -97,7 +103,7 @@ enum HabitFrequency {
 model Habit {
   id        String         @id @default(uuid())
   userId    String
-  user      User           @relation(fields: [userId], references: [id])
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   frequency HabitFrequency @default(DAILY)
   streak    Int            @default(0)
@@ -111,7 +117,7 @@ model Habit {
 model HabitCheckin {
   id      String   @id @default(uuid())
   habitId String
-  habit   Habit    @relation(fields: [habitId], references: [id])
+  habit   Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
   date    DateTime @default(now())
   done    Boolean  @default(true)
 }
@@ -119,7 +125,7 @@ model HabitCheckin {
 model CalendarEvent {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   startTime DateTime
   endTime   DateTime
@@ -133,7 +139,7 @@ model CalendarEvent {
 model Note {
   id        String    @id @default(uuid())
   userId    String
-  user      User      @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   content   String
   createdAt DateTime  @default(now())
@@ -146,7 +152,7 @@ model Note {
 model Notification {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   body      String
   read      Boolean  @default(false)
@@ -159,7 +165,7 @@ model Notification {
 model MemoryItem {
   id        String                       @id @default(uuid())
   userId    String
-  user      User                         @relation(fields: [userId], references: [id])
+  user      User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
   content   String
   type      String // fact, preference, event, summary
   embedding Unsupported("vector(1536)")?

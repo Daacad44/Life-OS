@@ -5,6 +5,8 @@ import rateLimit from 'express-rate-limit'
 
 import { env } from './config/env.js'
 import { healthRouter } from './routes/health.js'
+import { authRouter } from './routes/auth.js'
+import { usersRouter } from './routes/users.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 
 export const app = express()
@@ -28,6 +30,8 @@ app.use('/health', healthRouter)
 // mount here as they're built — see docs/.../03-Architecture/API.md
 const v1 = express.Router()
 v1.use('/health', healthRouter)
+v1.use('/auth', authRouter)
+v1.use('/users', usersRouter)
 app.use('/v1', v1)
 
 app.use(notFoundHandler)

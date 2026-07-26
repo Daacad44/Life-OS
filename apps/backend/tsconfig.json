@@ -13,11 +13,7 @@
     "resolveJsonModule": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "paths": {
-      "@life-os/shared": ["../../packages/shared/src/index.ts"],
-      "@life-os/shared/*": ["../../packages/shared/src/*"]
-    }
+    "noFallthroughCasesInSwitch": true
   },
   "include": ["src"]
 }

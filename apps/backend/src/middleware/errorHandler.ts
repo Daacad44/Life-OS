@@ -5,6 +5,7 @@ export class ApiError extends Error {
     public status: number,
     public code: string,
     message: string,
+    public details: unknown[] = [],
   ) {
     super(message)
   }
@@ -20,7 +21,7 @@ export function errorHandler(
   if (err instanceof ApiError) {
     res.status(err.status).json({
       success: false,
-      error: { code: err.code, message: err.message, details: [] },
+      error: { code: err.code, message: err.message, details: err.details },
     })
     return
   }
