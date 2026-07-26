@@ -1,11 +1,11 @@
 # Build context: repo root (needed for npm workspaces — packages/shared, prisma/, root package-lock.json)
-# Coolify: set "Base Directory" to the repo root and "Dockerfile Location" to apps/backend/Dockerfile
+# Coolify: set "Base Directory" to the repo root and "Dockerfile Location" to backend/Dockerfile
 
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-COPY apps/backend/package.json apps/backend/package.json
-COPY apps/frontend/package.json apps/frontend/package.json
+COPY backend/package.json backend/package.json
+COPY frontend/package.json frontend/package.json
 COPY packages/shared/package.json packages/shared/package.json
 RUN npm ci
 
@@ -15,10 +15,10 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
 COPY packages/shared ./packages/shared
-COPY apps/backend ./apps/backend
+COPY backend ./backend
 RUN npx prisma generate
 RUN npm run build --workspace=packages/shared
-RUN npm run build --workspace=apps/backend
+RUN npm run build --workspace=backend
 
 FROM node:22-alpine AS runner
 WORKDIR /app
@@ -29,8 +29,8 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/shared/package.json ./packages/shared/package.json
-COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
-COPY --from=builder /app/apps/backend/package.json ./apps/backend/package.json
+COPY --from=builder /app/backend/dist ./backend/dist
+COPY --from=builder /app/backend/package.json ./backend/package.json
 
 USER backend
 EXPOSE 4000
@@ -40,4 +40,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 # Applies pending migrations, then starts the API — matches the deploy flow in
 # docs/.../03-Architecture/Deployment.md
-CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy && node apps/backend/dist/app.js"]
+CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy && node backend/dist/app.js"]

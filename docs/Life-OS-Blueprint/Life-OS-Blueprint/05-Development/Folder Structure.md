@@ -26,13 +26,12 @@ This document defines where code lives. A predictable structure lets anyone — 
 
 ## 2. Repository Layout
 
-Life OS uses a monorepo with a clear split between frontend and backend:
+Life OS uses a monorepo with a clear split between frontend and backend. `frontend/` and `backend/` are top-level, not nested under a shared `apps/` folder — each is independently deployable (own Dockerfile, own Coolify resource):
 
 ```
 life-os/
-├── apps/
-│   ├── frontend/        # React frontend
-│   └── backend/         # Node.js + Express backend
+├── frontend/            # React frontend (own Dockerfile)
+├── backend/             # Node.js + Express backend (own Dockerfile)
 ├── packages/
 │   └── shared/         # Shared types, Zod schemas, constants
 ├── prisma/             # Prisma schema & migrations
@@ -47,7 +46,7 @@ life-os/
 ## 3. Frontend Structure
 
 ```
-apps/frontend/src/
+frontend/src/
 ├── app/                # Entry, providers, router
 ├── pages/              # Route-level pages
 ├── features/           # Feature modules
@@ -69,7 +68,7 @@ apps/frontend/src/
 ## 4. Backend Structure
 
 ```
-apps/backend/src/
+backend/src/
 ├── config/             # Env, clients (db, redis)
 ├── routes/             # Express routers (per feature)
 ├── middleware/         # Auth, validation, errors
