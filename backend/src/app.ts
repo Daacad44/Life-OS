@@ -10,6 +10,7 @@ import { usersRouter } from './routes/users.js'
 import { tasksRouter } from './routes/tasks.js'
 import { plannerRouter } from './routes/planner.js'
 import { goalsRouter } from './routes/goals.js'
+import { eventsRouter } from './routes/events.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 
 export const app = express()
@@ -38,6 +39,7 @@ v1.use('/users', usersRouter)
 v1.use('/tasks', tasksRouter)
 v1.use('/planner', plannerRouter)
 v1.use('/goals', goalsRouter)
+v1.use('/events', eventsRouter)
 app.use('/v1', v1)
 
 app.use(notFoundHandler)
