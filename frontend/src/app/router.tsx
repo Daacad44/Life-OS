@@ -13,6 +13,7 @@ import { CalendarPage } from '@/pages/CalendarPage'
 import { HabitsPage } from '@/pages/HabitsPage'
 import { CoachPage } from '@/pages/CoachPage'
 import { ReflectionPage } from '@/pages/ReflectionPage'
+import { NotesPage } from '@/pages/NotesPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -30,6 +31,7 @@ export const router = createBrowserRouter([
           { path: '/goals/:id', element: <GoalDetailPage /> },
           { path: '/calendar', element: <CalendarPage /> },
           { path: '/habits', element: <HabitsPage /> },
+          { path: '/notes', element: <NotesPage /> },
           { path: '/coach', element: <CoachPage /> },
           { path: '/reflection', element: <ReflectionPage /> },
           { path: '/settings', element: <SettingsPage /> },

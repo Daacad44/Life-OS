@@ -16,6 +16,7 @@ import { dashboardRouter } from './routes/dashboard.js'
 import { memoryRouter } from './routes/memory.js'
 import { coachRouter } from './routes/coach.js'
 import { reflectionsRouter } from './routes/reflections.js'
+import { notesRouter } from './routes/notes.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 
 export const app = express()
@@ -50,6 +51,7 @@ v1.use('/dashboard', dashboardRouter)
 v1.use('/memory', memoryRouter)
 v1.use('/ai/coach', coachRouter)
 v1.use('/reflections', reflectionsRouter)
+v1.use('/notes', notesRouter)
 app.use('/v1', v1)
 
 app.use(notFoundHandler)
