@@ -11,6 +11,7 @@ import { tasksRouter } from './routes/tasks.js'
 import { plannerRouter } from './routes/planner.js'
 import { goalsRouter } from './routes/goals.js'
 import { eventsRouter } from './routes/events.js'
+import { habitsRouter } from './routes/habits.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 
 export const app = express()
@@ -40,6 +41,7 @@ v1.use('/tasks', tasksRouter)
 v1.use('/planner', plannerRouter)
 v1.use('/goals', goalsRouter)
 v1.use('/events', eventsRouter)
+v1.use('/habits', habitsRouter)
 app.use('/v1', v1)
 
 app.use(notFoundHandler)

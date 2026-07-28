@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import {
   Calendar,
   CalendarDays,
+  Flame,
   LayoutDashboard,
   ListTodo,
   Settings,
@@ -9,14 +10,13 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-// More items are added here as each feature ships (Habits, ...)
-// — see docs/.../Life OS Development Roadmap.md, Phase 2.
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/planner', label: 'Planner', icon: CalendarDays, end: false },
   { to: '/tasks', label: 'Tasks', icon: ListTodo, end: false },
   { to: '/goals', label: 'Goals', icon: Target, end: false },
   { to: '/calendar', label: 'Calendar', icon: Calendar, end: false },
+  { to: '/habits', label: 'Habits', icon: Flame, end: false },
   { to: '/settings', label: 'Settings', icon: Settings, end: false },
 ]
 

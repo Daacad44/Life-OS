@@ -10,6 +10,7 @@ import { PlannerPage } from '@/pages/PlannerPage'
 import { GoalsPage } from '@/pages/GoalsPage'
 import { GoalDetailPage } from '@/pages/GoalDetailPage'
 import { CalendarPage } from '@/pages/CalendarPage'
+import { HabitsPage } from '@/pages/HabitsPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
           { path: '/goals', element: <GoalsPage /> },
           { path: '/goals/:id', element: <GoalDetailPage /> },
           { path: '/calendar', element: <CalendarPage /> },
+          { path: '/habits', element: <HabitsPage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],
       },
