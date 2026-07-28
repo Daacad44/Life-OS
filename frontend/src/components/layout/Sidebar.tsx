@@ -6,6 +6,8 @@ import {
   LayoutDashboard,
   ListTodo,
   Settings,
+  Sparkles,
+  SunMoon,
   Target,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -17,6 +19,8 @@ const navItems = [
   { to: '/goals', label: 'Goals', icon: Target, end: false },
   { to: '/calendar', label: 'Calendar', icon: Calendar, end: false },
   { to: '/habits', label: 'Habits', icon: Flame, end: false },
+  { to: '/coach', label: 'AI Coach', icon: Sparkles, end: false },
+  { to: '/reflection', label: 'Reflection', icon: SunMoon, end: false },
   { to: '/settings', label: 'Settings', icon: Settings, end: false },
 ]
 

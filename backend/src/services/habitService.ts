@@ -1,7 +1,9 @@
-import type { CreateHabitInput, UpdateHabitInput } from '@life-os/shared'
+import type { CreateHabitInput, HabitInsight, UpdateHabitInput } from '@life-os/shared'
 import { ApiError } from '../middleware/errorHandler.js'
 import { calculateStreak } from '../utils/streak.js'
 import * as habitRepo from '../repositories/habitRepository.js'
+import * as aiService from '../ai/service.js'
+import { habitInsightSystemPrompt, habitInsightUserPrompt } from '../ai/prompts.js'
 
 function currentPeriodRange(frequency: 'DAILY' | 'WEEKLY') {
   const now = new Date()
@@ -57,4 +59,26 @@ export async function checkin(userId: string, id: string) {
   await habitRepo.setStreak(id, streak)
 
   return { checkin: record, streak }
+}
+
+// AI risk/pattern insight — see Habit System.md Section 6 and AI Architecture.md.
+export async function getInsight(userId: string, id: string): Promise<HabitInsight> {
+  const habit = await getOne(userId, id)
+  const recentCheckinDates = habit.checkins.slice(0, 14).map((c) => c.date)
+
+  return aiService.generateJson<HabitInsight>({
+    userId,
+    feature: 'habit_insight',
+    system: habitInsightSystemPrompt(),
+    messages: [
+      {
+        role: 'user',
+        content: habitInsightUserPrompt(
+          { title: habit.title, frequency: habit.frequency, streak: habit.streak },
+          recentCheckinDates,
+        ),
+      },
+    ],
+    maxTokens: 300,
+  })
 }

@@ -75,3 +75,11 @@ export function useDeleteSubGoal(goalId: string) {
     onSuccess: invalidate,
   })
 }
+
+export function useBreakdownGoal(goalId: string) {
+  const invalidate = useInvalidateGoal(goalId)
+  return useMutation({
+    mutationFn: () => goalsApi.breakdownGoal(goalId),
+    onSuccess: invalidate,
+  })
+}

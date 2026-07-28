@@ -2,6 +2,7 @@ import type {
   CreateGoalInput,
   CreateSubGoalInput,
   Goal,
+  GoalBreakdownResult,
   GoalWithTasks,
   UpdateGoalInput,
   UpdateSubGoalInput,
@@ -51,4 +52,10 @@ export function updateSubGoal(
 
 export async function deleteSubGoal(goalId: string, subGoalId: string) {
   await apiFetch<null>(`/v1/goals/${goalId}/subgoals/${subGoalId}`, { method: 'DELETE' })
+}
+
+export function breakdownGoal(goalId: string) {
+  return apiFetch<GoalBreakdownResult>(`/v1/goals/${goalId}/breakdown`, {
+    method: 'POST',
+  })
 }

@@ -1,11 +1,15 @@
 import type {
   CreateGoalInput,
   CreateSubGoalInput,
+  GoalBreakdownResult,
   UpdateGoalInput,
   UpdateSubGoalInput,
 } from '@life-os/shared'
 import { ApiError } from '../middleware/errorHandler.js'
 import * as goalRepo from '../repositories/goalRepository.js'
+import * as taskRepo from '../repositories/taskRepository.js'
+import * as aiService from '../ai/service.js'
+import { goalBreakdownSystemPrompt, goalBreakdownUserPrompt } from '../ai/prompts.js'
 
 export function listForUser(userId: string) {
   return goalRepo.listGoals(userId)
@@ -68,4 +72,51 @@ export async function removeSubGoal(userId: string, goalId: string, subGoalId: s
   }
   await goalRepo.deleteSubGoal(subGoalId)
   await goalRepo.recomputeProgress(goalId)
+}
+
+// AI breakdown — see Goal Engine.md Section 6 and AI Architecture.md.
+export async function breakdown(
+  userId: string,
+  goalId: string,
+): Promise<GoalBreakdownResult> {
+  const goal = await getOne(userId, goalId)
+
+  const result = await aiService.generateJson<{
+    subGoals: string[]
+    firstTasks: string[]
+    advice: string
+  }>({
+    userId,
+    feature: 'goal_breakdown',
+    system: goalBreakdownSystemPrompt(),
+    messages: [
+      {
+        role: 'user',
+        content: goalBreakdownUserPrompt({
+          title: goal.title,
+          description: goal.description,
+          targetDate: goal.targetDate,
+        }),
+      },
+    ],
+    maxTokens: 1000,
+  })
+
+  const createdSubGoals = []
+  for (const title of result.subGoals.slice(0, 5)) {
+    createdSubGoals.push(await goalRepo.createSubGoal(goalId, title))
+  }
+
+  const createdTasks = []
+  for (const title of result.firstTasks.slice(0, 4)) {
+    createdTasks.push(await taskRepo.createTask(userId, { title, goalId }))
+  }
+
+  await goalRepo.recomputeProgress(goalId)
+
+  return {
+    createdSubGoals: createdSubGoals.map((s) => ({ id: s.id, title: s.title })),
+    createdTasks: createdTasks.map((t) => ({ id: t.id, title: t.title })),
+    advice: result.advice,
+  }
 }

@@ -25,3 +25,8 @@ export async function handleCheckin(req: Request, res: Response) {
   const result = await habitService.checkin(req.user!.id, req.params.id as string)
   res.status(201).json({ success: true, data: result })
 }
+
+export async function handleInsight(req: Request, res: Response) {
+  const insight = await habitService.getInsight(req.user!.id, req.params.id as string)
+  res.json({ success: true, data: insight })
+}

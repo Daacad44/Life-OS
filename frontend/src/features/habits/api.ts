@@ -1,4 +1,9 @@
-import type { CreateHabitInput, Habit, UpdateHabitInput } from '@life-os/shared'
+import type {
+  CreateHabitInput,
+  Habit,
+  HabitInsight,
+  UpdateHabitInput,
+} from '@life-os/shared'
 import { apiFetch } from '@/lib/api'
 
 export function listHabits() {
@@ -25,4 +30,8 @@ export function checkin(id: string) {
     `/v1/habits/${id}/checkin`,
     { method: 'POST' },
   )
+}
+
+export function getInsight(id: string) {
+  return apiFetch<HabitInsight>(`/v1/habits/${id}/insight`)
 }

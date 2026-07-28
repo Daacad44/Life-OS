@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useCurrentUser, useUpdateProfile } from '@/features/auth/hooks/useAuth'
+import { MemorySettingsCard } from '@/features/memory/components/MemorySettingsCard'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 
 const THEME_OPTIONS: { value: Theme; label: string }[] = [
@@ -85,6 +86,8 @@ export function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <MemorySettingsCard />
     </div>
   )
 }

@@ -1,11 +1,16 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Trash2 } from 'lucide-react'
+import { ArrowLeft, Sparkles, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ProgressBar } from '@/features/goals/components/ProgressBar'
 import { SubGoalList } from '@/features/goals/components/SubGoalList'
-import { useDeleteGoal, useGoal, useUpdateGoal } from '@/features/goals/hooks/useGoals'
+import {
+  useBreakdownGoal,
+  useDeleteGoal,
+  useGoal,
+  useUpdateGoal,
+} from '@/features/goals/hooks/useGoals'
 
 export function GoalDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -13,6 +18,7 @@ export function GoalDetailPage() {
   const { data: goal, isLoading, isError } = useGoal(id!)
   const updateGoal = useUpdateGoal(id!)
   const deleteGoal = useDeleteGoal()
+  const breakdownGoal = useBreakdownGoal(id!)
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState('')
 
@@ -81,7 +87,28 @@ export function GoalDetailPage() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold text-text-muted">Sub-goals</h2>
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold text-text-muted">Sub-goals</h2>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={breakdownGoal.isPending}
+            onClick={() => breakdownGoal.mutate()}
+          >
+            <Sparkles className="size-4" />
+            {breakdownGoal.isPending ? 'Breaking down...' : 'Break down with AI'}
+          </Button>
+        </div>
+        {breakdownGoal.isError && (
+          <p className="text-xs text-danger">
+            Couldn&apos;t break this goal down right now — try again shortly.
+          </p>
+        )}
+        {breakdownGoal.isSuccess && (
+          <p className="rounded-md border border-border bg-primary-muted px-3 py-2 text-sm text-text">
+            {breakdownGoal.data.advice}
+          </p>
+        )}
         <SubGoalList goalId={goal.id} subGoals={goal.subGoals} />
       </div>
 

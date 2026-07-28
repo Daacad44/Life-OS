@@ -28,3 +28,7 @@ export function useCheckin() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['habits'] }),
   })
 }
+
+export function useHabitInsight() {
+  return useMutation({ mutationFn: habitsApi.getInsight })
+}

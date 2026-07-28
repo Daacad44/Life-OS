@@ -5,6 +5,7 @@ import { TodayTasksWidget } from '@/features/dashboard/components/TodayTasksWidg
 import { GoalProgressWidget } from '@/features/dashboard/components/GoalProgressWidget'
 import { HabitStreaksWidget } from '@/features/dashboard/components/HabitStreaksWidget'
 import { QuickStatsWidget } from '@/features/dashboard/components/QuickStatsWidget'
+import { CoachWidget } from '@/features/dashboard/components/CoachWidget'
 
 export function DashboardPage() {
   const { data: user } = useCurrentUser()
@@ -52,6 +53,7 @@ export function DashboardPage() {
             />
             <GoalProgressWidget goals={data.goals} />
             <HabitStreaksWidget habits={data.habits} />
+            <CoachWidget />
           </div>
         </div>
       )}

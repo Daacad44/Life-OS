@@ -1,8 +1,9 @@
-import { Flame, Trash2 } from 'lucide-react'
+import { Flame, Sparkles, Trash2 } from 'lucide-react'
 import type { Habit } from '@life-os/shared'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { useCheckin, useDeleteHabit } from '../hooks/useHabits'
+import { cn } from '@/lib/utils'
+import { useCheckin, useDeleteHabit, useHabitInsight } from '../hooks/useHabits'
 import { HabitHeatmap } from './HabitHeatmap'
 
 function isCheckedInThisPeriod(habit: Habit) {
@@ -19,6 +20,7 @@ function isCheckedInThisPeriod(habit: Habit) {
 export function HabitCard({ habit }: { habit: Habit }) {
   const checkin = useCheckin()
   const deleteHabit = useDeleteHabit()
+  const insight = useHabitInsight()
   const checkedIn = isCheckedInThisPeriod(habit)
 
   return (
@@ -49,15 +51,38 @@ export function HabitCard({ habit }: { habit: Habit }) {
 
         <HabitHeatmap checkins={habit.checkins} />
 
-        <Button
-          size="sm"
-          variant={checkedIn ? 'outline' : 'default'}
-          disabled={checkedIn || checkin.isPending}
-          onClick={() => checkin.mutate(habit.id)}
-          className="w-fit"
-        >
-          {checkedIn ? 'Checked in' : 'Check in'}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant={checkedIn ? 'outline' : 'default'}
+            disabled={checkedIn || checkin.isPending}
+            onClick={() => checkin.mutate(habit.id)}
+          >
+            {checkedIn ? 'Checked in' : 'Check in'}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={insight.isPending}
+            onClick={() => insight.mutate(habit.id)}
+          >
+            <Sparkles className="size-4" />
+            {insight.isPending ? 'Thinking...' : 'AI insight'}
+          </Button>
+        </div>
+
+        {insight.isSuccess && (
+          <p
+            className={cn(
+              'rounded-md px-3 py-2 text-xs',
+              insight.data.atRisk
+                ? 'bg-danger/10 text-danger'
+                : 'bg-success/10 text-success',
+            )}
+          >
+            {insight.data.message}
+          </p>
+        )}
       </CardContent>
     </Card>
   )

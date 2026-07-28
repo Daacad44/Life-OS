@@ -8,6 +8,7 @@ const envSchema = z.object({
   REDIS_URL: z.string().optional(),
   SESSION_SECRET: z.string().min(1).default('dev-secret-change-me'),
   CLAUDE_API_KEY: z.string().optional(),
+  VOYAGE_API_KEY: z.string().optional(),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
 })
 

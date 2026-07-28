@@ -53,3 +53,8 @@ export async function handleDeleteSubGoal(req: Request, res: Response) {
   )
   res.status(204).send()
 }
+
+export async function handleBreakdown(req: Request, res: Response) {
+  const result = await goalService.breakdown(req.user!.id, req.params.id as string)
+  res.status(201).json({ success: true, data: result })
+}

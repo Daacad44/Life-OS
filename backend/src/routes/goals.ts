@@ -16,6 +16,7 @@ import {
   handleAddSubGoal,
   handleUpdateSubGoal,
   handleDeleteSubGoal,
+  handleBreakdown,
 } from '../controllers/goalController.js'
 
 export const goalsRouter = Router()
@@ -35,3 +36,5 @@ goalsRouter.patch(
   handleUpdateSubGoal,
 )
 goalsRouter.delete('/:id/subgoals/:subGoalId', handleDeleteSubGoal)
+
+goalsRouter.post('/:id/breakdown', handleBreakdown)
