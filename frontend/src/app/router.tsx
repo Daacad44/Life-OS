@@ -18,6 +18,7 @@ import { SearchPage } from '@/pages/SearchPage'
 import { WeeklyReviewPage } from '@/pages/WeeklyReviewPage'
 import { AnalyticsPage } from '@/pages/AnalyticsPage'
 import { FinancePage } from '@/pages/FinancePage'
+import { FocusPage } from '@/pages/FocusPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
           { path: '/weekly-review', element: <WeeklyReviewPage /> },
           { path: '/analytics', element: <AnalyticsPage /> },
           { path: '/finance', element: <FinancePage /> },
+          { path: '/focus', element: <FocusPage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],
       },

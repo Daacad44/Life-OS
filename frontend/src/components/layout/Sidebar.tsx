@@ -11,6 +11,7 @@ import {
   Sparkles,
   SunMoon,
   Target,
+  Timer,
   TrendingUp,
   Wallet,
 } from 'lucide-react'
@@ -24,6 +25,7 @@ const navItems = [
   { to: '/calendar', label: 'Calendar', icon: Calendar, end: false },
   { to: '/habits', label: 'Habits', icon: Flame, end: false },
   { to: '/notes', label: 'Notes', icon: NotebookText, end: false },
+  { to: '/focus', label: 'Focus Mode', icon: Timer, end: false },
   { to: '/coach', label: 'AI Coach', icon: Sparkles, end: false },
   { to: '/reflection', label: 'Reflection', icon: SunMoon, end: false },
   { to: '/weekly-review', label: 'Weekly Review', icon: TrendingUp, end: false },

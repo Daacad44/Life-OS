@@ -22,6 +22,7 @@ import { reviewsRouter } from './routes/reviews.js'
 import { analyticsRouter } from './routes/analytics.js'
 import { financeRouter } from './routes/finance.js'
 import { notificationsRouter } from './routes/notifications.js'
+import { focusRouter } from './routes/focus.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 
 export const app = express()
@@ -63,6 +64,7 @@ v1.use('/reviews', reviewsRouter)
 v1.use('/analytics', analyticsRouter)
 v1.use('/finance', financeRouter)
 v1.use('/notifications', notificationsRouter)
+v1.use('/focus', focusRouter)
 app.use('/v1', v1)
 
 app.use(notFoundHandler)
