@@ -1,8 +1,7 @@
 import { CheckCircle2, Circle, Trash2 } from 'lucide-react'
-import type { ListTasksQuery, Task } from '@life-os/shared'
+import type { Task } from '@life-os/shared'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { useDeleteTask, useUpdateTask } from '../hooks/useTasks'
 
 const PRIORITY_STYLES: Record<Task['priority'], string> = {
   LOW: 'bg-neutral-500/10 text-text-muted',
@@ -12,23 +11,25 @@ const PRIORITY_STYLES: Record<Task['priority'], string> = {
 
 export function TaskItem({
   task,
-  filters,
+  onToggleDone,
+  onDelete,
+  dragHandle,
 }: {
   task: Task
-  filters: Partial<ListTasksQuery>
+  onToggleDone: () => void
+  onDelete: () => void
+  dragHandle?: React.ReactNode
 }) {
-  const updateTask = useUpdateTask(filters)
-  const deleteTask = useDeleteTask(filters)
   const done = task.status === 'DONE'
 
   return (
     <div className="flex items-center gap-3 rounded-md border border-border bg-surface px-3 py-2.5">
+      {dragHandle}
+
       <button
         type="button"
         aria-label={done ? 'Mark as not done' : 'Mark as done'}
-        onClick={() =>
-          updateTask.mutate({ id: task.id, input: { status: done ? 'TODO' : 'DONE' } })
-        }
+        onClick={onToggleDone}
         className="text-text-muted hover:text-primary"
       >
         {done ? (
@@ -63,12 +64,7 @@ export function TaskItem({
         {task.priority}
       </span>
 
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label="Delete task"
-        onClick={() => deleteTask.mutate(task.id)}
-      >
+      <Button variant="ghost" size="icon" aria-label="Delete task" onClick={onDelete}>
         <Trash2 className="size-4" />
       </Button>
     </div>

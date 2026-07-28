@@ -47,6 +47,7 @@ export interface Task {
   status: TaskStatus
   priority: Priority
   dueDate: string | null
+  order: number
   goalId: string | null
   createdAt: string
   updatedAt: string

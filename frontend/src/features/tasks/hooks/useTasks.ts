@@ -33,6 +33,7 @@ export function useCreateTask(filters: Filters) {
         status: input.status ?? 'TODO',
         priority: input.priority ?? 'MEDIUM',
         dueDate: input.dueDate ? input.dueDate.toString() : null,
+        order: 0,
         goalId: input.goalId ?? null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -47,7 +48,11 @@ export function useCreateTask(filters: Filters) {
     onError: (_err, _input, context) => {
       if (context?.previous) queryClient.setQueryData(key, context.previous)
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      // Planner is another view over the same Task rows — keep it in sync.
+      queryClient.invalidateQueries({ queryKey: ['planner'] })
+    },
   })
 }
 
@@ -92,7 +97,11 @@ export function useUpdateTask(filters: Filters) {
     onError: (_err, _vars, context) => {
       if (context?.previous) queryClient.setQueryData(key, context.previous)
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      // Planner is another view over the same Task rows — keep it in sync.
+      queryClient.invalidateQueries({ queryKey: ['planner'] })
+    },
   })
 }
 
@@ -115,6 +124,10 @@ export function useDeleteTask(filters: Filters) {
     onError: (_err, _id, context) => {
       if (context?.previous) queryClient.setQueryData(key, context.previous)
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      // Planner is another view over the same Task rows — keep it in sync.
+      queryClient.invalidateQueries({ queryKey: ['planner'] })
+    },
   })
 }

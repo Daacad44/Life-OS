@@ -58,6 +58,7 @@ model Task {
   status      TaskStatus @default(TODO)
   priority    Priority   @default(MEDIUM)
   dueDate     DateTime?
+  order       Int        @default(0)
   goalId      String?
   goal        Goal?      @relation(fields: [goalId], references: [id])
   createdAt   DateTime   @default(now())

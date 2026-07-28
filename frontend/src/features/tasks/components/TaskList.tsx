@@ -1,6 +1,6 @@
 import type { ListTasksQuery } from '@life-os/shared'
 import { Button } from '@/components/ui/button'
-import { useTasks } from '../hooks/useTasks'
+import { useTasks, useUpdateTask, useDeleteTask } from '../hooks/useTasks'
 import { TaskItem } from './TaskItem'
 
 const STATUS_GROUPS = [
@@ -11,6 +11,8 @@ const STATUS_GROUPS = [
 
 export function TaskList({ filters }: { filters: Partial<ListTasksQuery> }) {
   const { data, isLoading, isError, refetch } = useTasks(filters)
+  const updateTask = useUpdateTask(filters)
+  const deleteTask = useDeleteTask(filters)
 
   if (isLoading) {
     return (
@@ -43,15 +45,23 @@ export function TaskList({ filters }: { filters: Partial<ListTasksQuery> }) {
     )
   }
 
+  const renderItem = (task: (typeof tasks)[number]) => (
+    <TaskItem
+      key={task.id}
+      task={task}
+      onToggleDone={() =>
+        updateTask.mutate({
+          id: task.id,
+          input: { status: task.status === 'DONE' ? 'TODO' : 'DONE' },
+        })
+      }
+      onDelete={() => deleteTask.mutate(task.id)}
+    />
+  )
+
   // When a status filter is active, the list is already scoped to one status.
   if (filters.status) {
-    return (
-      <div className="flex flex-col gap-2">
-        {tasks.map((task) => (
-          <TaskItem key={task.id} task={task} filters={filters} />
-        ))}
-      </div>
-    )
+    return <div className="flex flex-col gap-2">{tasks.map(renderItem)}</div>
   }
 
   return (
@@ -64,9 +74,7 @@ export function TaskList({ filters }: { filters: Partial<ListTasksQuery> }) {
             <h2 className="text-sm font-semibold text-text-muted">
               {label} ({group.length})
             </h2>
-            {group.map((task) => (
-              <TaskItem key={task.id} task={task} filters={filters} />
-            ))}
+            {group.map(renderItem)}
           </div>
         )
       })}
