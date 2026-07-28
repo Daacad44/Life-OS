@@ -1,4 +1,5 @@
-import { Menu, Moon, Sun, LogOut } from 'lucide-react'
+import { Menu, Moon, Search, Sun, LogOut } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useThemeStore } from '@/stores/themeStore'
 import { useCurrentUser, useLogout } from '@/features/auth/hooks/useAuth'
@@ -23,6 +24,11 @@ export function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
       <div className="hidden md:block" />
 
       <div className="flex items-center gap-2">
+        <Button variant="ghost" size="icon" aria-label="Search" asChild>
+          <Link to="/search">
+            <Search className="size-4" />
+          </Link>
+        </Button>
         <Button
           variant="ghost"
           size="icon"
