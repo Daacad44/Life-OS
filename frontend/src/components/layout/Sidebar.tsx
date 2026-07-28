@@ -7,6 +7,7 @@ import {
   ListTodo,
   NotebookText,
   Settings,
+  BarChart3,
   Sparkles,
   SunMoon,
   Target,
@@ -25,6 +26,7 @@ const navItems = [
   { to: '/coach', label: 'AI Coach', icon: Sparkles, end: false },
   { to: '/reflection', label: 'Reflection', icon: SunMoon, end: false },
   { to: '/weekly-review', label: 'Weekly Review', icon: TrendingUp, end: false },
+  { to: '/analytics', label: 'Analytics', icon: BarChart3, end: false },
   { to: '/settings', label: 'Settings', icon: Settings, end: false },
 ]
 

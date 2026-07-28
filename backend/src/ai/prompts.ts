@@ -162,3 +162,39 @@ export function weeklyReviewUserPrompt(stats: {
   ]
   return lines.join('\n')
 }
+
+export function analyticsInsightsSystemPrompt(): string {
+  return [
+    "You interpret a user's productivity analytics for Life OS.",
+    'Respond with ONLY JSON in this exact shape: {"insights": string[]}',
+    '- 1-4 short, specific, plain-language observations or suggestions grounded ONLY in the given numbers',
+    '- Do not invent patterns not supported by the data. If the data is too sparse to say anything meaningful, return a single encouraging "keep going" style insight instead.',
+  ].join('\n')
+}
+
+export function analyticsInsightsUserPrompt(overview: {
+  range: string
+  tasksCompleted: number
+  tasksCreated: number
+  taskCompletionRate: number
+  habits: { title: string; checkins: number; expected: number }[]
+  goals: { title: string; progress: number }[]
+  notesCreated: number
+  focusMinutes: number
+  focusSessions: number
+  reflectionsLogged: number
+}): string {
+  return [
+    `Range: last 1 ${overview.range}`,
+    `Tasks: ${overview.tasksCompleted} completed / ${overview.tasksCreated} created (${Math.round(overview.taskCompletionRate * 100)}% completion rate)`,
+    `Habits: ${
+      overview.habits
+        .map((h) => `${h.title} ${h.checkins}/${h.expected} check-ins`)
+        .join(', ') || 'none tracked'
+    }`,
+    `Goals: ${overview.goals.map((g) => `${g.title} at ${g.progress}%`).join(', ') || 'none active'}`,
+    `Notes created: ${overview.notesCreated}`,
+    `Focus time: ${overview.focusMinutes} minutes across ${overview.focusSessions} sessions`,
+    `Reflections logged: ${overview.reflectionsLogged}`,
+  ].join('\n')
+}

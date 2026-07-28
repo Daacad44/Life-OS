@@ -16,6 +16,7 @@ import { ReflectionPage } from '@/pages/ReflectionPage'
 import { NotesPage } from '@/pages/NotesPage'
 import { SearchPage } from '@/pages/SearchPage'
 import { WeeklyReviewPage } from '@/pages/WeeklyReviewPage'
+import { AnalyticsPage } from '@/pages/AnalyticsPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -38,6 +39,7 @@ export const router = createBrowserRouter([
           { path: '/coach', element: <CoachPage /> },
           { path: '/reflection', element: <ReflectionPage /> },
           { path: '/weekly-review', element: <WeeklyReviewPage /> },
+          { path: '/analytics', element: <AnalyticsPage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],
       },
