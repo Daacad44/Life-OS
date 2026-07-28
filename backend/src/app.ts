@@ -18,6 +18,7 @@ import { coachRouter } from './routes/coach.js'
 import { reflectionsRouter } from './routes/reflections.js'
 import { notesRouter } from './routes/notes.js'
 import { searchRouter, aiSearchRouter } from './routes/search.js'
+import { reviewsRouter } from './routes/reviews.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 
 export const app = express()
@@ -55,6 +56,7 @@ v1.use('/reflections', reflectionsRouter)
 v1.use('/notes', notesRouter)
 v1.use('/search', searchRouter)
 v1.use('/ai/search', aiSearchRouter)
+v1.use('/reviews', reviewsRouter)
 app.use('/v1', v1)
 
 app.use(notFoundHandler)

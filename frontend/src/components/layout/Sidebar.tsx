@@ -10,6 +10,7 @@ import {
   Sparkles,
   SunMoon,
   Target,
+  TrendingUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -23,6 +24,7 @@ const navItems = [
   { to: '/notes', label: 'Notes', icon: NotebookText, end: false },
   { to: '/coach', label: 'AI Coach', icon: Sparkles, end: false },
   { to: '/reflection', label: 'Reflection', icon: SunMoon, end: false },
+  { to: '/weekly-review', label: 'Weekly Review', icon: TrendingUp, end: false },
   { to: '/settings', label: 'Settings', icon: Settings, end: false },
 ]
 

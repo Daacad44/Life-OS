@@ -128,3 +128,37 @@ export function memoryExtractionUserPrompt(
 ): string {
   return `User: ${userMessage}\nCoach: ${assistantReply}`
 }
+
+export function weeklyReviewSystemPrompt(): string {
+  return [
+    "You are reviewing a user's week for Life OS, an AI-powered personal operating system.",
+    'Write an honest, encouraging weekly review from their real stats.',
+    'Respond with ONLY JSON in this exact shape: {"summary": string, "wins": string[], "focusAreas": string[], "nextWeekPlan": string}',
+    '- summary: 2-3 sentences on how the week went overall',
+    '- wins: 1-4 short, specific things worth celebrating (empty array if genuinely none)',
+    '- focusAreas: 1-3 short, specific things that need attention next week',
+    '- nextWeekPlan: 1-2 sentences suggesting priorities for next week',
+    'If the week was sparse (little data), keep it concise and still encouraging — do not invent detail that is not in the stats.',
+  ].join('\n')
+}
+
+export function weeklyReviewUserPrompt(stats: {
+  tasksCompleted: number
+  tasksCreated: number
+  habitConsistency: { title: string; ratio: number }[]
+  goals: { title: string; progress: number }[]
+  reflectionsLogged: number
+}): string {
+  const lines = [
+    `Tasks completed this week: ${stats.tasksCompleted}`,
+    `Tasks created this week: ${stats.tasksCreated}`,
+    `Habit consistency: ${
+      stats.habitConsistency
+        .map((h) => `${h.title} (${Math.round(h.ratio * 100)}%)`)
+        .join(', ') || 'no habits tracked'
+    }`,
+    `Active goals: ${stats.goals.map((g) => `${g.title} (${g.progress}%)`).join(', ') || 'none'}`,
+    `Reflections logged: ${stats.reflectionsLogged}`,
+  ]
+  return lines.join('\n')
+}
