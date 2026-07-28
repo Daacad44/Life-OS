@@ -36,7 +36,7 @@ const navItems = [
 
 export function Sidebar({ className }: { className?: string }) {
   return (
-    <nav className={cn('flex flex-col gap-1 p-4', className)}>
+    <nav className={cn('flex flex-col gap-1 overflow-y-auto p-4', className)}>
       <div className="mb-4 px-2 text-lg font-semibold text-text">Life OS</div>
       {navItems.map(({ to, label, icon: Icon, end }) => (
         <NavLink
