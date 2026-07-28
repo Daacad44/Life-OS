@@ -168,13 +168,14 @@ model Notification {
 }
 
 // AI memory — see docs/.../03-Architecture/AI Architecture.md
+// embedding dimension (1024) matches Voyage AI's voyage-3.5 default output — verified live.
 model MemoryItem {
   id        String                       @id @default(uuid())
   userId    String
   user      User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
   content   String
   type      String // fact, preference, event, summary
-  embedding Unsupported("vector(1536)")?
+  embedding Unsupported("vector(1024)")?
   createdAt DateTime                     @default(now())
 
   @@index([userId])
