@@ -2,6 +2,7 @@ import { prisma } from '../config/db.js'
 import * as reviewRepo from '../repositories/weeklyReviewRepository.js'
 import * as aiService from '../ai/service.js'
 import * as memoryService from './memoryService.js'
+import * as notificationService from './notificationService.js'
 import { weeklyReviewSystemPrompt, weeklyReviewUserPrompt } from '../ai/prompts.js'
 
 function currentWeekStart(): Date {
@@ -94,6 +95,12 @@ export async function generate(userId: string) {
       `Weekly review (${weekStart.toISOString().slice(0, 10)}): ${result.summary}`,
       'summary',
     )
+    void notificationService.notify(
+      userId,
+      'weeklyReview',
+      'Your weekly review is ready',
+      result.summary,
+    )
 
     return review
   } catch (err) {
@@ -103,11 +110,18 @@ export async function generate(userId: string) {
       err instanceof Error ? err.message : err,
     )
     const summary = `This week: ${stats.tasksCompleted} task(s) completed, ${stats.reflectionsLogged} reflection(s) logged.`
-    return reviewRepo.upsertReview(userId, weekStart, {
+    const review = await reviewRepo.upsertReview(userId, weekStart, {
       summary,
       wins: [],
       focusAreas: [],
       nextWeekPlan: null,
     })
+    void notificationService.notify(
+      userId,
+      'weeklyReview',
+      'Your weekly review is ready',
+      summary,
+    )
+    return review
   }
 }

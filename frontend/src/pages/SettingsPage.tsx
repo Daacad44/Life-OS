@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useCurrentUser, useUpdateProfile } from '@/features/auth/hooks/useAuth'
 import { MemorySettingsCard } from '@/features/memory/components/MemorySettingsCard'
+import { NotificationPreferencesCard } from '@/features/notifications/components/NotificationPreferencesCard'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 
 const THEME_OPTIONS: { value: Theme; label: string }[] = [
@@ -87,6 +88,7 @@ export function SettingsPage() {
         </CardContent>
       </Card>
 
+      <NotificationPreferencesCard />
       <MemorySettingsCard />
     </div>
   )

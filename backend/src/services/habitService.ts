@@ -3,7 +3,10 @@ import { ApiError } from '../middleware/errorHandler.js'
 import { calculateStreak } from '../utils/streak.js'
 import * as habitRepo from '../repositories/habitRepository.js'
 import * as aiService from '../ai/service.js'
+import * as notificationService from './notificationService.js'
 import { habitInsightSystemPrompt, habitInsightUserPrompt } from '../ai/prompts.js'
+
+const STREAK_MILESTONES = [7, 30, 100, 365]
 
 function currentPeriodRange(frequency: 'DAILY' | 'WEEKLY') {
   const now = new Date()
@@ -57,6 +60,15 @@ export async function checkin(userId: string, id: string) {
   const allDates = await habitRepo.allCheckinDates(id)
   const streak = calculateStreak(allDates, habit.frequency)
   await habitRepo.setStreak(id, streak)
+
+  if (STREAK_MILESTONES.includes(streak)) {
+    void notificationService.notify(
+      userId,
+      'habitMilestones',
+      `🔥 ${streak}-streak on ${habit.title}`,
+      `You've kept up "${habit.title}" for ${streak} ${habit.frequency === 'DAILY' ? 'days' : 'weeks'} in a row. Nice work.`,
+    )
+  }
 
   return { checkin: record, streak }
 }

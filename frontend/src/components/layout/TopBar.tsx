@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useThemeStore } from '@/stores/themeStore'
 import { useCurrentUser, useLogout } from '@/features/auth/hooks/useAuth'
+import { NotificationBell } from '@/features/notifications/components/NotificationBell'
 
 export function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
   const { data: user } = useCurrentUser()
@@ -29,6 +30,7 @@ export function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
             <Search className="size-4" />
           </Link>
         </Button>
+        <NotificationBell />
         <Button
           variant="ghost"
           size="icon"

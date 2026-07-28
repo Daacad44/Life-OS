@@ -38,6 +38,12 @@ export function listBudgets(userId: string) {
   return prisma.budget.findMany({ where: { userId }, orderBy: { category: 'asc' } })
 }
 
+export function findBudget(userId: string, category: string, period = 'monthly') {
+  return prisma.budget.findUnique({
+    where: { userId_category_period: { userId, category, period } },
+  })
+}
+
 export function upsertBudget(
   userId: string,
   category: string,

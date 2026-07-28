@@ -12,6 +12,7 @@ import type {
 } from '@life-os/shared'
 import { ApiError } from '../middleware/errorHandler.js'
 import * as financeRepo from '../repositories/financeRepository.js'
+import * as notificationService from './notificationService.js'
 
 function toTransactionDTO(t: PrismaTransaction): Transaction {
   return {
@@ -63,7 +64,34 @@ export async function create(
   input: CreateTransactionInput,
 ): Promise<Transaction> {
   const t = await financeRepo.createTransaction(userId, input)
+  if (t.type === 'EXPENSE') {
+    void checkBudgetThreshold(userId, t.category, Number(t.amount))
+  }
   return toTransactionDTO(t)
+}
+
+// Notifies the first time a category's spending crosses its monthly limit —
+// see Finance Planner.md Section 10 ("Budget threshold reached").
+async function checkBudgetThreshold(userId: string, category: string, newAmount: number) {
+  const budget = await financeRepo.findBudget(userId, category)
+  if (!budget) return
+
+  const { start, end } = currentMonthRange()
+  const monthTransactions = await financeRepo.listTransactions(userId, { start, end })
+  const spentAfter = monthTransactions
+    .filter((t) => t.type === 'EXPENSE' && t.category === category)
+    .reduce((sum, t) => sum + Number(t.amount), 0)
+  const spentBefore = spentAfter - newAmount
+  const limit = Number(budget.limit)
+
+  if (spentBefore < limit && spentAfter >= limit) {
+    void notificationService.notify(
+      userId,
+      'budgetThreshold',
+      `${category} budget reached`,
+      `You've spent $${spentAfter.toFixed(2)} of your $${limit.toFixed(2)} ${category} budget this month.`,
+    )
+  }
 }
 
 export async function update(
