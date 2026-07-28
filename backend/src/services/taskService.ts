@@ -8,6 +8,7 @@ import {
   updateTask as repoUpdateTask,
   softDeleteTask,
 } from '../repositories/taskRepository.js'
+import { recomputeProgress } from '../repositories/goalRepository.js'
 
 async function assertGoalOwnership(userId: string, goalId: string) {
   const goal = await prisma.goal.findFirst({ where: { id: goalId, userId } })
@@ -24,7 +25,11 @@ export async function create(userId: string, input: CreateTaskInput) {
   if (input.goalId) {
     await assertGoalOwnership(userId, input.goalId)
   }
-  return repoCreateTask(userId, input)
+  const task = await repoCreateTask(userId, input)
+  if (task.goalId) {
+    await recomputeProgress(task.goalId)
+  }
+  return task
 }
 
 export async function update(userId: string, id: string, input: UpdateTaskInput) {
@@ -35,7 +40,18 @@ export async function update(userId: string, id: string, input: UpdateTaskInput)
   if (input.goalId) {
     await assertGoalOwnership(userId, input.goalId)
   }
-  return repoUpdateTask(id, input)
+  const task = await repoUpdateTask(id, input)
+
+  // Recompute whichever goal(s) this task affects — status change on the
+  // same goal, or the task moved from one goal to another.
+  const affectedGoalIds = new Set(
+    [existing.goalId, task.goalId].filter((v) => v !== null),
+  )
+  for (const goalId of affectedGoalIds) {
+    await recomputeProgress(goalId)
+  }
+
+  return task
 }
 
 export async function remove(userId: string, id: string) {
@@ -44,6 +60,9 @@ export async function remove(userId: string, id: string) {
     throw new ApiError(404, 'NOT_FOUND', 'Task not found')
   }
   await softDeleteTask(id)
+  if (existing.goalId) {
+    await recomputeProgress(existing.goalId)
+  }
 }
 
 export async function getOne(userId: string, id: string) {

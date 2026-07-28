@@ -33,11 +33,16 @@ export function findTaskById(userId: string, id: string) {
   return prisma.task.findFirst({ where: { id, userId, deletedAt: null } })
 }
 
-export function createTask(userId: string, data: Prisma.TaskCreateWithoutUserInput) {
-  return prisma.task.create({ data: { ...data, user: { connect: { id: userId } } } })
+// "Unchecked" variants accept raw FK scalars (goalId) instead of requiring
+// nested { goal: { connect/disconnect } } relation syntax.
+export function createTask(
+  userId: string,
+  data: Omit<Prisma.TaskUncheckedCreateInput, 'userId'>,
+) {
+  return prisma.task.create({ data: { ...data, userId } })
 }
 
-export function updateTask(id: string, data: Prisma.TaskUpdateInput) {
+export function updateTask(id: string, data: Prisma.TaskUncheckedUpdateInput) {
   return prisma.task.update({ where: { id }, data })
 }
 

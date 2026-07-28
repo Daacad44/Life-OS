@@ -7,6 +7,8 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { TasksPage } from '@/pages/TasksPage'
 import { PlannerPage } from '@/pages/PlannerPage'
+import { GoalsPage } from '@/pages/GoalsPage'
+import { GoalDetailPage } from '@/pages/GoalDetailPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -20,6 +22,8 @@ export const router = createBrowserRouter([
           { path: '/', element: <DashboardPage /> },
           { path: '/planner', element: <PlannerPage /> },
           { path: '/tasks', element: <TasksPage /> },
+          { path: '/goals', element: <GoalsPage /> },
+          { path: '/goals/:id', element: <GoalDetailPage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],
       },
