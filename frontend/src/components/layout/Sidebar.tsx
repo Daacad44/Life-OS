@@ -12,6 +12,7 @@ import {
   SunMoon,
   Target,
   TrendingUp,
+  Wallet,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -27,6 +28,7 @@ const navItems = [
   { to: '/reflection', label: 'Reflection', icon: SunMoon, end: false },
   { to: '/weekly-review', label: 'Weekly Review', icon: TrendingUp, end: false },
   { to: '/analytics', label: 'Analytics', icon: BarChart3, end: false },
+  { to: '/finance', label: 'Finance', icon: Wallet, end: false },
   { to: '/settings', label: 'Settings', icon: Settings, end: false },
 ]
 
