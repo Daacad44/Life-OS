@@ -1,8 +1,17 @@
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 import { cn } from '@/lib/utils'
+
+function PageFallback() {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="h-8 w-48 animate-pulse rounded-md bg-primary-muted" />
+      <div className="h-40 animate-pulse rounded-md bg-primary-muted" />
+    </div>
+  )
+}
 
 export function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -27,7 +36,9 @@ export function AppShell() {
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar onMenuClick={() => setMobileOpen(true)} />
         <main className="flex-1 p-6">
-          <Outlet />
+          <Suspense fallback={<PageFallback />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

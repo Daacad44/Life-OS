@@ -129,6 +129,8 @@ model SubGoal {
   done      Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([goalId])
 }
 
 enum HabitFrequency {
@@ -156,6 +158,8 @@ model HabitCheckin {
   habit   Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
   date    DateTime @default(now())
   done    Boolean  @default(true)
+
+  @@index([habitId, date])
 }
 
 model CalendarEvent {
@@ -375,6 +379,7 @@ model StudySession {
   createdAt   DateTime @default(now())
 
   @@index([userId, scheduledAt])
+  @@index([subjectId])
 }
 
 // Career Planner — see docs/.../02-PRD/Career Planner.md
@@ -570,5 +575,6 @@ model CommunityPost {
   reported     Boolean  @default(false)
   createdAt    DateTime @default(now())
 
+  @@index([userId])
   @@index([createdAt])
 }

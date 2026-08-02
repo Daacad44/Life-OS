@@ -140,5 +140,15 @@ export async function reportPost(userId: string, id: string): Promise<void> {
   if (!post) {
     throw new ApiError(404, 'NOT_FOUND', 'Post not found')
   }
+  // A report hides the post from everyone's feed, not just the reporter's —
+  // only allow it for posts actually visible to this user (their own, or from
+  // an accepted connection), so it can't be used to grief an unrelated user's
+  // post by guessing its id.
+  if (post.userId !== userId) {
+    const partnerIds = await communityRepo.listAcceptedPartnerIds(userId)
+    if (!partnerIds.includes(post.userId)) {
+      throw new ApiError(404, 'NOT_FOUND', 'Post not found')
+    }
+  }
   await communityRepo.reportPost(id)
 }

@@ -1,33 +1,87 @@
+import { lazy } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
-import { DashboardPage } from '@/pages/DashboardPage'
-import { SettingsPage } from '@/pages/SettingsPage'
-import { TasksPage } from '@/pages/TasksPage'
-import { PlannerPage } from '@/pages/PlannerPage'
-import { GoalsPage } from '@/pages/GoalsPage'
-import { GoalDetailPage } from '@/pages/GoalDetailPage'
-import { CalendarPage } from '@/pages/CalendarPage'
-import { HabitsPage } from '@/pages/HabitsPage'
-import { CoachPage } from '@/pages/CoachPage'
-import { ReflectionPage } from '@/pages/ReflectionPage'
-import { NotesPage } from '@/pages/NotesPage'
-import { SearchPage } from '@/pages/SearchPage'
-import { WeeklyReviewPage } from '@/pages/WeeklyReviewPage'
-import { AnalyticsPage } from '@/pages/AnalyticsPage'
-import { FinancePage } from '@/pages/FinancePage'
-import { FocusPage } from '@/pages/FocusPage'
-import { HealthPage } from '@/pages/HealthPage'
-import { StudyPage } from '@/pages/StudyPage'
-import { CareerPage } from '@/pages/CareerPage'
-import { BusinessPage } from '@/pages/BusinessPage'
-import { AutomationsPage } from '@/pages/AutomationsPage'
-import { RecommendationsPage } from '@/pages/RecommendationsPage'
-import { VoicePage } from '@/pages/VoicePage'
-import { AchievementsPage } from '@/pages/AchievementsPage'
-import { CommunityPage } from '@/pages/CommunityPage'
+
+// Lazy-loaded so each authenticated page ships as its own chunk instead of all
+// 25+ pages landing in one bundle — see the Phase 6 performance pass.
+const DashboardPage = lazy(() =>
+  import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })),
+)
+const SettingsPage = lazy(() =>
+  import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })),
+)
+const TasksPage = lazy(() =>
+  import('@/pages/TasksPage').then((m) => ({ default: m.TasksPage })),
+)
+const PlannerPage = lazy(() =>
+  import('@/pages/PlannerPage').then((m) => ({ default: m.PlannerPage })),
+)
+const GoalsPage = lazy(() =>
+  import('@/pages/GoalsPage').then((m) => ({ default: m.GoalsPage })),
+)
+const GoalDetailPage = lazy(() =>
+  import('@/pages/GoalDetailPage').then((m) => ({ default: m.GoalDetailPage })),
+)
+const CalendarPage = lazy(() =>
+  import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })),
+)
+const HabitsPage = lazy(() =>
+  import('@/pages/HabitsPage').then((m) => ({ default: m.HabitsPage })),
+)
+const CoachPage = lazy(() =>
+  import('@/pages/CoachPage').then((m) => ({ default: m.CoachPage })),
+)
+const ReflectionPage = lazy(() =>
+  import('@/pages/ReflectionPage').then((m) => ({ default: m.ReflectionPage })),
+)
+const NotesPage = lazy(() =>
+  import('@/pages/NotesPage').then((m) => ({ default: m.NotesPage })),
+)
+const SearchPage = lazy(() =>
+  import('@/pages/SearchPage').then((m) => ({ default: m.SearchPage })),
+)
+const WeeklyReviewPage = lazy(() =>
+  import('@/pages/WeeklyReviewPage').then((m) => ({ default: m.WeeklyReviewPage })),
+)
+const AnalyticsPage = lazy(() =>
+  import('@/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })),
+)
+const FinancePage = lazy(() =>
+  import('@/pages/FinancePage').then((m) => ({ default: m.FinancePage })),
+)
+const FocusPage = lazy(() =>
+  import('@/pages/FocusPage').then((m) => ({ default: m.FocusPage })),
+)
+const HealthPage = lazy(() =>
+  import('@/pages/HealthPage').then((m) => ({ default: m.HealthPage })),
+)
+const StudyPage = lazy(() =>
+  import('@/pages/StudyPage').then((m) => ({ default: m.StudyPage })),
+)
+const CareerPage = lazy(() =>
+  import('@/pages/CareerPage').then((m) => ({ default: m.CareerPage })),
+)
+const BusinessPage = lazy(() =>
+  import('@/pages/BusinessPage').then((m) => ({ default: m.BusinessPage })),
+)
+const AutomationsPage = lazy(() =>
+  import('@/pages/AutomationsPage').then((m) => ({ default: m.AutomationsPage })),
+)
+const RecommendationsPage = lazy(() =>
+  import('@/pages/RecommendationsPage').then((m) => ({ default: m.RecommendationsPage })),
+)
+const VoicePage = lazy(() =>
+  import('@/pages/VoicePage').then((m) => ({ default: m.VoicePage })),
+)
+const AchievementsPage = lazy(() =>
+  import('@/pages/AchievementsPage').then((m) => ({ default: m.AchievementsPage })),
+)
+const CommunityPage = lazy(() =>
+  import('@/pages/CommunityPage').then((m) => ({ default: m.CommunityPage })),
+)
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
