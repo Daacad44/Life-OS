@@ -29,6 +29,7 @@ import { careerRouter } from './routes/career.js'
 import { businessRouter } from './routes/business.js'
 import { automationsRouter } from './routes/automations.js'
 import { recommendationsRouter } from './routes/recommendations.js'
+import { voiceRouter } from './routes/voice.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 
 export const app = express()
@@ -77,6 +78,7 @@ v1.use('/career', careerRouter)
 v1.use('/business', businessRouter)
 v1.use('/automations', automationsRouter)
 v1.use('/recommendations', recommendationsRouter)
+v1.use('/voice', voiceRouter)
 app.use('/v1', v1)
 
 app.use(notFoundHandler)

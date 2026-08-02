@@ -275,6 +275,22 @@ export function recommendationsSystemPrompt(): string {
   ].join('\n')
 }
 
+export function voiceIntentSystemPrompt(): string {
+  return [
+    'You interpret short, informal voice commands spoken to Life OS.',
+    'Respond with ONLY JSON in this exact shape: {"intent": "create_task" | "ask_coach" | "query_day" | "unclear", "taskTitle": string | null, "question": string | null}',
+    '- create_task: the user wants to add a task or reminder — taskTitle is a clean, short task title extracted from the command',
+    '- ask_coach: the user is asking for guidance, advice, or accountability — question is their question, cleaned up',
+    '- query_day: the user is asking what their day/schedule looks like',
+    "- unclear: the command doesn't clearly match any of the above",
+    'Only one of taskTitle/question should be non-null, matching the intent.',
+  ].join('\n')
+}
+
+export function voiceIntentUserPrompt(text: string): string {
+  return `Voice command: "${text}"`
+}
+
 export function recommendationsUserPrompt(ctx: {
   todayTasks: number
   overdueTasks: number

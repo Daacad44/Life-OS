@@ -25,6 +25,7 @@ import { CareerPage } from '@/pages/CareerPage'
 import { BusinessPage } from '@/pages/BusinessPage'
 import { AutomationsPage } from '@/pages/AutomationsPage'
 import { RecommendationsPage } from '@/pages/RecommendationsPage'
+import { VoicePage } from '@/pages/VoicePage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -56,6 +57,7 @@ export const router = createBrowserRouter([
           { path: '/business', element: <BusinessPage /> },
           { path: '/automations', element: <AutomationsPage /> },
           { path: '/recommendations', element: <RecommendationsPage /> },
+          { path: '/voice', element: <VoicePage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],
       },
