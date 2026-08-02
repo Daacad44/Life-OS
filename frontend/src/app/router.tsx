@@ -27,6 +27,7 @@ import { AutomationsPage } from '@/pages/AutomationsPage'
 import { RecommendationsPage } from '@/pages/RecommendationsPage'
 import { VoicePage } from '@/pages/VoicePage'
 import { AchievementsPage } from '@/pages/AchievementsPage'
+import { CommunityPage } from '@/pages/CommunityPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -60,6 +61,7 @@ export const router = createBrowserRouter([
           { path: '/recommendations', element: <RecommendationsPage /> },
           { path: '/voice', element: <VoicePage /> },
           { path: '/achievements', element: <AchievementsPage /> },
+          { path: '/community', element: <CommunityPage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],
       },

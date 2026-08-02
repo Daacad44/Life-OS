@@ -31,6 +31,7 @@ import { automationsRouter } from './routes/automations.js'
 import { recommendationsRouter } from './routes/recommendations.js'
 import { voiceRouter } from './routes/voice.js'
 import { gamificationRouter } from './routes/gamification.js'
+import { communityRouter } from './routes/community.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 
 export const app = express()
@@ -81,6 +82,7 @@ v1.use('/automations', automationsRouter)
 v1.use('/recommendations', recommendationsRouter)
 v1.use('/voice', voiceRouter)
 v1.use('/gamification', gamificationRouter)
+v1.use('/community', communityRouter)
 app.use('/v1', v1)
 
 app.use(notFoundHandler)
