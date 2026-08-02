@@ -20,6 +20,7 @@ import { AnalyticsPage } from '@/pages/AnalyticsPage'
 import { FinancePage } from '@/pages/FinancePage'
 import { FocusPage } from '@/pages/FocusPage'
 import { HealthPage } from '@/pages/HealthPage'
+import { StudyPage } from '@/pages/StudyPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -46,6 +47,7 @@ export const router = createBrowserRouter([
           { path: '/finance', element: <FinancePage /> },
           { path: '/focus', element: <FocusPage /> },
           { path: '/health', element: <HealthPage /> },
+          { path: '/study', element: <StudyPage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],
       },

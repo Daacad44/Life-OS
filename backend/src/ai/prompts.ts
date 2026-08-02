@@ -219,3 +219,26 @@ export function healthInsightsUserPrompt(
     )
     .join('\n')
 }
+
+export function studyPlanSystemPrompt(): string {
+  return [
+    'You build a realistic, spaced study plan for Life OS.',
+    'Respond with ONLY JSON in this exact shape: {"sessions": {"topic": string, "dayOffset": number}[], "advice": string}',
+    '- sessions: 3-12 study sessions spaced across the available days (dayOffset = days from today, 0 = today, must not exceed the days until the deadline)',
+    '- Space sessions out realistically for retention — do not cram them all at the start or the end',
+    '- Each topic should be a short, specific chunk of the subject, not the whole subject at once',
+    '- advice: one short, encouraging sentence about the plan',
+  ].join('\n')
+}
+
+export function studyPlanUserPrompt(input: {
+  subjectTitle: string
+  daysUntilDeadline: number
+  hoursPerWeek: number
+}): string {
+  return [
+    `Subject: ${input.subjectTitle}`,
+    `Days until deadline: ${input.daysUntilDeadline}`,
+    `Available study time: ${input.hoursPerWeek} hours/week`,
+  ].join('\n')
+}
