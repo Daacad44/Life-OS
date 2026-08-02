@@ -11,6 +11,7 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
   habitMilestones: true,
   budgetThreshold: true,
   weeklyReview: true,
+  automationRan: true,
 }
 
 export function listForUser(userId: string) {

@@ -4,6 +4,7 @@ import { calculateStreak } from '../utils/streak.js'
 import * as habitRepo from '../repositories/habitRepository.js'
 import * as aiService from '../ai/service.js'
 import * as notificationService from './notificationService.js'
+import * as automationService from './automationService.js'
 import { habitInsightSystemPrompt, habitInsightUserPrompt } from '../ai/prompts.js'
 
 const STREAK_MILESTONES = [7, 30, 100, 365]
@@ -55,7 +56,12 @@ export async function checkin(userId: string, id: string) {
   const { start, end } = currentPeriodRange(habit.frequency)
 
   const existing = await habitRepo.findCheckinInRange(id, start, end)
+  const isNewCheckin = !existing
   const record = existing ?? (await habitRepo.createCheckin(id, new Date()))
+
+  if (isNewCheckin) {
+    void automationService.runHabitCheckinTriggers(userId, id)
+  }
 
   const allDates = await habitRepo.allCheckinDates(id)
   const streak = calculateStreak(allDates, habit.frequency)

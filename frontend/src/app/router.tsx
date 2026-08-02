@@ -23,6 +23,7 @@ import { HealthPage } from '@/pages/HealthPage'
 import { StudyPage } from '@/pages/StudyPage'
 import { CareerPage } from '@/pages/CareerPage'
 import { BusinessPage } from '@/pages/BusinessPage'
+import { AutomationsPage } from '@/pages/AutomationsPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -52,6 +53,7 @@ export const router = createBrowserRouter([
           { path: '/study', element: <StudyPage /> },
           { path: '/career', element: <CareerPage /> },
           { path: '/business', element: <BusinessPage /> },
+          { path: '/automations', element: <AutomationsPage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],
       },

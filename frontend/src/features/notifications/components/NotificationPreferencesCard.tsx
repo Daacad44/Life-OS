@@ -9,6 +9,7 @@ const LABELS: Record<NotificationCategory, string> = {
   habitMilestones: 'Habit streak milestones',
   budgetThreshold: 'Budget threshold reached',
   weeklyReview: 'Weekly review ready',
+  automationRan: 'Automation ran',
 }
 
 export function NotificationPreferencesCard() {

@@ -9,12 +9,18 @@ import {
   softDeleteTask,
 } from '../repositories/taskRepository.js'
 import { recomputeProgress } from '../repositories/goalRepository.js'
+import * as automationService from './automationService.js'
 
 async function assertGoalOwnership(userId: string, goalId: string) {
   const goal = await prisma.goal.findFirst({ where: { id: goalId, userId } })
   if (!goal) {
     throw new ApiError(400, 'VALIDATION_ERROR', 'goalId does not belong to this user')
   }
+}
+
+async function recomputeProgressAndCheckAutomations(userId: string, goalId: string) {
+  const progress = await recomputeProgress(goalId)
+  void automationService.runGoalProgressTriggers(userId, goalId, progress)
 }
 
 export function listForUser(userId: string, query: ListTasksQuery) {
@@ -27,7 +33,7 @@ export async function create(userId: string, input: CreateTaskInput) {
   }
   const task = await repoCreateTask(userId, input)
   if (task.goalId) {
-    await recomputeProgress(task.goalId)
+    await recomputeProgressAndCheckAutomations(userId, task.goalId)
   }
   return task
 }
@@ -48,7 +54,7 @@ export async function update(userId: string, id: string, input: UpdateTaskInput)
     [existing.goalId, task.goalId].filter((v) => v !== null),
   )
   for (const goalId of affectedGoalIds) {
-    await recomputeProgress(goalId)
+    await recomputeProgressAndCheckAutomations(userId, goalId)
   }
 
   return task
@@ -61,7 +67,7 @@ export async function remove(userId: string, id: string) {
   }
   await softDeleteTask(id)
   if (existing.goalId) {
-    await recomputeProgress(existing.goalId)
+    await recomputeProgressAndCheckAutomations(userId, existing.goalId)
   }
 }
 

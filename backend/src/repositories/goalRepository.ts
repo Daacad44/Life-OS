@@ -65,4 +65,5 @@ export async function recomputeProgress(goalId: string) {
   }
 
   await prisma.goal.update({ where: { id: goalId }, data: { progress } })
+  return progress
 }

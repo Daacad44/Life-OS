@@ -9,7 +9,13 @@ import { ApiError } from '../middleware/errorHandler.js'
 import * as goalRepo from '../repositories/goalRepository.js'
 import * as taskRepo from '../repositories/taskRepository.js'
 import * as aiService from '../ai/service.js'
+import * as automationService from './automationService.js'
 import { goalBreakdownSystemPrompt, goalBreakdownUserPrompt } from '../ai/prompts.js'
+
+async function recomputeProgressAndCheckAutomations(userId: string, goalId: string) {
+  const progress = await goalRepo.recomputeProgress(goalId)
+  void automationService.runGoalProgressTriggers(userId, goalId, progress)
+}
 
 export function listForUser(userId: string) {
   return goalRepo.listGoals(userId)
@@ -44,7 +50,7 @@ export async function addSubGoal(
 ) {
   await getOne(userId, goalId)
   const subGoal = await goalRepo.createSubGoal(goalId, input.title)
-  await goalRepo.recomputeProgress(goalId)
+  await recomputeProgressAndCheckAutomations(userId, goalId)
   return subGoal
 }
 
@@ -60,7 +66,7 @@ export async function updateSubGoal(
     throw new ApiError(404, 'NOT_FOUND', 'Sub-goal not found')
   }
   const subGoal = await goalRepo.updateSubGoal(subGoalId, input)
-  await goalRepo.recomputeProgress(goalId)
+  await recomputeProgressAndCheckAutomations(userId, goalId)
   return subGoal
 }
 
@@ -71,7 +77,7 @@ export async function removeSubGoal(userId: string, goalId: string, subGoalId: s
     throw new ApiError(404, 'NOT_FOUND', 'Sub-goal not found')
   }
   await goalRepo.deleteSubGoal(subGoalId)
-  await goalRepo.recomputeProgress(goalId)
+  await recomputeProgressAndCheckAutomations(userId, goalId)
 }
 
 // AI breakdown — see Goal Engine.md Section 6 and AI Architecture.md.
@@ -112,7 +118,7 @@ export async function breakdown(
     createdTasks.push(await taskRepo.createTask(userId, { title, goalId }))
   }
 
-  await goalRepo.recomputeProgress(goalId)
+  await recomputeProgressAndCheckAutomations(userId, goalId)
 
   return {
     createdSubGoals: createdSubGoals.map((s) => ({ id: s.id, title: s.title })),
