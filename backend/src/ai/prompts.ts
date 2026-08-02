@@ -263,3 +263,33 @@ export function careerPlanUserPrompt(goal: {
   if (goal.description) lines.push(`Description: ${goal.description}`)
   return lines.join('\n')
 }
+
+export function recommendationsSystemPrompt(): string {
+  return [
+    "You generate proactive, cross-feature suggestions for a user's Life OS.",
+    'Respond with ONLY JSON in this exact shape: {"recommendations": {"type": string, "content": string}[]}',
+    '- 1-3 specific, high-value, actionable suggestions grounded ONLY in the given context — not generic advice',
+    '- type: a short category label (e.g. "task", "habit", "goal", "focus", "reflection")',
+    '- content: one short, specific sentence the user can act on directly',
+    '- If nothing genuinely useful stands out from the data, return an empty array — do not invent filler suggestions',
+  ].join('\n')
+}
+
+export function recommendationsUserPrompt(ctx: {
+  todayTasks: number
+  overdueTasks: number
+  goals: { title: string; progress: number }[]
+  habits: { title: string; streak: number }[]
+  memories: string[]
+}): string {
+  const lines = [
+    `Today's tasks: ${ctx.todayTasks} (${ctx.overdueTasks} overdue)`,
+    `Goals: ${ctx.goals.map((g) => `${g.title} (${g.progress}%)`).join(', ') || 'none'}`,
+    `Habits: ${ctx.habits.map((h) => `${h.title} (streak ${h.streak})`).join(', ') || 'none'}`,
+  ]
+  if (ctx.memories.length > 0) {
+    lines.push('What is known about this user:')
+    for (const m of ctx.memories) lines.push(`- ${m}`)
+  }
+  return lines.join('\n')
+}
