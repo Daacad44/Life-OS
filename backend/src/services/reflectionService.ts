@@ -2,6 +2,7 @@ import type { CreateReflectionInput, ReflectionPeriod } from '@life-os/shared'
 import * as reflectionRepo from '../repositories/reflectionRepository.js'
 import * as dashboardService from './dashboardService.js'
 import * as memoryService from './memoryService.js'
+import * as gamificationService from './gamificationService.js'
 import * as aiService from '../ai/service.js'
 import {
   reflectionInsightSystemPrompt,
@@ -61,6 +62,7 @@ export async function getPrompt(
 // Insight generation is best-effort — the reflection itself always saves.
 export async function create(userId: string, input: CreateReflectionInput) {
   const reflection = await reflectionRepo.createReflection(userId, input)
+  void gamificationService.award(userId, 'reflection_logged')
 
   try {
     const result = await aiService.generateJson<{

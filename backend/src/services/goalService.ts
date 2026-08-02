@@ -10,11 +10,15 @@ import * as goalRepo from '../repositories/goalRepository.js'
 import * as taskRepo from '../repositories/taskRepository.js'
 import * as aiService from '../ai/service.js'
 import * as automationService from './automationService.js'
+import * as gamificationService from './gamificationService.js'
 import { goalBreakdownSystemPrompt, goalBreakdownUserPrompt } from '../ai/prompts.js'
 
 async function recomputeProgressAndCheckAutomations(userId: string, goalId: string) {
   const progress = await goalRepo.recomputeProgress(goalId)
   void automationService.runGoalProgressTriggers(userId, goalId, progress)
+  if (progress === 100) {
+    void gamificationService.award(userId, 'goal_completed')
+  }
 }
 
 export function listForUser(userId: string) {

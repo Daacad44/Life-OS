@@ -10,6 +10,7 @@ import {
 } from '../repositories/taskRepository.js'
 import { recomputeProgress } from '../repositories/goalRepository.js'
 import * as automationService from './automationService.js'
+import * as gamificationService from './gamificationService.js'
 
 async function assertGoalOwnership(userId: string, goalId: string) {
   const goal = await prisma.goal.findFirst({ where: { id: goalId, userId } })
@@ -21,6 +22,9 @@ async function assertGoalOwnership(userId: string, goalId: string) {
 async function recomputeProgressAndCheckAutomations(userId: string, goalId: string) {
   const progress = await recomputeProgress(goalId)
   void automationService.runGoalProgressTriggers(userId, goalId, progress)
+  if (progress === 100) {
+    void gamificationService.award(userId, 'goal_completed')
+  }
 }
 
 export function listForUser(userId: string, query: ListTasksQuery) {
@@ -47,6 +51,10 @@ export async function update(userId: string, id: string, input: UpdateTaskInput)
     await assertGoalOwnership(userId, input.goalId)
   }
   const task = await repoUpdateTask(id, input)
+
+  if (existing.status !== 'DONE' && task.status === 'DONE') {
+    void gamificationService.award(userId, 'task_completed')
+  }
 
   // Recompute whichever goal(s) this task affects — status change on the
   // same goal, or the task moved from one goal to another.

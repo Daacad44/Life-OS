@@ -2,6 +2,7 @@ import type { FocusSession as PrismaFocusSession } from '@prisma/client'
 import type { FocusSession, StartFocusSessionInput } from '@life-os/shared'
 import { ApiError } from '../middleware/errorHandler.js'
 import * as focusRepo from '../repositories/focusRepository.js'
+import * as gamificationService from './gamificationService.js'
 
 function toDTO(s: PrismaFocusSession): FocusSession {
   return {
@@ -50,5 +51,8 @@ export async function end(userId: string, sessionId: string): Promise<FocusSessi
     Math.floor((Date.now() - session.startedAt.getTime()) / 1000),
   )
   const ended = await focusRepo.endSession(sessionId, durationSeconds)
+  void gamificationService.award(userId, 'focus_session_minute', {
+    minutes: Math.round(durationSeconds / 60),
+  })
   return toDTO(ended)
 }

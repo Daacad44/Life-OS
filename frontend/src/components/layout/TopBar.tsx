@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { useThemeStore } from '@/stores/themeStore'
 import { useCurrentUser, useLogout } from '@/features/auth/hooks/useAuth'
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
+import { GamificationBadge } from '@/features/gamification/components/GamificationBadge'
 
 export function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
   const { data: user } = useCurrentUser()
@@ -25,6 +26,7 @@ export function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
       <div className="hidden md:block" />
 
       <div className="flex items-center gap-2">
+        <GamificationBadge />
         <Button variant="ghost" size="icon" aria-label="Search" asChild>
           <Link to="/search">
             <Search className="size-4" />

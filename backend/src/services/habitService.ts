@@ -5,6 +5,7 @@ import * as habitRepo from '../repositories/habitRepository.js'
 import * as aiService from '../ai/service.js'
 import * as notificationService from './notificationService.js'
 import * as automationService from './automationService.js'
+import * as gamificationService from './gamificationService.js'
 import { habitInsightSystemPrompt, habitInsightUserPrompt } from '../ai/prompts.js'
 
 const STREAK_MILESTONES = [7, 30, 100, 365]
@@ -66,6 +67,10 @@ export async function checkin(userId: string, id: string) {
   const allDates = await habitRepo.allCheckinDates(id)
   const streak = calculateStreak(allDates, habit.frequency)
   await habitRepo.setStreak(id, streak)
+
+  if (isNewCheckin) {
+    void gamificationService.award(userId, 'habit_checkin', { streak })
+  }
 
   if (STREAK_MILESTONES.includes(streak)) {
     void notificationService.notify(
