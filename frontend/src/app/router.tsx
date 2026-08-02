@@ -21,6 +21,7 @@ import { FinancePage } from '@/pages/FinancePage'
 import { FocusPage } from '@/pages/FocusPage'
 import { HealthPage } from '@/pages/HealthPage'
 import { StudyPage } from '@/pages/StudyPage'
+import { CareerPage } from '@/pages/CareerPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -48,6 +49,7 @@ export const router = createBrowserRouter([
           { path: '/focus', element: <FocusPage /> },
           { path: '/health', element: <HealthPage /> },
           { path: '/study', element: <StudyPage /> },
+          { path: '/career', element: <CareerPage /> },
           { path: '/settings', element: <SettingsPage /> },
         ],
       },

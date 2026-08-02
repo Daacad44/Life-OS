@@ -242,3 +242,24 @@ export function studyPlanUserPrompt(input: {
     `Available study time: ${input.hoursPerWeek} hours/week`,
   ].join('\n')
 }
+
+export function careerPlanSystemPrompt(): string {
+  return [
+    'You map a path toward a career goal for Life OS.',
+    'Respond with ONLY JSON in this exact shape: {"skills": {"name": string, "level": number}[], "milestones": string[], "advice": string}',
+    "- skills: 3-6 skills needed for the target role, with a suggested starting level 1-5 (1=beginner, 5=expert) reflecting typical distance from the goal, not the user's current level",
+    '- milestones: 3-6 concrete, ordered steps toward the goal',
+    '- advice: one short, encouraging sentence about the path',
+  ].join('\n')
+}
+
+export function careerPlanUserPrompt(goal: {
+  title: string
+  targetRole: string | null
+  description: string | null
+}): string {
+  const lines = [`Career goal: ${goal.title}`]
+  if (goal.targetRole) lines.push(`Target role: ${goal.targetRole}`)
+  if (goal.description) lines.push(`Description: ${goal.description}`)
+  return lines.join('\n')
+}

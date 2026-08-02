@@ -14,6 +14,8 @@ const LIMITS: Record<string, { max: number; windowSeconds: number }> = {
   health_insight: { max: 20, windowSeconds: 60 * 60 },
   study_plan: { max: 10, windowSeconds: 60 * 60 },
   career_plan: { max: 10, windowSeconds: 60 * 60 },
+  recommendations: { max: 10, windowSeconds: 60 * 60 },
+  voice_command: { max: 60, windowSeconds: 60 * 60 },
 }
 
 export async function enforceRateLimit(userId: string, feature: string): Promise<void> {
