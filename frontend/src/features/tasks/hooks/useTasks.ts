@@ -35,6 +35,7 @@ export function useCreateTask(filters: Filters) {
         dueDate: input.dueDate ? input.dueDate.toString() : null,
         order: 0,
         goalId: input.goalId ?? null,
+        projectId: input.projectId ?? null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }

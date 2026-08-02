@@ -26,6 +26,7 @@ import { focusRouter } from './routes/focus.js'
 import { healthLogsRouter } from './routes/healthLogs.js'
 import { studyRouter } from './routes/study.js'
 import { careerRouter } from './routes/career.js'
+import { businessRouter } from './routes/business.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 
 export const app = express()
@@ -71,6 +72,7 @@ v1.use('/focus', focusRouter)
 v1.use('/health-metrics', healthLogsRouter)
 v1.use('/study', studyRouter)
 v1.use('/career', careerRouter)
+v1.use('/business', businessRouter)
 app.use('/v1', v1)
 
 app.use(notFoundHandler)

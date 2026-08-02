@@ -10,6 +10,8 @@ export const createTaskSchema = z.object({
   status: z.enum(TaskStatus).default('TODO'),
   dueDate: z.coerce.date().optional(),
   goalId: z.string().uuid().optional(),
+  // A task linked to a Project is a business task — see Business Workspace.md.
+  projectId: z.string().uuid().optional(),
 })
 
 export type CreateTaskInput = z.infer<typeof createTaskSchema>
@@ -21,6 +23,7 @@ export const updateTaskSchema = z.object({
   status: z.enum(TaskStatus).optional(),
   dueDate: z.coerce.date().nullable().optional(),
   goalId: z.string().uuid().nullable().optional(),
+  projectId: z.string().uuid().nullable().optional(),
 })
 
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>
@@ -30,6 +33,7 @@ export const listTasksQuerySchema = z.object({
   status: z.enum(TaskStatus).optional(),
   priority: z.enum(Priority).optional(),
   goalId: z.string().uuid().optional(),
+  projectId: z.string().uuid().optional(),
   q: z.string().optional(),
   sort: z.enum(['dueDate', 'priority', 'createdAt']).default('createdAt'),
   order: z.enum(['asc', 'desc']).default('desc'),
@@ -49,6 +53,7 @@ export interface Task {
   dueDate: string | null
   order: number
   goalId: string | null
+  projectId: string | null
   createdAt: string
   updatedAt: string
 }

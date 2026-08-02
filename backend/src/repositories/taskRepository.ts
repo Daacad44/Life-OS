@@ -9,6 +9,7 @@ function whereFor(userId: string, query: ListTasksQuery): Prisma.TaskWhereInput 
     ...(query.status && { status: query.status }),
     ...(query.priority && { priority: query.priority }),
     ...(query.goalId && { goalId: query.goalId }),
+    ...(query.projectId && { projectId: query.projectId }),
     ...(query.q && { title: { contains: query.q, mode: 'insensitive' } }),
   }
 }
