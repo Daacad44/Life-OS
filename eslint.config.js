@@ -44,4 +44,13 @@ export default tseslint.config(
       globals: globals.node,
     },
   },
+  {
+    // Test files mock Prisma/library return shapes with partial objects —
+    // typing those fully adds no safety since the real types are re-derived
+    // from schema, not hand-authored here.
+    files: ['**/*.test.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
 )
