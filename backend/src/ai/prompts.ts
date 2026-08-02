@@ -198,3 +198,24 @@ export function analyticsInsightsUserPrompt(overview: {
     `Reflections logged: ${overview.reflectionsLogged}`,
   ].join('\n')
 }
+
+export function healthInsightsSystemPrompt(): string {
+  return [
+    "You interpret a user's health tracking logs for Life OS.",
+    'Respond with ONLY JSON in this exact shape: {"insights": string[]}',
+    '- 1-3 short, specific, supportive observations grounded ONLY in the given data (e.g. patterns, correlations across metrics)',
+    '- NEVER give medical diagnoses, medical advice, or clinical claims — only gentle, non-medical lifestyle observations',
+    '- If the data is too sparse to say anything meaningful, return an empty array',
+  ].join('\n')
+}
+
+export function healthInsightsUserPrompt(
+  trends: { type: string; points: { date: string; value: number }[] }[],
+): string {
+  return trends
+    .map(
+      (t) =>
+        `${t.type}: ${t.points.map((p) => `${p.date}=${p.value}`).join(', ') || 'no data'}`,
+    )
+    .join('\n')
+}

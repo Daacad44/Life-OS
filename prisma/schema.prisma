@@ -28,6 +28,8 @@ model User {
   // Per-category opt in/out, e.g. {"habitMilestones": true, "budgetThreshold": true, "weeklyReview": true}.
   // Missing keys default to "on" in application code — see Notifications.md Section 9.
   notificationPreferences Json?
+  // Community is strictly opt-in — see Community.md Section 9.
+  communityOptIn          Boolean  @default(false)
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
@@ -45,6 +47,23 @@ model User {
   transactions  Transaction[]
   budgets       Budget[]
   focusSessions FocusSession[]
+
+  healthLogs           HealthLog[]
+  subjects             Subject[]
+  studySessions        StudySession[]
+  careerGoals          CareerGoal[]
+  skills               Skill[]
+  milestones           Milestone[]
+  projects             Project[]
+  clients              Client[]
+  automations          Automation[]
+  recommendations      Recommendation[]
+  progress             UserProgress?
+  achievements         Achievement[]
+  connectionsRequested Connection[]     @relation("ConnectionRequester")
+  connectionsReceived  Connection[]     @relation("ConnectionPartner")
+  sharedGoals          SharedGoal[]
+  communityPosts       CommunityPost[]
 }
 
 enum TaskStatus {
@@ -71,6 +90,9 @@ model Task {
   order         Int            @default(0)
   goalId        String?
   goal          Goal?          @relation(fields: [goalId], references: [id])
+  // A task linked to a Project is a business task — see Business Workspace.md Section 7.
+  projectId     String?
+  project       Project?       @relation(fields: [projectId], references: [id])
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   deletedAt     DateTime?
@@ -91,6 +113,7 @@ model Goal {
   tasks        Task[]
   subGoals     SubGoal[]
   transactions Transaction[]
+  sharedGoal   SharedGoal?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   deletedAt    DateTime?
@@ -213,14 +236,14 @@ model CoachMessage {
 }
 
 model Reflection {
-  id         String   @id @default(uuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  period     String // daily, weekly
-  prompt     String
-  content    String
-  insights   String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  period    String // daily, weekly
+  prompt    String
+  content   String
+  insights  String?
+  createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
 }
@@ -302,4 +325,250 @@ model FocusSession {
   duration  Int? // seconds — set when the session ends
 
   @@index([userId, startedAt])
+}
+
+// Health Tracker — see docs/.../02-PRD/Health.md
+enum HealthMetricType {
+  SLEEP
+  WATER
+  EXERCISE
+  MOOD
+  WEIGHT
+}
+
+model HealthLog {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      HealthMetricType
+  value     Float
+  date      DateTime
+  createdAt DateTime         @default(now())
+
+  @@index([userId, type, date])
+}
+
+// Study Planner — see docs/.../02-PRD/Study Planner.md
+model Subject {
+  id            String         @id @default(uuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String
+  progress      Int            @default(0)
+  studySessions StudySession[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
+
+  @@index([userId])
+}
+
+model StudySession {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId   String
+  subject     Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topic       String?
+  scheduledAt DateTime
+  done        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([userId, scheduledAt])
+}
+
+// Career Planner — see docs/.../02-PRD/Career Planner.md
+model CareerGoal {
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  targetRole  String?
+  description String?
+  milestones  Milestone[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+
+  @@index([userId])
+}
+
+model Skill {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  level     Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Milestone {
+  id           String      @id @default(uuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  careerGoalId String?
+  careerGoal   CareerGoal? @relation(fields: [careerGoalId], references: [id], onDelete: Cascade)
+  title        String
+  done         Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+
+  @@index([userId])
+}
+
+// Business Workspace — see docs/.../02-PRD/Business Workspace.md
+enum ProjectStatus {
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+}
+
+model Project {
+  id        String        @id @default(uuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  status    ProjectStatus @default(ACTIVE)
+  tasks     Task[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  deletedAt DateTime?
+
+  @@index([userId])
+}
+
+model Client {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  details   String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([userId])
+}
+
+// Workflow Automation — see docs/.../02-PRD/Workflow Automation.md
+// "weekly" triggers are stored but not executed — there is no background job
+// scheduler yet. habit_checkin / goal_progress run synchronously from the
+// triggering request, same pattern as the Notifications Intelligence triggers.
+model Automation {
+  id            String          @id @default(uuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  trigger       String // habit_checkin | goal_progress | weekly
+  triggerConfig Json
+  action        String // create_task | notify
+  actionConfig  Json
+  enabled       Boolean         @default(true)
+  lastRunAt     DateTime?
+  runs          AutomationRun[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([userId])
+}
+
+model AutomationRun {
+  id           String     @id @default(uuid())
+  automationId String
+  automation   Automation @relation(fields: [automationId], references: [id], onDelete: Cascade)
+  ranAt        DateTime   @default(now())
+  success      Boolean
+  note         String?
+
+  @@index([automationId, ranAt])
+}
+
+// Smart Recommendations — see docs/.../02-PRD/Smart Recommendations.md
+enum RecommendationStatus {
+  ACTIVE
+  ACCEPTED
+  DISMISSED
+}
+
+model Recommendation {
+  id        String               @id @default(uuid())
+  userId    String
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  content   String
+  status    RecommendationStatus @default(ACTIVE)
+  createdAt DateTime             @default(now())
+
+  @@index([userId, status])
+}
+
+// Gamification — see docs/.../02-PRD/Gamification.md
+model UserProgress {
+  userId    String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  points    Int      @default(0)
+  level     Int      @default(1)
+  updatedAt DateTime @updatedAt
+}
+
+model Achievement {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       String
+  unlockedAt DateTime @default(now())
+
+  @@unique([userId, type])
+  @@index([userId])
+}
+
+// Community — see docs/.../02-PRD/Community.md
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model Connection {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation("ConnectionRequester", fields: [userId], references: [id], onDelete: Cascade)
+  partnerId String
+  partner   User             @relation("ConnectionPartner", fields: [partnerId], references: [id], onDelete: Cascade)
+  status    ConnectionStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@unique([userId, partnerId])
+  @@index([partnerId])
+}
+
+enum ShareVisibility {
+  PRIVATE
+  PARTNERS
+  PUBLIC
+}
+
+model SharedGoal {
+  id         String          @id @default(uuid())
+  goalId     String          @unique
+  goal       Goal            @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  visibility ShareVisibility @default(PARTNERS)
+  createdAt  DateTime        @default(now())
+}
+
+model CommunityPost {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content      String
+  sharedGoalId String?
+  reported     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
 }
