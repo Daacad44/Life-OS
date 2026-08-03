@@ -17,7 +17,7 @@ const RANGES: { value: AnalyticsRange; label: string }[] = [
 
 export function AnalyticsPage() {
   const [range, setRange] = useState<AnalyticsRange>('week')
-  const { data: overview, isLoading } = useAnalyticsOverview(range)
+  const { data: overview, isLoading, isError, refetch } = useAnalyticsOverview(range)
   const { data: insights, isLoading: insightsLoading } = useAnalyticsInsights(range)
 
   const stats = overview && [
@@ -59,6 +59,15 @@ export function AnalyticsPage() {
           {[0, 1, 2].map((i) => (
             <div key={i} className="h-16 animate-pulse rounded-md bg-primary-muted" />
           ))}
+        </div>
+      )}
+
+      {isError && (
+        <div className="flex flex-col items-center gap-3 py-6 text-center">
+          <p className="text-sm text-danger">Couldn&apos;t load your analytics.</p>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            Retry
+          </Button>
         </div>
       )}
 

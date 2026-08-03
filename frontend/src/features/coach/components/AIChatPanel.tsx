@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import { useCoachChat, useCoachHistory } from '../hooks/useCoach'
 
 export function AIChatPanel({ compact = false }: { compact?: boolean }) {
-  const { data: history, isLoading } = useCoachHistory()
+  const { data: history, isLoading, isError, refetch } = useCoachHistory()
   const { pending, isStreaming, error, send } = useCoachChat()
   const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -29,7 +29,15 @@ export function AIChatPanel({ compact = false }: { compact?: boolean }) {
     <div className={cn('flex flex-col', compact ? 'h-80' : 'h-[calc(100vh-11rem)]')}>
       <div className="flex-1 overflow-y-auto rounded-md border border-border bg-surface p-4">
         {isLoading && <p className="text-sm text-text-muted">Loading...</p>}
-        {!isLoading && messages.length === 0 && (
+        {isError && (
+          <div className="flex flex-col items-start gap-2">
+            <p className="text-sm text-danger">Couldn&apos;t load chat history.</p>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              Retry
+            </Button>
+          </div>
+        )}
+        {!isLoading && !isError && messages.length === 0 && (
           <p className="text-sm text-text-muted">
             Ask your coach about your goals, tasks, or how your day is going.
           </p>

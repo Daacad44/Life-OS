@@ -16,8 +16,17 @@ const PERIODS: { value: ReflectionPeriod; label: string }[] = [
 
 export function ReflectionPage() {
   const [period, setPeriod] = useState<ReflectionPeriod>('daily')
-  const { data: promptData, isLoading: promptLoading } = useReflectionPrompt(period)
-  const { data: reflections, isLoading: historyLoading } = useReflections()
+  const {
+    data: promptData,
+    isLoading: promptLoading,
+    isError: promptError,
+  } = useReflectionPrompt(period)
+  const {
+    data: reflections,
+    isLoading: historyLoading,
+    isError: historyError,
+    refetch: refetchHistory,
+  } = useReflections()
   const createReflection = useCreateReflection()
   const [answer, setAnswer] = useState('')
 
@@ -52,7 +61,11 @@ export function ReflectionPage() {
       <Card>
         <CardContent className="flex flex-col gap-3 p-4">
           <p className="text-sm font-medium text-text">
-            {promptLoading ? 'Thinking of a question...' : promptData?.prompt}
+            {promptLoading
+              ? 'Thinking of a question...'
+              : promptError
+                ? "Couldn't load a prompt — write about whatever's on your mind."
+                : promptData?.prompt}
           </p>
           <textarea
             value={answer}
@@ -63,7 +76,9 @@ export function ReflectionPage() {
           />
           <Button
             className="w-fit"
-            disabled={!answer.trim() || createReflection.isPending || promptLoading}
+            disabled={
+              !answer.trim() || createReflection.isPending || promptLoading || promptError
+            }
             onClick={handleSubmit}
           >
             <Sparkles className="size-4" />
@@ -77,7 +92,15 @@ export function ReflectionPage() {
         {historyLoading && (
           <div className="h-20 animate-pulse rounded-md bg-primary-muted" />
         )}
-        {!historyLoading && reflections?.length === 0 && (
+        {historyError && (
+          <div className="flex flex-col items-center gap-2 py-4 text-center">
+            <p className="text-sm text-danger">Couldn&apos;t load past reflections.</p>
+            <Button variant="outline" size="sm" onClick={() => refetchHistory()}>
+              Retry
+            </Button>
+          </div>
+        )}
+        {!historyLoading && !historyError && reflections?.length === 0 && (
           <p className="text-sm text-text-muted">
             No reflections yet — answer the prompt above to start.
           </p>

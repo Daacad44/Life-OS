@@ -20,11 +20,27 @@ const selectClass =
   'flex h-10 rounded-md border border-border bg-surface px-3 py-2 text-sm text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
 
 export function CommunityPage() {
-  const { data: optInData, isLoading: optInLoading } = useCommunityOptIn()
+  const {
+    data: optInData,
+    isLoading: optInLoading,
+    isError: optInError,
+    refetch: refetchOptIn,
+  } = useCommunityOptIn()
   const setOptIn = useSetOptIn()
 
   if (optInLoading) {
     return <div className="h-40 max-w-2xl animate-pulse rounded-md bg-primary-muted" />
+  }
+
+  if (optInError) {
+    return (
+      <div className="flex max-w-2xl flex-col items-center gap-3 py-10 text-center">
+        <p className="text-sm text-danger">Couldn&apos;t load Community settings.</p>
+        <Button variant="outline" size="sm" onClick={() => refetchOptIn()}>
+          Retry
+        </Button>
+      </div>
+    )
   }
 
   if (!optInData?.optIn) {
@@ -51,12 +67,22 @@ export function CommunityPage() {
 
 function CommunityContent() {
   const setOptIn = useSetOptIn()
-  const { data: connections } = useConnections()
+  const {
+    data: connections,
+    isLoading: connectionsLoading,
+    isError: connectionsError,
+    refetch: refetchConnections,
+  } = useConnections()
   const connect = useConnect()
   const respond = useRespondToConnection()
   const { data: goals } = useGoals()
   const shareGoal = useShareGoal()
-  const { data: feed, isLoading: feedLoading } = useFeed()
+  const {
+    data: feed,
+    isLoading: feedLoading,
+    isError: feedError,
+    refetch: refetchFeed,
+  } = useFeed()
   const reportPost = useReportPost()
 
   const [partnerEmail, setPartnerEmail] = useState('')
@@ -113,6 +139,23 @@ function CommunityContent() {
         {connect.isError && (
           <p className="text-xs text-danger">
             Couldn&apos;t send that request — check the email or try again.
+          </p>
+        )}
+
+        {connectionsLoading && (
+          <div className="h-16 animate-pulse rounded-md bg-primary-muted" />
+        )}
+        {connectionsError && (
+          <div className="flex flex-col items-start gap-2">
+            <p className="text-sm text-danger">Couldn&apos;t load connections.</p>
+            <Button variant="outline" size="sm" onClick={() => refetchConnections()}>
+              Retry
+            </Button>
+          </div>
+        )}
+        {!connectionsLoading && !connectionsError && (connections?.length ?? 0) === 0 && (
+          <p className="text-sm text-text-muted">
+            No connections yet — invite a partner by email.
           </p>
         )}
 
@@ -207,7 +250,15 @@ function CommunityContent() {
         {feedLoading && (
           <div className="h-20 animate-pulse rounded-md bg-primary-muted" />
         )}
-        {!feedLoading && feed?.length === 0 && (
+        {feedError && (
+          <div className="flex flex-col items-start gap-2">
+            <p className="text-sm text-danger">Couldn&apos;t load the feed.</p>
+            <Button variant="outline" size="sm" onClick={() => refetchFeed()}>
+              Retry
+            </Button>
+          </div>
+        )}
+        {!feedLoading && !feedError && feed?.length === 0 && (
           <p className="text-sm text-text-muted">
             Nothing here yet — connect with a partner or share a goal.
           </p>

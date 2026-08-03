@@ -6,7 +6,7 @@ import { SubjectCard } from '@/features/study/components/SubjectCard'
 import { useCreateSubject, useSubjects } from '@/features/study/hooks/useStudy'
 
 export function StudyPage() {
-  const { data: subjects, isLoading } = useSubjects()
+  const { data: subjects, isLoading, isError, refetch } = useSubjects()
   const createSubject = useCreateSubject()
   const [title, setTitle] = useState('')
 
@@ -36,7 +36,16 @@ export function StudyPage() {
 
       {isLoading && <div className="h-40 animate-pulse rounded-md bg-primary-muted" />}
 
-      {!isLoading && subjects?.length === 0 && (
+      {isError && (
+        <div className="flex flex-col items-center gap-2 py-6 text-center">
+          <p className="text-sm text-danger">Couldn&apos;t load your subjects.</p>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      )}
+
+      {!isLoading && !isError && subjects?.length === 0 && (
         <p className="text-sm text-text-muted">
           No subjects yet — add one to get started.
         </p>

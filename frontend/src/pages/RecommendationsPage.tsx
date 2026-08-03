@@ -8,7 +8,7 @@ import {
 } from '@/features/recommendations/hooks/useRecommendations'
 
 export function RecommendationsPage() {
-  const { data: recommendations, isLoading } = useRecommendations()
+  const { data: recommendations, isLoading, isError, refetch } = useRecommendations()
   const accept = useAcceptRecommendation()
   const dismiss = useDismissRecommendation()
 
@@ -29,7 +29,16 @@ export function RecommendationsPage() {
         </div>
       )}
 
-      {!isLoading && recommendations?.length === 0 && (
+      {isError && (
+        <div className="flex flex-col items-center gap-2 py-6 text-center">
+          <p className="text-sm text-danger">Couldn&apos;t load recommendations.</p>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      )}
+
+      {!isLoading && !isError && recommendations?.length === 0 && (
         <p className="text-sm text-text-muted">
           Nothing to suggest right now — check back after you've used Life OS a bit more.
         </p>

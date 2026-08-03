@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Bar } from '@/features/analytics/components/Bar'
 import { BudgetForm } from '@/features/finance/components/BudgetForm'
@@ -6,8 +7,18 @@ import { TransactionList } from '@/features/finance/components/TransactionList'
 import { useBudgetOverview, useTransactions } from '@/features/finance/hooks/useFinance'
 
 export function FinancePage() {
-  const { data: overview, isLoading: overviewLoading } = useBudgetOverview()
-  const { data: transactions, isLoading: transactionsLoading } = useTransactions()
+  const {
+    data: overview,
+    isLoading: overviewLoading,
+    isError: overviewError,
+    refetch: refetchOverview,
+  } = useBudgetOverview()
+  const {
+    data: transactions,
+    isLoading: transactionsLoading,
+    isError: transactionsError,
+    refetch: refetchTransactions,
+  } = useTransactions()
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
@@ -21,6 +32,15 @@ export function FinancePage() {
           {[0, 1, 2].map((i) => (
             <div key={i} className="h-16 animate-pulse rounded-md bg-primary-muted" />
           ))}
+        </div>
+      )}
+
+      {overviewError && (
+        <div className="flex flex-col items-center gap-3 py-6 text-center">
+          <p className="text-sm text-danger">Couldn&apos;t load your budget overview.</p>
+          <Button variant="outline" size="sm" onClick={() => refetchOverview()}>
+            Retry
+          </Button>
         </div>
       )}
 
@@ -77,6 +97,13 @@ export function FinancePage() {
         <TransactionForm />
         {transactionsLoading ? (
           <div className="h-24 animate-pulse rounded-md bg-primary-muted" />
+        ) : transactionsError ? (
+          <div className="flex flex-col items-center gap-2 py-6 text-center">
+            <p className="text-sm text-danger">Couldn&apos;t load transactions.</p>
+            <Button variant="outline" size="sm" onClick={() => refetchTransactions()}>
+              Retry
+            </Button>
+          </div>
         ) : (
           <TransactionList transactions={transactions ?? []} />
         )}

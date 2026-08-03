@@ -15,8 +15,13 @@ function formatWeek(weekStart: string) {
 }
 
 export function WeeklyReviewPage() {
-  const { data: current, isLoading } = useCurrentReview()
-  const { data: past, isLoading: pastLoading } = usePastReviews()
+  const { data: current, isLoading, isError, refetch } = useCurrentReview()
+  const {
+    data: past,
+    isLoading: pastLoading,
+    isError: pastError,
+    refetch: refetchPast,
+  } = usePastReviews()
   const generate = useGenerateReview()
 
   return (
@@ -38,7 +43,18 @@ export function WeeklyReviewPage() {
 
       {isLoading && <div className="h-40 animate-pulse rounded-md bg-primary-muted" />}
 
-      {!isLoading && !current && !generate.isPending && (
+      {isError && (
+        <div className="flex flex-col items-center gap-2 py-6 text-center">
+          <p className="text-sm text-danger">
+            Couldn&apos;t load this week&apos;s review.
+          </p>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      )}
+
+      {!isLoading && !isError && !current && !generate.isPending && (
         <p className="text-sm text-text-muted">
           No review yet for this week — generate one to see how you're doing.
         </p>
@@ -89,7 +105,15 @@ export function WeeklyReviewPage() {
         {pastLoading && (
           <div className="h-20 animate-pulse rounded-md bg-primary-muted" />
         )}
-        {!pastLoading && (past?.length ?? 0) <= 1 && (
+        {pastError && (
+          <div className="flex flex-col items-center gap-2 py-4 text-center">
+            <p className="text-sm text-danger">Couldn&apos;t load past reviews.</p>
+            <Button variant="outline" size="sm" onClick={() => refetchPast()}>
+              Retry
+            </Button>
+          </div>
+        )}
+        {!pastLoading && !pastError && (past?.length ?? 0) <= 1 && (
           <p className="text-sm text-text-muted">Past weeks will show up here.</p>
         )}
         <div className="flex flex-col gap-2">

@@ -1,4 +1,5 @@
 import { Award, Lock, Trophy } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   useAchievements,
@@ -20,8 +21,18 @@ const ACHIEVEMENT_META: Record<string, { label: string; description: string }> =
 }
 
 export function AchievementsPage() {
-  const { data: profile, isLoading: profileLoading } = useGamificationProfile()
-  const { data: achievements, isLoading: achievementsLoading } = useAchievements()
+  const {
+    data: profile,
+    isLoading: profileLoading,
+    isError: profileError,
+    refetch: refetchProfile,
+  } = useGamificationProfile()
+  const {
+    data: achievements,
+    isLoading: achievementsLoading,
+    isError: achievementsError,
+    refetch: refetchAchievements,
+  } = useAchievements()
 
   const unlockedTypes = new Set(achievements?.map((a) => a.type))
 
@@ -31,6 +42,14 @@ export function AchievementsPage() {
 
       {profileLoading && (
         <div className="h-24 animate-pulse rounded-md bg-primary-muted" />
+      )}
+      {profileError && (
+        <div className="flex flex-col items-center gap-2 py-4 text-center">
+          <p className="text-sm text-danger">Couldn&apos;t load your progress.</p>
+          <Button variant="outline" size="sm" onClick={() => refetchProfile()}>
+            Retry
+          </Button>
+        </div>
       )}
       {profile && (
         <Card>
@@ -44,8 +63,18 @@ export function AchievementsPage() {
         </Card>
       )}
 
+      {achievementsError && (
+        <div className="flex flex-col items-center gap-2 py-4 text-center">
+          <p className="text-sm text-danger">Couldn&apos;t load your achievements.</p>
+          <Button variant="outline" size="sm" onClick={() => refetchAchievements()}>
+            Retry
+          </Button>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {!achievementsLoading &&
+          !achievementsError &&
           Object.entries(ACHIEVEMENT_META).map(([type, meta]) => {
             const unlocked = unlockedTypes.has(type)
             return (

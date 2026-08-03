@@ -20,7 +20,7 @@ const selectClass =
 
 export function HealthPage() {
   const [range, setRange] = useState<'week' | 'month'>('week')
-  const { data, isLoading } = useHealthTrends(range)
+  const { data, isLoading, isError, refetch } = useHealthTrends(range)
   const createLog = useCreateHealthLog()
 
   const [type, setType] = useState<HealthMetricType>('SLEEP')
@@ -100,6 +100,15 @@ export function HealthPage() {
       </form>
 
       {isLoading && <div className="h-40 animate-pulse rounded-md bg-primary-muted" />}
+
+      {isError && (
+        <div className="flex flex-col items-center gap-3 py-6 text-center">
+          <p className="text-sm text-danger">Couldn&apos;t load your health trends.</p>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      )}
 
       {data && data.insights.length > 0 && (
         <div className="flex flex-col gap-2">

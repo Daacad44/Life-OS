@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useDeleteMemory, useMemories } from '../hooks/useMemories'
 
 export function MemorySettingsCard() {
-  const { data: memories, isLoading } = useMemories()
+  const { data: memories, isLoading, isError, refetch } = useMemories()
   const deleteMemory = useDeleteMemory()
 
   return (
@@ -14,7 +14,15 @@ export function MemorySettingsCard() {
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         {isLoading && <div className="h-16 animate-pulse rounded-md bg-primary-muted" />}
-        {!isLoading && memories?.length === 0 && (
+        {isError && (
+          <div className="flex flex-col items-start gap-2">
+            <p className="text-sm text-danger">Couldn&apos;t load memory.</p>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              Retry
+            </Button>
+          </div>
+        )}
+        {!isLoading && !isError && memories?.length === 0 && (
           <p className="text-sm text-text-muted">
             Nothing yet — your coach will remember things as you use it.
           </p>

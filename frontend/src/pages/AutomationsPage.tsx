@@ -28,7 +28,7 @@ const ACTION_LABEL: Record<AutomationAction, string> = {
 }
 
 export function AutomationsPage() {
-  const { data: automations, isLoading } = useAutomations()
+  const { data: automations, isLoading, isError, refetch } = useAutomations()
   const { data: habits } = useHabits()
   const { data: goals } = useGoals()
   const createAutomation = useCreateAutomation()
@@ -191,7 +191,15 @@ export function AutomationsPage() {
       </form>
 
       {isLoading && <div className="h-24 animate-pulse rounded-md bg-primary-muted" />}
-      {!isLoading && automations?.length === 0 && (
+      {isError && (
+        <div className="flex flex-col items-center gap-2 py-4 text-center">
+          <p className="text-sm text-danger">Couldn&apos;t load your automations.</p>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      )}
+      {!isLoading && !isError && automations?.length === 0 && (
         <p className="text-sm text-text-muted">No automations yet — create one above.</p>
       )}
 

@@ -6,7 +6,7 @@ import { NoteEditor } from '@/features/notes/components/NoteEditor'
 import { useNotes } from '@/features/notes/hooks/useNotes'
 
 export function NotesPage() {
-  const { data: notes, isLoading } = useNotes()
+  const { data: notes, isLoading, isError, refetch } = useNotes()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
 
@@ -32,6 +32,13 @@ export function NotesPage() {
         <div className="w-72 shrink-0 overflow-y-auto border-r border-border">
           {isLoading ? (
             <div className="p-4 text-sm text-text-muted">Loading...</div>
+          ) : isError ? (
+            <div className="flex flex-col items-center gap-2 p-4 text-center">
+              <p className="text-sm text-danger">Couldn&apos;t load notes.</p>
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                Retry
+              </Button>
+            </div>
           ) : (
             <NoteList
               notes={notes ?? []}

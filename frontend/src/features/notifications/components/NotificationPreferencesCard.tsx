@@ -1,4 +1,5 @@
 import type { NotificationCategory } from '@life-os/shared'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   useNotificationPreferences,
@@ -13,7 +14,7 @@ const LABELS: Record<NotificationCategory, string> = {
 }
 
 export function NotificationPreferencesCard() {
-  const { data: preferences, isLoading } = useNotificationPreferences()
+  const { data: preferences, isLoading, isError, refetch } = useNotificationPreferences()
   const updatePreferences = useUpdatePreferences()
 
   return (
@@ -23,6 +24,14 @@ export function NotificationPreferencesCard() {
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {isLoading && <div className="h-16 animate-pulse rounded-md bg-primary-muted" />}
+        {isError && (
+          <div className="flex flex-col items-start gap-2">
+            <p className="text-sm text-danger">Couldn&apos;t load your preferences.</p>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              Retry
+            </Button>
+          </div>
+        )}
         {preferences &&
           (Object.keys(LABELS) as NotificationCategory[]).map((category) => (
             <label

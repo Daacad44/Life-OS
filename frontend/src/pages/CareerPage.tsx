@@ -16,7 +16,7 @@ const selectClass =
   'flex h-10 rounded-md border border-border bg-surface px-3 py-2 text-sm text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
 
 export function CareerPage() {
-  const { data, isLoading } = useCareerOverview()
+  const { data, isLoading, isError, refetch } = useCareerOverview()
   const createGoal = useCreateCareerGoal()
   const createSkill = useCreateSkill()
   const createMilestone = useCreateMilestone()
@@ -67,6 +67,15 @@ export function CareerPage() {
 
       {isLoading && <div className="h-40 animate-pulse rounded-md bg-primary-muted" />}
 
+      {isError && (
+        <div className="flex flex-col items-center gap-2 py-6 text-center">
+          <p className="text-sm text-danger">Couldn&apos;t load your career data.</p>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      )}
+
       <div className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-text-muted">Career goals</h2>
         <form onSubmit={handleAddGoal} className="flex flex-wrap gap-2">
@@ -87,6 +96,11 @@ export function CareerPage() {
             Add
           </Button>
         </form>
+        {data && data.careerGoals.length === 0 && (
+          <p className="text-sm text-text-muted">
+            No career goals yet — add one to get started.
+          </p>
+        )}
         {data?.careerGoals.map((goal) => (
           <Card key={goal.id}>
             <CardContent className="flex flex-col gap-2 p-4">
@@ -134,6 +148,9 @@ export function CareerPage() {
             Add
           </Button>
         </form>
+        {data && data.skills.length === 0 && (
+          <p className="text-sm text-text-muted">No skills tracked yet.</p>
+        )}
         {(data?.skills.length ?? 0) > 0 && (
           <Card>
             <CardContent className="flex flex-col gap-2 p-4">
@@ -184,6 +201,9 @@ export function CareerPage() {
             Add
           </Button>
         </form>
+        {data && data.milestones.length === 0 && (
+          <p className="text-sm text-text-muted">No milestones yet.</p>
+        )}
         {(data?.milestones.length ?? 0) > 0 && (
           <Card>
             <CardContent className="flex flex-col gap-2 p-4">

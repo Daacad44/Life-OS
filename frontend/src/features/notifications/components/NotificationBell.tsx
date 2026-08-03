@@ -6,7 +6,7 @@ import { useMarkAllRead, useMarkRead, useNotifications } from '../hooks/useNotif
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false)
-  const { data: notifications } = useNotifications()
+  const { data: notifications, isLoading, isError } = useNotifications()
   const markRead = useMarkRead()
   const markAllRead = useMarkAllRead()
 
@@ -49,7 +49,13 @@ export function NotificationBell() {
               )}
             </div>
             <div className="max-h-80 overflow-y-auto">
-              {(notifications?.length ?? 0) === 0 && (
+              {isLoading && <p className="p-4 text-sm text-text-muted">Loading...</p>}
+              {isError && (
+                <p className="p-4 text-sm text-danger">
+                  Couldn&apos;t load notifications.
+                </p>
+              )}
+              {!isLoading && !isError && (notifications?.length ?? 0) === 0 && (
                 <p className="p-4 text-sm text-text-muted">You&apos;re all caught up.</p>
               )}
               {notifications?.map((n) => (

@@ -18,8 +18,18 @@ const STATUS_LABEL: Record<ProjectStatus, string> = {
 }
 
 export function BusinessPage() {
-  const { data: projects, isLoading: projectsLoading } = useProjects()
-  const { data: clients, isLoading: clientsLoading } = useClients()
+  const {
+    data: projects,
+    isLoading: projectsLoading,
+    isError: projectsError,
+    refetch: refetchProjects,
+  } = useProjects()
+  const {
+    data: clients,
+    isLoading: clientsLoading,
+    isError: clientsError,
+    refetch: refetchClients,
+  } = useClients()
   const createProject = useCreateProject()
   const createClient = useCreateClient()
 
@@ -70,7 +80,15 @@ export function BusinessPage() {
         {projectsLoading && (
           <div className="h-16 animate-pulse rounded-md bg-primary-muted" />
         )}
-        {!projectsLoading && projects?.length === 0 && (
+        {projectsError && (
+          <div className="flex flex-col items-center gap-2 py-4 text-center">
+            <p className="text-sm text-danger">Couldn&apos;t load projects.</p>
+            <Button variant="outline" size="sm" onClick={() => refetchProjects()}>
+              Retry
+            </Button>
+          </div>
+        )}
+        {!projectsLoading && !projectsError && projects?.length === 0 && (
           <p className="text-sm text-text-muted">No projects yet.</p>
         )}
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -104,7 +122,15 @@ export function BusinessPage() {
         {clientsLoading && (
           <div className="h-16 animate-pulse rounded-md bg-primary-muted" />
         )}
-        {!clientsLoading && clients?.length === 0 && (
+        {clientsError && (
+          <div className="flex flex-col items-center gap-2 py-4 text-center">
+            <p className="text-sm text-danger">Couldn&apos;t load clients.</p>
+            <Button variant="outline" size="sm" onClick={() => refetchClients()}>
+              Retry
+            </Button>
+          </div>
+        )}
+        {!clientsLoading && !clientsError && clients?.length === 0 && (
           <p className="text-sm text-text-muted">No clients yet.</p>
         )}
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
