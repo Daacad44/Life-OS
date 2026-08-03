@@ -28,6 +28,9 @@ FROM nginx:1.27-alpine AS runner
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/frontend/dist /usr/share/nginx/html
 EXPOSE 80
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget -qO- http://localhost:80/ >/dev/null 2>&1 || exit 1
+# 127.0.0.1 instead of localhost: the custom nginx.conf replaces the packaged
+# default.conf, so the image's entrypoint script does not inject an IPv6
+# listener. "localhost" resolves to ::1 first inside Alpine and the probe is
+# refused. Output is left unsuppressed so failures show up in Coolify's logs.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -q --spider http://127.0.0.1:80/ || exit 1
