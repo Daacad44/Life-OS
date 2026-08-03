@@ -26,7 +26,7 @@ export function SignupPage() {
       return
     }
     setFormError(null)
-    signup.mutate(result.data, { onSuccess: () => navigate('/') })
+    signup.mutate(result.data, { onSuccess: () => navigate('/onboarding') })
   }
 
   return (

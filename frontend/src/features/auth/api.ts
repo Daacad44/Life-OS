@@ -34,3 +34,7 @@ export function updateProfile(input: UpdateProfileInput) {
     body: JSON.stringify(input),
   })
 }
+
+export function completeOnboarding() {
+  return apiFetch<PublicUser>('/v1/users/me/complete-onboarding', { method: 'POST' })
+}

@@ -28,5 +28,6 @@ export interface PublicUser {
   name: string | null
   role: Role
   timezone: string
+  onboardedAt: string | null
   createdAt: string
 }

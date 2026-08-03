@@ -6,11 +6,13 @@ import {
   handleUpdateProfile,
   handleExportData,
   handleDeleteAccount,
+  handleCompleteOnboarding,
 } from '../controllers/userController.js'
 
 export const usersRouter = Router()
 
 usersRouter.use(requireAuth)
 usersRouter.patch('/me', validateBody(updateProfileSchema), handleUpdateProfile)
+usersRouter.post('/me/complete-onboarding', handleCompleteOnboarding)
 usersRouter.get('/me/export', handleExportData)
 usersRouter.delete('/me', handleDeleteAccount)

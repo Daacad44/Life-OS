@@ -30,6 +30,9 @@ model User {
   notificationPreferences Json?
   // Community is strictly opt-in — see Community.md Section 9.
   communityOptIn          Boolean  @default(false)
+  // Null until the first-run wizard (profile -> first goal -> AI coach intro)
+  // is completed — see UX.md Section 4. Gates the /onboarding redirect.
+  onboardedAt             DateTime?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 

@@ -43,3 +43,11 @@ export function useUpdateProfile() {
     onSuccess: (user) => queryClient.setQueryData(ME_KEY, user),
   })
 }
+
+export function useCompleteOnboarding() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: authApi.completeOnboarding,
+    onSuccess: (user) => queryClient.setQueryData(ME_KEY, user),
+  })
+}

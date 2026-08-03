@@ -11,6 +11,7 @@ export function toPublicUser(user: User): PublicUser {
     name: user.name,
     role: user.role,
     timezone: user.timezone,
+    onboardedAt: user.onboardedAt ? user.onboardedAt.toISOString() : null,
     createdAt: user.createdAt.toISOString(),
   }
 }

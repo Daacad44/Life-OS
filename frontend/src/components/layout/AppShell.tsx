@@ -1,8 +1,9 @@
 import { Suspense, useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 import { cn } from '@/lib/utils'
+import { useCurrentUser } from '@/features/auth/hooks/useAuth'
 
 function PageFallback() {
   return (
@@ -15,6 +16,11 @@ function PageFallback() {
 
 export function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { data: user } = useCurrentUser()
+
+  if (user && !user.onboardedAt) {
+    return <Navigate to="/onboarding" replace />
+  }
 
   return (
     <div className="flex min-h-screen bg-background">

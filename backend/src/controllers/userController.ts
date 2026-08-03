@@ -13,6 +13,13 @@ export async function handleUpdateProfile(req: Request, res: Response) {
   res.json({ success: true, data: toPublicUser(user) })
 }
 
+// First-run wizard completion — see UX.md Section 4. Idempotent: re-calling
+// just refreshes the timestamp rather than erroring.
+export async function handleCompleteOnboarding(req: Request, res: Response) {
+  const user = await updateUser(req.user!.id, { onboardedAt: new Date() })
+  res.json({ success: true, data: toPublicUser(user) })
+}
+
 // Data Rights & Compliance — see docs/.../03-Architecture/Security.md, Section 9.
 export async function handleExportData(req: Request, res: Response) {
   const data = await prisma.user.findUnique({

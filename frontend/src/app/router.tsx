@@ -1,9 +1,13 @@
-import { lazy } from 'react'
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
+
+const OnboardingPage = lazy(() =>
+  import('@/pages/OnboardingPage').then((m) => ({ default: m.OnboardingPage })),
+)
 
 // Lazy-loaded so each authenticated page ships as its own chunk instead of all
 // 25+ pages landing in one bundle — see the Phase 6 performance pass.
@@ -89,6 +93,14 @@ export const router = createBrowserRouter([
   {
     element: <ProtectedRoute />,
     children: [
+      {
+        path: '/onboarding',
+        element: (
+          <Suspense fallback={null}>
+            <OnboardingPage />
+          </Suspense>
+        ),
+      },
       {
         element: <AppShell />,
         children: [
