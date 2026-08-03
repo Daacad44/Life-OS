@@ -10,6 +10,7 @@ import {
   reflectionPromptSystemPrompt,
   reflectionPromptUserPrompt,
 } from '../ai/prompts.js'
+import { logger } from '../config/logger.js'
 
 // Shown if AI prompt generation fails — see Reflection.md Section 12 (Edge Cases).
 const FALLBACK_PROMPTS: Record<ReflectionPeriod, string> = {
@@ -50,10 +51,7 @@ export async function getPrompt(
 
     return { prompt: prompt.trim() || FALLBACK_PROMPTS[period] }
   } catch (err) {
-    console.error(
-      'Reflection prompt generation failed, using fallback:',
-      err instanceof Error ? err.message : err,
-    )
+    logger.error({ err }, 'Reflection prompt generation failed, using fallback')
     return { prompt: FALLBACK_PROMPTS[period] }
   }
 }
@@ -86,10 +84,7 @@ export async function create(userId: string, input: CreateReflectionInput) {
     }
     return { ...reflection, insights: result.insights }
   } catch (err) {
-    console.error(
-      'Reflection insight generation failed:',
-      err instanceof Error ? err.message : err,
-    )
+    logger.error({ err }, 'Reflection insight generation failed')
     return reflection
   }
 }

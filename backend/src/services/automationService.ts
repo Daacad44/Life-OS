@@ -4,6 +4,7 @@ import { ApiError } from '../middleware/errorHandler.js'
 import * as automationRepo from '../repositories/automationRepository.js'
 import * as taskRepo from '../repositories/taskRepository.js'
 import * as notificationService from './notificationService.js'
+import { logger } from '../config/logger.js'
 
 function toRunDTO(r: {
   id: string
@@ -100,7 +101,7 @@ async function executeAction(
     await automationRepo.recordRun(automation.id, true, null)
   } catch (err) {
     const note = err instanceof Error ? err.message : 'Unknown error'
-    console.error('Automation run failed:', note)
+    logger.error({ err }, 'Automation run failed')
     await automationRepo.recordRun(automation.id, false, note)
   }
 }

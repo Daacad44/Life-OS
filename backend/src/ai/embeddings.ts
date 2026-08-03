@@ -1,5 +1,6 @@
 import { env } from '../config/env.js'
 import { ApiError } from '../middleware/errorHandler.js'
+import { logger } from '../config/logger.js'
 
 const VOYAGE_API_URL = 'https://api.voyageai.com/v1/embeddings'
 // Best-effort default — verify the real output dimension against a live response once
@@ -25,7 +26,10 @@ export async function embed(text: string): Promise<number[]> {
   })
 
   if (!res.ok) {
-    console.error('Voyage AI embedding request failed:', res.status, await res.text())
+    logger.error(
+      { status: res.status, body: await res.text() },
+      'Voyage AI embedding request failed',
+    )
     throw new ApiError(502, 'AI_EMBEDDING_ERROR', 'Failed to generate embedding')
   }
 

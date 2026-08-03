@@ -10,6 +10,9 @@ const envSchema = z.object({
   CLAUDE_API_KEY: z.string().optional(),
   VOYAGE_API_KEY: z.string().optional(),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  LOG_LEVEL: z
+    .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
+    .optional(),
 })
 
 export const env = envSchema.parse(process.env)

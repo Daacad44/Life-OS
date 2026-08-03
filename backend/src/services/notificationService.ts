@@ -6,6 +6,7 @@ import type {
 import { prisma } from '../config/db.js'
 import { ApiError } from '../middleware/errorHandler.js'
 import * as notificationRepo from '../repositories/notificationRepository.js'
+import { logger } from '../config/logger.js'
 
 const DEFAULT_PREFERENCES: NotificationPreferences = {
   habitMilestones: true,
@@ -68,9 +69,6 @@ export async function notify(
     if (!prefs[category]) return
     await notificationRepo.create(userId, title, body)
   } catch (err) {
-    console.error(
-      'Notification creation failed:',
-      err instanceof Error ? err.message : err,
-    )
+    logger.error({ err }, 'Notification creation failed')
   }
 }

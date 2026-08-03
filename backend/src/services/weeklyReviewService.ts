@@ -4,6 +4,7 @@ import * as aiService from '../ai/service.js'
 import * as memoryService from './memoryService.js'
 import * as notificationService from './notificationService.js'
 import { weeklyReviewSystemPrompt, weeklyReviewUserPrompt } from '../ai/prompts.js'
+import { logger } from '../config/logger.js'
 
 function currentWeekStart(): Date {
   const now = new Date()
@@ -105,10 +106,7 @@ export async function generate(userId: string) {
     return review
   } catch (err) {
     // AI failure → show raw stats without narrative — Weekly Review.md, Section 12.
-    console.error(
-      'Weekly review generation failed:',
-      err instanceof Error ? err.message : err,
-    )
+    logger.error({ err }, 'Weekly review generation failed')
     const summary = `This week: ${stats.tasksCompleted} task(s) completed, ${stats.reflectionsLogged} reflection(s) logged.`
     const review = await reviewRepo.upsertReview(userId, weekStart, {
       summary,

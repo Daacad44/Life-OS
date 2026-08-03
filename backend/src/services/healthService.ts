@@ -7,6 +7,7 @@ import type {
 import * as healthRepo from '../repositories/healthRepository.js'
 import * as aiService from '../ai/service.js'
 import { healthInsightsSystemPrompt, healthInsightsUserPrompt } from '../ai/prompts.js'
+import { logger } from '../config/logger.js'
 
 function toDTO(log: {
   id: string
@@ -76,10 +77,7 @@ export async function getTrends(
     })
     return { trends, insights: result.insights }
   } catch (err) {
-    console.error(
-      'Health insight generation failed:',
-      err instanceof Error ? err.message : err,
-    )
+    logger.error({ err }, 'Health insight generation failed')
     return { trends, insights: [] }
   }
 }

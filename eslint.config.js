@@ -43,6 +43,12 @@ export default tseslint.config(
     languageOptions: {
       globals: globals.node,
     },
+    rules: {
+      // Structured logging goes through config/logger.ts (pino) so log level,
+      // redaction, and JSON output stay consistent — see the Phase 6
+      // monitoring/logging pass.
+      'no-console': 'error',
+    },
   },
   {
     // Test files mock Prisma/library return shapes with partial objects —

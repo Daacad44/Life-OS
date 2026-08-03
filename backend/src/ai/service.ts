@@ -3,6 +3,7 @@ import { getClient, AI_MODEL } from './client.js'
 import { enforceRateLimit } from './rateLimit.js'
 import { recordUsage } from './usage.js'
 import { ApiError } from '../middleware/errorHandler.js'
+import { logger } from '../config/logger.js'
 
 export interface CompletionRequest {
   userId: string
@@ -16,10 +17,10 @@ export interface CompletionRequest {
 function toApiError(err: unknown): ApiError {
   if (err instanceof ApiError) return err
   if (err instanceof Anthropic.APIError) {
-    console.error('Anthropic API error:', err.status, err.message)
+    logger.error({ status: err.status, err }, 'Anthropic API error')
     return new ApiError(502, 'AI_ERROR', 'The AI service is temporarily unavailable')
   }
-  console.error('Unexpected AI error:', err)
+  logger.error({ err }, 'Unexpected AI error')
   return new ApiError(502, 'AI_ERROR', 'The AI service is temporarily unavailable')
 }
 

@@ -2,8 +2,10 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
+import { pinoHttp } from 'pino-http'
 
 import { env } from './config/env.js'
+import { logger } from './config/logger.js'
 import { healthRouter } from './routes/health.js'
 import { authRouter } from './routes/auth.js'
 import { usersRouter } from './routes/users.js'
@@ -36,6 +38,14 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 
 export const app = express()
 
+app.use(
+  pinoHttp({
+    logger,
+    autoLogging: {
+      ignore: (req) => req.url === '/health' || req.url === '/v1/health',
+    },
+  }),
+)
 app.use(helmet())
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }))
 app.use(express.json())
@@ -90,6 +100,6 @@ app.use(errorHandler)
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(env.PORT, () => {
-    console.log(`Life OS API listening on http://localhost:${env.PORT}`)
+    logger.info(`Life OS API listening on http://localhost:${env.PORT}`)
   })
 }

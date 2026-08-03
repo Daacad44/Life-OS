@@ -10,6 +10,7 @@ import {
   memoryExtractionSystemPrompt,
   memoryExtractionUserPrompt,
 } from '../ai/prompts.js'
+import { logger } from '../config/logger.js'
 
 const CONVERSATION_HISTORY_LIMIT = 20
 const DISPLAY_HISTORY_LIMIT = 50
@@ -59,10 +60,7 @@ export async function sendMessage(
     // Rate limits are a real signal to surface, not something to paper over.
     if (err instanceof ApiError && err.status === 429) throw err
 
-    console.error(
-      'Coach AI call failed, using fallback:',
-      err instanceof Error ? err.message : err,
-    )
+    logger.error({ err }, 'Coach AI call failed, using fallback')
     onDelta(FALLBACK_REPLY)
     await coachRepo.createMessage(userId, 'ASSISTANT', FALLBACK_REPLY)
     return FALLBACK_REPLY
@@ -97,9 +95,6 @@ async function extractMemory(
       await memoryService.storeSafely(userId, fact, 'fact')
     }
   } catch (err) {
-    console.error(
-      'Coach memory extraction failed:',
-      err instanceof Error ? err.message : err,
-    )
+    logger.error({ err }, 'Coach memory extraction failed')
   }
 }

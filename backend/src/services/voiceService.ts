@@ -9,6 +9,7 @@ import {
   voiceIntentSystemPrompt,
   voiceIntentUserPrompt,
 } from '../ai/prompts.js'
+import { logger } from '../config/logger.js'
 
 const FALLBACK: VoiceCommandResult = {
   intent: 'unclear',
@@ -37,10 +38,7 @@ export async function handleCommand(
       maxTokens: 300,
     })
   } catch (err) {
-    console.error(
-      'Voice intent classification failed:',
-      err instanceof Error ? err.message : err,
-    )
+    logger.error({ err }, 'Voice intent classification failed')
     return FALLBACK
   }
 
@@ -82,7 +80,7 @@ export async function handleCommand(
       })
       return { intent: 'ask_coach', response, actionTaken: null }
     } catch (err) {
-      console.error('Voice ask_coach failed:', err instanceof Error ? err.message : err)
+      logger.error({ err }, 'Voice ask_coach failed')
       return FALLBACK
     }
   }

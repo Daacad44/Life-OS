@@ -5,6 +5,7 @@ import {
   analyticsInsightsSystemPrompt,
   analyticsInsightsUserPrompt,
 } from '../ai/prompts.js'
+import { logger } from '../config/logger.js'
 
 const RANGE_DAYS: Record<AnalyticsRange, number> = { week: 7, month: 30, year: 365 }
 
@@ -95,10 +96,7 @@ export async function getInsights(
     })
     return result.insights
   } catch (err) {
-    console.error(
-      'Analytics insight generation failed:',
-      err instanceof Error ? err.message : err,
-    )
+    logger.error({ err }, 'Analytics insight generation failed')
     return []
   }
 }

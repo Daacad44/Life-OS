@@ -14,7 +14,7 @@ export class ApiError extends Error {
 // Matches the error envelope defined in docs/.../03-Architecture/API.md
 export function errorHandler(
   err: unknown,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction,
 ) {
@@ -26,7 +26,7 @@ export function errorHandler(
     return
   }
 
-  console.error(err)
+  req.log.error(err)
   res.status(500).json({
     success: false,
     error: { code: 'INTERNAL_ERROR', message: 'Something went wrong', details: [] },

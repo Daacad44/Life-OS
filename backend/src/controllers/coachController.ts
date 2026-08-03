@@ -25,7 +25,7 @@ export async function handleSendMessage(req: Request, res: Response) {
     res.end()
   } catch (err) {
     if (res.headersSent) {
-      console.error('Coach stream error mid-stream:', err)
+      req.log.error(err, 'Coach stream error mid-stream')
       res.end()
       return
     }

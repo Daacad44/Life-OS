@@ -1,6 +1,7 @@
 import { prisma } from '../config/db.js'
 import * as memoryService from './memoryService.js'
 import * as aiService from '../ai/service.js'
+import { logger } from '../config/logger.js'
 
 export interface SearchResultItem {
   type: 'note' | 'task' | 'goal' | 'reflection' | 'memory'
@@ -138,7 +139,7 @@ export async function searchWithAnswer(
     })
     return { results, answer }
   } catch (err) {
-    console.error('AI search answer failed:', err instanceof Error ? err.message : err)
+    logger.error({ err }, 'AI search answer failed')
     return { results, answer: null }
   }
 }

@@ -5,6 +5,7 @@ import * as dashboardService from './dashboardService.js'
 import * as memoryService from './memoryService.js'
 import * as aiService from '../ai/service.js'
 import { recommendationsSystemPrompt, recommendationsUserPrompt } from '../ai/prompts.js'
+import { logger } from '../config/logger.js'
 
 const MIN_ACTIVE = 2
 
@@ -68,10 +69,7 @@ async function generateMore(userId: string): Promise<void> {
     }
   } catch (err) {
     // Silent on failure — see Smart Recommendations.md Section 12.
-    console.error(
-      'Recommendation generation failed:',
-      err instanceof Error ? err.message : err,
-    )
+    logger.error({ err }, 'Recommendation generation failed')
   }
 }
 
