@@ -4,17 +4,31 @@ import { Avatar } from '@/components/ui-kit'
 import { useThemeStore } from '@/stores/themeStore'
 import { useCurrentUser, useLogout } from '@/features/auth/hooks/useAuth'
 
-/** Route → screen title, matching the prototype's topbar heading. */
+/** Route → screen title for the topbar heading. Covers every workspace route. */
 const titles: Record<string, string> = {
   '/': 'Dashboard',
+  '/planner': 'Planner',
   '/tasks': 'Tasks',
   '/goals': 'Goals',
   '/calendar': 'Calendar',
   '/habits': 'Habits',
-  '/coach': 'AI Coach',
-  '/analytics': 'Analytics',
-  '/finance': 'Finance',
+  '/notes': 'Notes',
   '/focus': 'Focus Mode',
+  '/coach': 'AI Coach',
+  '/reflection': 'Reflection',
+  '/weekly-review': 'Weekly Review',
+  '/analytics': 'Analytics',
+  '/recommendations': 'Recommendations',
+  '/voice': 'Voice Assistant',
+  '/health': 'Health',
+  '/finance': 'Finance',
+  '/study': 'Study',
+  '/career': 'Career',
+  '/business': 'Business',
+  '/automations': 'Automations',
+  '/achievements': 'Achievements',
+  '/community': 'Community',
+  '/search': 'Search',
   '/notifications': 'Notifications',
   '/settings': 'Settings',
 }
