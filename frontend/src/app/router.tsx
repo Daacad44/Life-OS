@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { LandingPage } from '@/pages/LandingPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
 import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage'
@@ -87,8 +88,12 @@ const AchievementsPage = lazy(() =>
 const CommunityPage = lazy(() =>
   import('@/pages/CommunityPage').then((m) => ({ default: m.CommunityPage })),
 )
+const NotificationsPage = lazy(() =>
+  import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })),
+)
 
 export const router = createBrowserRouter([
+  { path: '/welcome', element: <LandingPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/signup', element: <SignupPage /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
@@ -116,6 +121,7 @@ export const router = createBrowserRouter([
           { path: '/notes', element: <NotesPage /> },
           { path: '/search', element: <SearchPage /> },
           { path: '/coach', element: <CoachPage /> },
+          { path: '/notifications', element: <NotificationsPage /> },
           { path: '/reflection', element: <ReflectionPage /> },
           { path: '/weekly-review', element: <WeeklyReviewPage /> },
           { path: '/analytics', element: <AnalyticsPage /> },
