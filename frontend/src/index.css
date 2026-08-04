@@ -28,9 +28,35 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
+
+  /*
+   * Prototype app-surface tokens. Light values are the exact prototype hexes
+   * (canvas #F8FAFC, white cards, slate text) so the approved light theme is
+   * unchanged; the .dark block below swaps them for a professional navy-dark
+   * theme. Components on the light app surfaces reference these instead of
+   * hardcoded white/slate so dark mode "just works". Navy chrome (sidebar,
+   * gradient cards) and the always-dark auth/marketing surfaces don't use them.
+   */
+  --app-canvas: #f8fafc;
+  --app-surface: #ffffff;
+  --app-raised: #f1f5f9;
+  --app-hairline: #e2e8f0;
+  --app-ink: #0f172a;
+  --app-ink-soft: #334155;
+  --app-ink-muted: #64748b;
+  --app-ink-faint: #94a3b8;
 }
 
 .dark {
+  --app-canvas: #0a1a2f;
+  --app-surface: #102a44;
+  --app-raised: rgba(255, 255, 255, 0.06);
+  --app-hairline: rgba(255, 255, 255, 0.09);
+  --app-ink: #e8eef6;
+  --app-ink-soft: #cbd5e1;
+  --app-ink-muted: #9fb0c3;
+  --app-ink-faint: #7d90a6;
+
   --background: oklch(19% 0.006 264);
   --surface: oklch(23% 0.006 264);
   --border: oklch(32% 0.008 264);
@@ -62,6 +88,15 @@
   --color-warning: var(--warning);
   --color-danger: var(--danger);
   --color-info: var(--info);
+
+  --color-app-canvas: var(--app-canvas);
+  --color-app-surface: var(--app-surface);
+  --color-app-raised: var(--app-raised);
+  --color-app-hairline: var(--app-hairline);
+  --color-app-ink: var(--app-ink);
+  --color-app-ink-soft: var(--app-ink-soft);
+  --color-app-ink-muted: var(--app-ink-muted);
+  --color-app-ink-faint: var(--app-ink-faint);
 
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);

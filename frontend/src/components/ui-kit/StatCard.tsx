@@ -40,7 +40,7 @@ export function StatCard({
   return (
     <Card padding="sm" className={className}>
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[13px] font-semibold text-slate-500">{label}</span>
+        <span className="text-[13px] font-semibold text-app-ink-muted">{label}</span>
         {Icon ? (
           <span
             className={cn(

@@ -7,8 +7,8 @@ import { useCurrentUser } from '@/features/auth/hooks/useAuth'
 function PageFallback() {
   return (
     <div className="flex flex-col gap-4">
-      <div className="h-8 w-48 animate-pulse rounded-lg bg-slate-200" />
-      <div className="h-40 animate-pulse rounded-2xl bg-slate-200" />
+      <div className="h-8 w-48 animate-pulse rounded-lg bg-app-raised" />
+      <div className="h-40 animate-pulse rounded-2xl bg-app-raised" />
     </div>
   )
 }
@@ -26,7 +26,7 @@ export function AppShell() {
   }
 
   return (
-    <div className="flex min-h-dvh bg-slate-50 font-display text-slate-900">
+    <div className="flex min-h-dvh bg-app-canvas font-display text-app-ink">
       {/* Desktop sidebar */}
       <Sidebar className="sticky top-0 hidden h-dvh md:flex" />
 
