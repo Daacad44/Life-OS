@@ -4,6 +4,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
+import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage'
 
 const OnboardingPage = lazy(() =>
   import('@/pages/OnboardingPage').then((m) => ({ default: m.OnboardingPage })),
@@ -90,6 +91,7 @@ const CommunityPage = lazy(() =>
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   { path: '/signup', element: <SignupPage /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
   {
     element: <ProtectedRoute />,
     children: [
