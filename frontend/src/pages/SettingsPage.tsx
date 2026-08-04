@@ -54,7 +54,7 @@ export function SettingsPage() {
       ) : (
         <Card padding="lg" className="max-w-[640px]">
           <CardTitle className="mb-2 capitalize">{tab}</CardTitle>
-          <p className="text-sm font-medium text-slate-500">
+          <p className="text-sm font-medium text-app-ink-muted">
             {tab} settings are coming soon.
           </p>
         </Card>

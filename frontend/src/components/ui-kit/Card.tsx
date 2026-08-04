@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 const cardVariants = cva('rounded-2xl', {
   variants: {
     variant: {
-      surface: 'border border-slate-200/70 bg-white text-slate-900',
+      surface: 'border border-app-hairline bg-app-surface text-app-ink',
       navy: 'bg-linear-160 from-navy-800 to-navy-900 text-white',
       glass: 'border border-white/10 bg-white/5 text-white',
     },

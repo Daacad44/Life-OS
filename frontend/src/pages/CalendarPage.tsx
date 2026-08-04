@@ -39,7 +39,10 @@ export function CalendarPage() {
 
       <div className="grid grid-cols-7 gap-1.5">
         {weekdays.map((d) => (
-          <div key={d} className="pb-1.5 text-center text-xs font-bold text-slate-400">
+          <div
+            key={d}
+            className="pb-1.5 text-center text-xs font-bold text-app-ink-faint"
+          >
             {d}
           </div>
         ))}
@@ -47,7 +50,7 @@ export function CalendarPage() {
         {Array.from({ length: LEADING_BLANKS }).map((_, i) => (
           <div
             key={`blank-${i}`}
-            className="min-h-[78px] rounded-[10px] border border-slate-100 bg-slate-50/60"
+            className="min-h-[78px] rounded-[10px] border border-app-hairline bg-app-raised/60"
           />
         ))}
 
@@ -57,13 +60,13 @@ export function CalendarPage() {
           return (
             <div
               key={day}
-              className="min-h-[78px] rounded-[10px] border border-slate-100 bg-white p-[7px]"
+              className="min-h-[78px] rounded-[10px] border border-app-hairline bg-app-surface p-[7px]"
             >
               <div className="flex justify-end">
                 <span
                   className={cn(
                     'grid size-[22px] place-items-center rounded-full text-[12.5px] font-bold',
-                    isToday ? 'bg-amber-500 text-navy-900' : 'text-slate-700',
+                    isToday ? 'bg-amber-500 text-navy-900' : 'text-app-ink-soft',
                   )}
                 >
                   {day}

@@ -32,7 +32,7 @@ const buttonVariants = cva(
           'border border-white/20 text-slate-200 font-semibold hover:bg-white/5 hover:text-white',
         ghost: 'text-slate-200 font-semibold hover:bg-white/5 hover:text-white',
         surface:
-          'border border-slate-200 bg-white text-slate-700 font-semibold hover:bg-slate-50',
+          'border border-app-hairline bg-app-surface text-app-ink-soft font-semibold hover:bg-app-raised',
         link: 'text-amber-600 font-bold hover:text-amber-700',
       },
       size: {

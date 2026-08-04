@@ -19,12 +19,12 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const toneClasses = {
-  light: 'border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400',
+  light: 'border-app-hairline bg-app-canvas text-app-ink placeholder:text-app-ink-faint',
   dark: 'border-white/12 bg-white/6 text-white placeholder:text-slate-400',
 } as const
 
 const labelClasses = {
-  light: 'text-slate-700',
+  light: 'text-app-ink-soft',
   dark: 'text-slate-300',
 } as const
 

@@ -67,7 +67,7 @@ export function Tabs<T extends string = string>({
       role="tablist"
       aria-label={ariaLabel}
       onKeyDown={handleKeyDown}
-      className={cn('flex w-fit gap-1.5 rounded-[11px] bg-slate-100 p-1', className)}
+      className={cn('flex w-fit gap-1.5 rounded-[11px] bg-app-raised p-1', className)}
     >
       {items.map((item) => {
         const active = item.key === value
@@ -85,8 +85,8 @@ export function Tabs<T extends string = string>({
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500',
               'pointer-coarse:min-h-11',
               active
-                ? 'bg-white font-bold text-slate-900 shadow-[0_1px_2px_rgba(0,0,0,0.05)]'
-                : 'font-semibold text-slate-500 hover:text-slate-700',
+                ? 'bg-app-surface font-bold text-app-ink shadow-[0_1px_2px_rgba(0,0,0,0.05)]'
+                : 'font-semibold text-app-ink-muted hover:text-app-ink',
             )}
           >
             {item.label}

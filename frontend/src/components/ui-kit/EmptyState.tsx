@@ -33,9 +33,9 @@ export function EmptyState({
       <span className={cn('grid size-12 place-items-center rounded-xl', toneChip[tone])}>
         <Icon size={22} aria-hidden="true" />
       </span>
-      <div className="mt-4 text-base font-extrabold text-slate-900">{title}</div>
+      <div className="mt-4 text-base font-extrabold text-app-ink">{title}</div>
       {description ? (
-        <p className="mt-1.5 max-w-sm text-sm font-medium text-slate-500">
+        <p className="mt-1.5 max-w-sm text-sm font-medium text-app-ink-muted">
           {description}
         </p>
       ) : null}

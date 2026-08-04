@@ -96,8 +96,8 @@ export function Modal({
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
         className={cn(
-          'relative w-full max-w-lg rounded-2xl border border-slate-200/70 bg-white p-6',
-          'font-display text-slate-900 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.35)]',
+          'relative w-full max-w-lg rounded-2xl border border-app-hairline bg-app-surface p-6',
+          'font-display text-app-ink shadow-[0_30px_60px_-20px_rgba(0,0,0,0.35)]',
           className,
         )}
       >
@@ -107,7 +107,10 @@ export function Modal({
               {title}
             </h2>
             {description ? (
-              <p id={descriptionId} className="mt-1 text-sm font-medium text-slate-500">
+              <p
+                id={descriptionId}
+                className="mt-1 text-sm font-medium text-app-ink-muted"
+              >
                 {description}
               </p>
             ) : null}

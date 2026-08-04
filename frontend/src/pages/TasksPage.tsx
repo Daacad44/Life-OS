@@ -92,8 +92,8 @@ export function TasksPage() {
             <div
               key={t.id}
               className={cn(
-                'flex items-center gap-3 rounded-[10px] border-b border-slate-100 px-2.5 py-3 last:border-b-0',
-                activeId === t.id ? 'bg-slate-50' : 'bg-transparent',
+                'flex items-center gap-3 rounded-[10px] border-b border-app-hairline px-2.5 py-3 last:border-b-0',
+                activeId === t.id ? 'bg-app-raised' : 'bg-transparent',
               )}
             >
               <button
@@ -118,12 +118,12 @@ export function TasksPage() {
                 onClick={() => setActiveId(t.id)}
                 className={cn(
                   'flex-1 text-left text-[14.5px] font-semibold',
-                  t.done ? 'text-slate-400 line-through' : 'text-slate-900',
+                  t.done ? 'text-app-ink-faint line-through' : 'text-app-ink',
                 )}
               >
                 {t.title}
               </button>
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-400">
+              <span className="rounded-full bg-app-raised px-2.5 py-1 text-[11px] font-bold text-app-ink-faint">
                 {t.due}
               </span>
             </div>
@@ -137,17 +137,17 @@ export function TasksPage() {
 
         <div className="mt-[18px] flex flex-col gap-3.5">
           <div className="flex items-center justify-between">
-            <span className="text-[13px] font-semibold text-slate-500">Priority</span>
+            <span className="text-[13px] font-semibold text-app-ink-muted">Priority</span>
             <Badge tone={priorityTone[active.priority]}>{active.priority}</Badge>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-[13px] font-semibold text-slate-500">Due Date</span>
+            <span className="text-[13px] font-semibold text-app-ink-muted">Due Date</span>
             <span className="text-[13.5px] font-bold">
               {active.due === 'Today' ? 'Today, May 19' : active.due}
             </span>
           </div>
           <div>
-            <span className="text-[13px] font-semibold text-slate-500">Tags</span>
+            <span className="text-[13px] font-semibold text-app-ink-muted">Tags</span>
             <div className="mt-2 flex gap-1.5">
               <Badge tone="amber">Design</Badge>
               <Badge tone="navy">Web</Badge>
@@ -164,11 +164,11 @@ export function TasksPage() {
               </span>
               Create wireframe
             </div>
-            <div className="flex items-center gap-2.5 text-sm font-medium text-slate-700">
+            <div className="flex items-center gap-2.5 text-sm font-medium text-app-ink-soft">
               <span className="size-[18px] rounded-md border-2 border-slate-300" />
               Design UI
             </div>
-            <div className="flex items-center gap-2.5 text-sm font-medium text-slate-700">
+            <div className="flex items-center gap-2.5 text-sm font-medium text-app-ink-soft">
               <span className="size-[18px] rounded-md border-2 border-slate-300" />
               Get feedback
             </div>

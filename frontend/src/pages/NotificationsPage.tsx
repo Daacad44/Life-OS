@@ -100,7 +100,7 @@ export function NotificationsPage() {
         {visible.map((n) => (
           <div
             key={n.id}
-            className="flex items-center gap-3.5 border-b border-slate-100 py-[15px] last:border-b-0"
+            className="flex items-center gap-3.5 border-b border-app-hairline py-[15px] last:border-b-0"
           >
             <span
               className={cn(
@@ -112,11 +112,11 @@ export function NotificationsPage() {
             </span>
             <div className="min-w-0 flex-1">
               <div className="text-sm font-bold">{n.title}</div>
-              <div className="mt-0.5 text-[13px] font-medium text-slate-400">
+              <div className="mt-0.5 text-[13px] font-medium text-app-ink-faint">
                 {n.desc}
               </div>
             </div>
-            <span className="text-xs font-semibold text-slate-400">{n.time}</span>
+            <span className="text-xs font-semibold text-app-ink-faint">{n.time}</span>
             {n.unread ? (
               <span aria-label="Unread" className="size-2 rounded-full bg-amber-500" />
             ) : null}

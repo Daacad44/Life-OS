@@ -49,7 +49,7 @@ export function CoachPage() {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-150px)] flex-col overflow-hidden rounded-2xl border border-slate-200/70 bg-white">
+    <div className="flex h-[calc(100dvh-150px)] flex-col overflow-hidden rounded-2xl border border-app-hairline/70 bg-app-surface">
       <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-[22px]">
         {messages.map((m, i) => (
           <div
@@ -61,7 +61,7 @@ export function CoachPage() {
                 'max-w-[72%] rounded-2xl px-4 py-3.5 text-[14.5px] font-medium leading-relaxed',
                 m.role === 'user'
                   ? 'bg-navy-900 text-white'
-                  : 'border border-slate-200 bg-slate-50 text-slate-700',
+                  : 'border border-app-hairline bg-app-raised text-app-ink-soft',
               )}
             >
               {m.text}
@@ -70,7 +70,7 @@ export function CoachPage() {
         ))}
       </div>
 
-      <div className="border-t border-slate-100 px-[18px] py-3.5">
+      <div className="border-t border-app-hairline px-[18px] py-3.5">
         <div className="mb-3 flex flex-wrap gap-2">
           {chips.map((c) => (
             <button
@@ -85,19 +85,19 @@ export function CoachPage() {
         </div>
         <form
           onSubmit={onSubmit}
-          className="flex items-center gap-2 rounded-[13px] border border-slate-200 bg-slate-50 py-1.5 pr-1.5 pl-4"
+          className="flex items-center gap-2 rounded-[13px] border border-app-hairline bg-app-raised py-1.5 pr-1.5 pl-4"
         >
           <input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Ask me anything…"
             aria-label="Message your coach"
-            className="flex-1 border-0 bg-transparent text-[15px] text-slate-700 outline-none placeholder:text-slate-400"
+            className="flex-1 border-0 bg-transparent text-[15px] text-app-ink-soft outline-none placeholder:text-app-ink-faint"
           />
           <button
             type="button"
             aria-label="Voice input"
-            className="grid place-items-center p-2 text-slate-400 hover:text-slate-600"
+            className="grid place-items-center p-2 text-app-ink-faint hover:text-app-ink-muted"
           >
             <Mic size={19} aria-hidden="true" />
           </button>
