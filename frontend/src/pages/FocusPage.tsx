@@ -1,149 +1,78 @@
 import { useEffect, useState } from 'react'
-import { Pause, Play, Square } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { useTasks } from '@/features/tasks/hooks/useTasks'
-import {
-  useEndFocus,
-  useFocusSessions,
-  useStartFocus,
-} from '@/features/focus/hooks/useFocus'
+import { Button } from '@/components/ui-kit'
 
-const WORK_SECONDS = 25 * 60
-const BREAK_SECONDS = 5 * 60
+const TOTAL_SECONDS = 45 * 60
+const RING_LENGTH = 785 // 2π·125, matching the prototype's r=125 ring
 
-function formatTime(totalSeconds: number) {
-  const m = Math.floor(totalSeconds / 60)
-    .toString()
-    .padStart(2, '0')
-  const s = Math.floor(totalSeconds % 60)
-    .toString()
-    .padStart(2, '0')
-  return `${m}:${s}`
-}
+const summary = [
+  { value: '2h 15m', label: "Today's Focus" },
+  { value: '4', label: 'Sessions' },
+  { value: '8', label: 'Tasks Done' },
+]
 
 export function FocusPage() {
-  const { data: tasks } = useTasks({ status: 'TODO' })
-  const { data: sessions } = useFocusSessions()
-  const startFocus = useStartFocus()
-  const endFocus = useEndFocus()
-
-  const [taskId, setTaskId] = useState('')
-  const [sessionId, setSessionId] = useState<string | null>(null)
-  const [phase, setPhase] = useState<'work' | 'break'>('work')
-  const [secondsLeft, setSecondsLeft] = useState(WORK_SECONDS)
+  const [seconds, setSeconds] = useState(TOTAL_SECONDS)
   const [running, setRunning] = useState(false)
-  const [lastEnded, setLastEnded] = useState<{ duration: number } | null>(null)
-
-  // Restores an in-progress session across a page refresh — the exact countdown
-  // position isn't persisted server-side, so the local timer restarts from the
-  // top of the current phase while the session itself keeps accumulating time.
-  useEffect(() => {
-    if (sessionId) return
-    const active = sessions?.find((s) => !s.endedAt)
-    if (active) {
-      setSessionId(active.id)
-      setTaskId(active.taskId ?? '')
-      setRunning(true)
-    }
-  }, [sessions, sessionId])
 
   useEffect(() => {
     if (!running) return
-    const interval = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          setPhase((p) => (p === 'work' ? 'break' : 'work'))
-          return phase === 'work' ? BREAK_SECONDS : WORK_SECONDS
-        }
-        return prev - 1
-      })
+    const id = setInterval(() => {
+      setSeconds((s) => (s > 0 ? s - 1 : 0))
     }, 1000)
-    return () => clearInterval(interval)
-  }, [running, phase])
+    return () => clearInterval(id)
+  }, [running])
 
-  function handleStart() {
-    setLastEnded(null)
-    setPhase('work')
-    setSecondsLeft(WORK_SECONDS)
-    startFocus.mutate(
-      { taskId: taskId || undefined },
-      {
-        onSuccess: (session) => {
-          setSessionId(session.id)
-          setRunning(true)
-        },
-      },
-    )
-  }
-
-  function handleStop() {
-    if (!sessionId) return
-    endFocus.mutate(sessionId, {
-      onSuccess: (session) => {
-        setLastEnded({ duration: session.duration ?? 0 })
-        setSessionId(null)
-        setRunning(false)
-        setPhase('work')
-        setSecondsLeft(WORK_SECONDS)
-      },
-    })
-  }
-
-  const activeTask = tasks?.data.find((t) => t.id === taskId)
+  const mm = String(Math.floor(seconds / 60)).padStart(2, '0')
+  const ss = String(seconds % 60).padStart(2, '0')
+  const dashoffset = RING_LENGTH - RING_LENGTH * (seconds / TOTAL_SECONDS)
 
   return (
-    <div className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center gap-6">
-      {!sessionId ? (
-        <>
-          <h1 className="text-2xl font-semibold text-text">Focus Mode</h1>
-          <p className="max-w-sm text-center text-text-muted">
-            Pick a task (optional) and start a distraction-free session.
-          </p>
-          <select
-            value={taskId}
-            onChange={(e) => setTaskId(e.target.value)}
-            className="w-72 rounded-md border border-border bg-surface px-3 py-2 text-sm text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            <option value="">No specific task</option>
-            {tasks?.data.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.title}
-              </option>
-            ))}
-          </select>
-          <Button size="lg" onClick={handleStart} disabled={startFocus.isPending}>
-            <Play className="size-4" />
-            Start Focus Session
-          </Button>
-          {lastEnded && (
-            <p className="text-sm text-text-muted">
-              Last session: {Math.round(lastEnded.duration / 60)} min focused.
-            </p>
-          )}
-        </>
-      ) : (
-        <>
-          <span className="text-sm font-medium uppercase tracking-wide text-text-muted">
-            {phase === 'work' ? 'Focus' : 'Break'}
-          </span>
-          <span className="text-7xl font-semibold tabular-nums text-text">
-            {formatTime(secondsLeft)}
-          </span>
-          {activeTask && (
-            <p className="text-text-muted">Working on: {activeTask.title}</p>
-          )}
-          <div className="flex gap-2">
-            <Button variant="outline" size="lg" onClick={() => setRunning((r) => !r)}>
-              {running ? <Pause className="size-4" /> : <Play className="size-4" />}
-              {running ? 'Pause' : 'Resume'}
-            </Button>
-            <Button variant="destructive" size="lg" onClick={handleStop}>
-              <Square className="size-4" />
-              End Session
-            </Button>
+    <div className="grid place-items-center py-[30px]">
+      <div className="text-lg font-extrabold text-slate-500">Focus Mode</div>
+
+      <div className="relative my-[26px] size-[280px]">
+        <svg viewBox="0 0 280 280" className="size-[280px] -rotate-90">
+          <circle
+            cx="140"
+            cy="140"
+            r="125"
+            fill="none"
+            stroke="#f1f5f9"
+            strokeWidth="14"
+          />
+          <circle
+            cx="140"
+            cy="140"
+            r="125"
+            fill="none"
+            stroke="#f59e0b"
+            strokeWidth="14"
+            strokeLinecap="round"
+            strokeDasharray={RING_LENGTH}
+            strokeDashoffset={dashoffset}
+          />
+        </svg>
+        <div className="absolute inset-0 grid place-items-center">
+          <div className="text-[56px] font-extrabold tracking-[-0.02em] tabular-nums">
+            {mm}:{ss}
           </div>
-        </>
-      )}
+        </div>
+      </div>
+
+      <Button size="lg" onClick={() => setRunning((r) => !r)}>
+        {running ? 'Pause' : 'Start Focus'}
+      </Button>
+
+      <div className="mt-9 flex gap-10 text-center">
+        {summary.map((s) => (
+          <div key={s.label}>
+            <div className="text-[22px] font-extrabold tabular-nums">{s.value}</div>
+            <div className="mt-[3px] text-[13px] font-semibold text-slate-500">
+              {s.label}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

@@ -1,95 +1,64 @@
-import { useState, type FormEvent } from 'react'
-import { updateProfileSchema } from '@life-os/shared'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useCurrentUser, useUpdateProfile } from '@/features/auth/hooks/useAuth'
-import { MemorySettingsCard } from '@/features/memory/components/MemorySettingsCard'
-import { NotificationPreferencesCard } from '@/features/notifications/components/NotificationPreferencesCard'
-import { useThemeStore, type Theme } from '@/stores/themeStore'
+import { useState } from 'react'
+import {
+  Avatar,
+  Button,
+  Card,
+  CardTitle,
+  Input,
+  Tabs,
+  type TabItem,
+} from '@/components/ui-kit'
+import { useCurrentUser } from '@/features/auth/hooks/useAuth'
 
-const THEME_OPTIONS: { value: Theme; label: string }[] = [
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
-  { value: 'system', label: 'System' },
+type SettingsTab = 'profile' | 'preferences' | 'security' | 'notifications'
+
+const tabs: TabItem<SettingsTab>[] = [
+  { key: 'profile', label: 'Profile' },
+  { key: 'preferences', label: 'Preferences' },
+  { key: 'security', label: 'Security' },
+  { key: 'notifications', label: 'Notifications' },
 ]
 
 export function SettingsPage() {
   const { data: user } = useCurrentUser()
-  const updateProfile = useUpdateProfile()
-  const { theme, setTheme } = useThemeStore()
-  const [name, setName] = useState(user?.name ?? '')
-  const [timezone, setTimezone] = useState(user?.timezone ?? 'UTC')
-
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault()
-    const result = updateProfileSchema.safeParse({ name, timezone })
-    if (result.success) updateProfile.mutate(result.data)
-  }
+  const [tab, setTab] = useState<SettingsTab>('profile')
+  const name = user?.name ?? 'Alex Morgan'
+  const email = user?.email ?? 'alex@example.com'
 
   return (
-    <div className="flex max-w-lg flex-col gap-6">
-      <h1 className="text-2xl font-semibold text-text">Settings</h1>
+    <div className="flex flex-col gap-[18px]">
+      <Tabs items={tabs} value={tab} onChange={setTab} ariaLabel="Settings sections" />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" value={user?.email ?? ''} disabled />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="timezone">Timezone</Label>
-              <Input
-                id="timezone"
-                value={timezone}
-                onChange={(e) => setTimezone(e.target.value)}
-              />
-            </div>
-            <Button type="submit" disabled={updateProfile.isPending} className="w-fit">
-              {updateProfile.isPending ? 'Saving…' : 'Save changes'}
+      {tab === 'profile' ? (
+        <Card padding="lg" className="max-w-[640px]">
+          <CardTitle className="mb-5">Profile Information</CardTitle>
+
+          <div className="mb-6 flex items-center gap-[18px]">
+            <Avatar name={name} size="lg" shape="circle" />
+            <Button variant="surface" size="sm">
+              Upload photo
             </Button>
-            {updateProfile.isSuccess && (
-              <p className="text-sm text-success">Profile updated.</p>
-            )}
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Preferences</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col gap-1.5">
-            <Label>Theme</Label>
-            <div className="flex gap-2">
-              {THEME_OPTIONS.map((opt) => (
-                <Button
-                  key={opt.value}
-                  type="button"
-                  variant={theme === opt.value ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setTheme(opt.value)}
-                >
-                  {opt.label}
-                </Button>
-              ))}
-            </div>
           </div>
-        </CardContent>
-      </Card>
 
-      <NotificationPreferencesCard />
-      <MemorySettingsCard />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input label="Name" defaultValue={name} />
+            <Input label="Email" defaultValue={email} />
+            <Input label="Timezone" defaultValue="UTC+03:00 Nairobi" />
+            <Input label="Language" defaultValue="English" />
+          </div>
+
+          <Button size="md" className="mt-6">
+            Save Changes
+          </Button>
+        </Card>
+      ) : (
+        <Card padding="lg" className="max-w-[640px]">
+          <CardTitle className="mb-2 capitalize">{tab}</CardTitle>
+          <p className="text-sm font-medium text-slate-500">
+            {tab} settings are coming soon.
+          </p>
+        </Card>
+      )}
     </div>
   )
 }

@@ -1,12 +1,15 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Eye, EyeOff } from 'lucide-react'
 import { signupSchema } from '@life-os/shared'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button, Card, Input, Logo } from '@/components/ui-kit'
 import { useCurrentUser, useSignup } from '@/features/auth/hooks/useAuth'
 
+/**
+ * Sign up — the prototype's auth surface with the extra Full name field.
+ * Markup follows Life_OS_dc.html; the real signupSchema + useSignup flow is
+ * kept underneath, still routing to onboarding on success.
+ */
 export function SignupPage() {
   const { data: user } = useCurrentUser()
   const navigate = useNavigate()
@@ -14,6 +17,7 @@ export function SignupPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 
   if (user) return <Navigate to="/" replace />
@@ -30,62 +34,91 @@ export function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Create your Life OS account</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                autoComplete="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <p className="text-xs text-text-muted">At least 8 characters.</p>
-            </div>
+    <div className="grid min-h-dvh place-items-center bg-[radial-gradient(circle_at_50%_0%,#13315c,#0b1f3a_60%)] px-5 py-8 font-display text-white">
+      <div className="w-full max-w-[420px]">
+        <Link
+          to="/"
+          className="mb-[26px] flex items-center justify-center gap-2.5 text-white hover:text-white"
+        >
+          <Logo size="lg" />
+        </Link>
+
+        <Card variant="glass" padding="none" className="p-[30px]">
+          <h1 className="text-center text-2xl font-extrabold">Create Your Account</h1>
+          <p className="mt-2 mb-6 text-center text-sm font-medium text-slate-400">
+            Start your journey with Life OS
+          </p>
+
+          <form className="flex flex-col gap-3.5" onSubmit={handleSubmit}>
+            <Input
+              label="Full name"
+              tone="dark"
+              autoComplete="name"
+              placeholder="Alex Morgan"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <Input
+              label="Email address"
+              tone="dark"
+              type="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <Input
+              label="Password"
+              tone="dark"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="new-password"
+              placeholder="••••••••"
+              hint="At least 8 characters."
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              endAdornment={
+                <button
+                  type="button"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="grid place-items-center p-2 text-slate-400 hover:text-white"
+                >
+                  {showPassword ? (
+                    <EyeOff size={18} aria-hidden="true" />
+                  ) : (
+                    <Eye size={18} aria-hidden="true" />
+                  )}
+                </button>
+              }
+            />
+
             {(formError || signup.isError) && (
-              <p className="text-sm text-danger">
+              <p className="text-sm font-medium text-accent-red">
                 {formError ?? (signup.error as Error).message}
               </p>
             )}
-            <Button type="submit" disabled={signup.isPending}>
-              {signup.isPending ? 'Creating account…' : 'Sign up'}
+
+            <Button
+              type="submit"
+              size="md"
+              block
+              disabled={signup.isPending}
+              className="mt-1"
+            >
+              {signup.isPending ? 'Creating account…' : 'Create Account'}
             </Button>
           </form>
-          <p className="mt-4 text-center text-sm text-text-muted">
+
+          <p className="mt-[22px] text-center text-sm font-medium text-slate-400">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary hover:underline">
-              Log in
+            <Link to="/login" className="text-amber-500 hover:text-amber-600">
+              Sign in
             </Link>
           </p>
-        </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   )
 }

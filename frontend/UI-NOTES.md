@@ -34,11 +34,9 @@ v4's stock palette is oklch and would land a shade off `#F59E0B` / `#0F172A`).
 Also global: prototype scrollbar styling and the `prefers-reduced-motion` rule.
 Tabular figures use Tailwind's `tabular-nums` (the prototype's `.tnum`).
 
-The `--font-display` token names Plus Jakarta Sans with system fallbacks, but the
-self-hosted `@fontsource-variable/plus-jakarta-sans` package is **not** added yet: the
-atoms in this step aren't mounted anywhere, so the family is never exercised and adding
-the webfont now would only bloat the bundle. It ships in the step that mounts these
-surfaces into the router.
+The `--font-display` token names Plus Jakarta Sans; it is loaded from Google Fonts in
+`index.html` (as the prototype did), so the prototype surfaces render in the right face
+with no npm/webfont weight added to the bundle.
 
 ### Atoms — `src/components/ui-kit/`
 
@@ -75,6 +73,54 @@ focus restore in `Modal`, `role="progressbar"` with clamped `aria-valuenow`.
 - **New atoms live in `components/ui-kit/`**, alongside the older `components/ui/`
   shadcn primitives, which stay in place for the existing pages.
 
+## Marketing, auth, shell, and screens
+
+Built on top of the atoms and wired into the router.
+
+| Surface / screen        | Components / files                                                                                                                                             | Route                                   |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| Landing                 | `features/marketing/` → `MarketingNav`, `Hero`, `Features`, `Pricing`, `Footer`, assembled in `pages/LandingPage.tsx`; copy in `features/marketing/data.ts`    | `/welcome`                              |
+| Login / Signup / Forgot | `pages/LoginPage`, `pages/SignupPage`, `pages/ForgotPasswordPage`                                                                                              | `/login`, `/signup`, `/forgot-password` |
+| App shell               | `components/layout/AppShell` (navy sidebar + scrim drawer), `Sidebar` (11-item nav, amber rail, Go Pro), `TopBar` (title, search, bell, theme, avatar, logout) | wraps the routes below                  |
+| Dashboard               | `pages/DashboardPage`                                                                                                                                          | `/`                                     |
+| Tasks                   | `pages/TasksPage` (Today/Upcoming/Completed tabs, detail panel)                                                                                                | `/tasks`                                |
+| Goals                   | `pages/GoalsPage`                                                                                                                                              | `/goals`                                |
+| Calendar                | `pages/CalendarPage` (May 2026 month grid)                                                                                                                     | `/calendar`                             |
+| Habits                  | `pages/HabitsPage` (streaks, check-off)                                                                                                                        | `/habits`                               |
+| AI Coach                | `pages/CoachPage` (chat, quick chips)                                                                                                                          | `/coach`                                |
+| Analytics               | `pages/AnalyticsPage` (line + donut)                                                                                                                           | `/analytics`                            |
+| Finance                 | `pages/FinancePage` (donut + transactions)                                                                                                                     | `/finance`                              |
+| Focus Mode              | `pages/FocusPage` (countdown ring)                                                                                                                             | `/focus`                                |
+| Notifications           | `pages/NotificationsPage` (filters, mark-all-read)                                                                                                             | `/notifications`                        |
+| Settings                | `pages/SettingsPage` (profile form)                                                                                                                            | `/settings`                             |
+
+### Routing notes
+
+- The landing page lives at **`/welcome`** because `/` is the authenticated Dashboard
+  behind `ProtectedRoute`. Point the site root at `LandingPage` for logged-out visitors
+  when the auth flow is reworked.
+- The prototype defines **11 nav items**; the sidebar now shows exactly those. The
+  repo's other feature pages (Planner, Notes, Health, Study, …) keep their routes and
+  are reachable by URL, but are no longer in the nav — the prototype is the source of
+  truth for navigation.
+
 ## Where mock data will become API calls
 
-Filled in per screen as the screens land (step 5). Nothing yet — step 1 is presentational.
+Every rebuilt app screen renders from a typed mock block at the top of its page file,
+marked `// MOCK — replace with useX()`. Auth pages already run the real `useLogin` /
+`useSignup` flows; only their markup changed. Swap points, screen by screen:
+
+| Screen          | Replace mock with                                            |
+| --------------- | ------------------------------------------------------------ |
+| Dashboard       | `useDashboard()` (stats, today's plan) + `useTasks()`        |
+| Tasks           | `useTasks()` (list, toggle, detail, subtasks)                |
+| Goals           | `useGoals()`                                                 |
+| Calendar        | `useCalendar()` (events by day)                              |
+| Habits          | `useHabits()` (streaks, check-off mutation)                  |
+| AI Coach        | `useCoach()` (message history + send)                        |
+| Analytics       | `useAnalytics()` (series + priority split)                   |
+| Finance         | `useFinance()` (totals, breakdown, transactions)             |
+| Focus           | `useFocus()` (session persistence)                           |
+| Notifications   | `useNotifications()` (list, mark-all-read)                   |
+| Settings        | `useUpdateProfile()` (already exists in `useAuth`)           |
+| Forgot Password | real reset-request endpoint (currently a local confirmation) |

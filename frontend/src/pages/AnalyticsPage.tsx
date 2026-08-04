@@ -1,128 +1,128 @@
-import { useState } from 'react'
-import { Sparkles } from 'lucide-react'
-import type { AnalyticsRange } from '@life-os/shared'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Bar } from '@/features/analytics/components/Bar'
-import {
-  useAnalyticsInsights,
-  useAnalyticsOverview,
-} from '@/features/analytics/hooks/useAnalytics'
+import { Card, CardTitle, StatCard } from '@/components/ui-kit'
 
-const RANGES: { value: AnalyticsRange; label: string }[] = [
-  { value: 'week', label: 'Week' },
-  { value: 'month', label: 'Month' },
-  { value: 'year', label: 'Year' },
+// MOCK — replace with useAnalytics(); values match the prototype.
+const stats = [
+  { label: 'Focus Time', value: '18h 30m', delta: undefined },
+  { label: 'Tasks Completed', value: '42', delta: '+10%' },
+  { label: 'Goals Progress', value: '68%', delta: '+8%' },
+  { label: 'Productivity Score', value: '85/100', delta: '+5%' },
+]
+
+const priorityLegend = [
+  { label: 'High 45%', className: 'bg-accent-red' },
+  { label: 'Medium 30%', className: 'bg-amber-500' },
+  { label: 'Low 25%', className: 'bg-navy-700' },
 ]
 
 export function AnalyticsPage() {
-  const [range, setRange] = useState<AnalyticsRange>('week')
-  const { data: overview, isLoading, isError, refetch } = useAnalyticsOverview(range)
-  const { data: insights, isLoading: insightsLoading } = useAnalyticsInsights(range)
-
-  const stats = overview && [
-    { label: 'Tasks completed', value: overview.tasksCompleted },
-    {
-      label: 'Completion rate',
-      value: `${Math.round(overview.taskCompletionRate * 100)}%`,
-    },
-    { label: 'Focus minutes', value: overview.focusMinutes },
-    { label: 'Notes created', value: overview.notesCreated },
-    { label: 'Reflections', value: overview.reflectionsLogged },
-  ]
-
   return (
-    <div className="flex max-w-2xl flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-text">Analytics</h1>
-          <p className="text-text-muted">
-            See how you actually spend your time and effort.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          {RANGES.map((r) => (
-            <Button
-              key={r.value}
-              size="sm"
-              variant={range === r.value ? 'default' : 'outline'}
-              onClick={() => setRange(r.value)}
-            >
-              {r.label}
-            </Button>
-          ))}
-        </div>
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {stats.map((s) => (
+          <StatCard
+            key={s.label}
+            label={s.label}
+            value={s.value}
+            delta={s.delta}
+            size="md"
+          />
+        ))}
       </div>
 
-      {isLoading && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="h-16 animate-pulse rounded-md bg-primary-muted" />
-          ))}
-        </div>
-      )}
+      <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
+        <Card padding="md">
+          <CardTitle className="mb-4">Focus Time Over Time</CardTitle>
+          <svg
+            viewBox="0 0 480 200"
+            className="h-[200px] w-full"
+            role="img"
+            aria-label="Focus time rising over the last seven periods"
+          >
+            <polyline
+              points="10,160 80,130 150,140 220,90 290,110 360,60 450,40"
+              fill="none"
+              stroke="#1d4e89"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <g fill="#1d4e89">
+              {[
+                [10, 160],
+                [80, 130],
+                [150, 140],
+                [220, 90],
+                [290, 110],
+                [360, 60],
+                [450, 40],
+              ].map(([cx, cy]) => (
+                <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="4" />
+              ))}
+            </g>
+          </svg>
+        </Card>
 
-      {isError && (
-        <div className="flex flex-col items-center gap-3 py-6 text-center">
-          <p className="text-sm text-danger">Couldn&apos;t load your analytics.</p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
-            Retry
-          </Button>
-        </div>
-      )}
-
-      {stats && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {stats.map((s) => (
-            <Card key={s.label}>
-              <CardContent className="flex flex-col gap-1 p-4">
-                <span className="text-2xl font-semibold text-text">{s.value}</span>
-                <span className="text-xs text-text-muted">{s.label}</span>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {!insightsLoading && insights && insights.insights.length > 0 && (
-        <div className="flex flex-col gap-2">
-          {insights.insights.map((insight) => (
-            <div
-              key={insight}
-              className="flex items-start gap-2 rounded-md border border-border bg-primary-muted px-3 py-2 text-sm text-text"
+        <Card padding="md">
+          <CardTitle className="mb-2">Tasks by Priority</CardTitle>
+          <div className="flex items-center gap-5">
+            <svg
+              viewBox="0 0 120 120"
+              className="size-[130px]"
+              role="img"
+              aria-label="High 45%, Medium 30%, Low 25%"
             >
-              <Sparkles className="mt-0.5 size-3.5 shrink-0 text-primary" />
-              {insight}
+              <circle
+                cx="60"
+                cy="60"
+                r="46"
+                fill="none"
+                stroke="#f1f5f9"
+                strokeWidth="16"
+              />
+              <circle
+                cx="60"
+                cy="60"
+                r="46"
+                fill="none"
+                stroke="#ef4444"
+                strokeWidth="16"
+                strokeDasharray="130 289"
+                transform="rotate(-90 60 60)"
+              />
+              <circle
+                cx="60"
+                cy="60"
+                r="46"
+                fill="none"
+                stroke="#f59e0b"
+                strokeWidth="16"
+                strokeDasharray="87 289"
+                strokeDashoffset="-130"
+                transform="rotate(-90 60 60)"
+              />
+              <circle
+                cx="60"
+                cy="60"
+                r="46"
+                fill="none"
+                stroke="#1d4e89"
+                strokeWidth="16"
+                strokeDasharray="58 289"
+                strokeDashoffset="-217"
+                transform="rotate(-90 60 60)"
+              />
+            </svg>
+            <div className="flex flex-col gap-2.5 text-[13px] font-semibold">
+              {priorityLegend.map((l) => (
+                <span key={l.label} className="flex items-center gap-2">
+                  <span className={`size-[11px] rounded-[3px] ${l.className}`} />
+                  {l.label}
+                </span>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
-
-      {overview && overview.habits.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <h2 className="text-sm font-semibold text-text-muted">Habit consistency</h2>
-          <Card>
-            <CardContent className="flex flex-col gap-3 p-4">
-              {overview.habits.map((h) => (
-                <Bar key={h.title} label={h.title} value={h.checkins} max={h.expected} />
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {overview && overview.goals.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <h2 className="text-sm font-semibold text-text-muted">Goal progress</h2>
-          <Card>
-            <CardContent className="flex flex-col gap-3 p-4">
-              {overview.goals.map((g) => (
-                <Bar key={g.title} label={g.title} value={g.progress} max={100} />
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-      )}
+          </div>
+        </Card>
+      </div>
     </div>
   )
 }
