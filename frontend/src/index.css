@@ -70,10 +70,87 @@
   --font-sans: 'Inter Variable', system-ui, 'Segoe UI', sans-serif;
 }
 
+/*
+ * Life OS brand tokens — the palette, type, and radii of the approved
+ * Life_OS_dc.html prototype (marketing, auth, and app surfaces).
+ *
+ * Navy dominates, amber is the accent; keep that ratio. Values are the exact
+ * hexes from the prototype rather than Tailwind's default oklch palette, so
+ * `bg-amber-500` renders #F59E0B and not a near-miss.
+ */
+@theme {
+  /* Navy — deep (page/sidebar), raised (cards), active (nav/CTA), tint */
+  --color-navy-950: #081627;
+  --color-navy-900: #0b1f3a;
+  --color-navy-800: #13315c;
+  --color-navy-700: #1d4e89;
+  --color-navy-50: #e0edff;
+
+  /* Amber — the single accent */
+  --color-amber-100: #fef3c7;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+
+  /* Neutrals — app canvas #F8FAFC, body text #0F172A, hairlines #E2E8F0 */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+
+  /* Categorical accents used by stats, goals, tags, and charts */
+  --color-accent-emerald: #059669;
+  --color-accent-emerald-tint: #dcfce7;
+  --color-accent-violet: #7c3aed;
+  --color-accent-violet-tint: #f3e8ff;
+  --color-accent-red: #dc2626;
+  --color-accent-red-tint: #fee2e2;
+  --color-accent-red-bright: #ef4444;
+  --color-accent-green-bright: #22c55e;
+
+  /*
+   * The prototype's typeface. The self-hosted @fontsource-variable package is
+   * added in the step that mounts these surfaces into the router — until then
+   * nothing renders in this family, so the token carries system fallbacks and
+   * pulls no webfont weight into the bundle.
+   */
+  --font-display:
+    'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
 body {
   margin: 0;
   background: var(--background);
   color: var(--text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-slate-300);
+  border-radius: 6px;
+}
+
+/* Prototype parity: motion is decorative everywhere in this UI. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
