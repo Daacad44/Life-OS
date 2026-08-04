@@ -79,7 +79,7 @@ export function DashboardPage() {
                 key={t.id}
                 type="button"
                 onClick={() => toggle(t.id)}
-                className="flex items-center gap-3 rounded-[10px] border-b border-slate-100 px-2.5 py-3 text-left last:border-b-0 hover:bg-slate-50"
+                className="flex items-center gap-3 rounded-[10px] border-b border-app-hairline px-2.5 py-3 text-left last:border-b-0 hover:bg-app-raised"
               >
                 <span
                   className={cn(
@@ -96,12 +96,12 @@ export function DashboardPage() {
                 <span
                   className={cn(
                     'flex-1 text-[14.5px] font-semibold',
-                    t.done ? 'text-slate-400 line-through' : 'text-slate-900',
+                    t.done ? 'text-app-ink-faint line-through' : 'text-app-ink',
                   )}
                 >
                   {t.title}
                 </span>
-                <span className="text-xs font-semibold text-slate-400">{t.due}</span>
+                <span className="text-xs font-semibold text-app-ink-faint">{t.due}</span>
               </button>
             ))}
           </div>
@@ -122,7 +122,7 @@ export function DashboardPage() {
             <input
               placeholder="Ask anything…"
               aria-label="Ask the AI coach"
-              className="flex-1 border-0 bg-transparent text-sm text-white outline-none placeholder:text-slate-400"
+              className="flex-1 border-0 bg-transparent text-sm text-white outline-none placeholder:text-app-ink-faint"
             />
             <Link
               to="/coach"

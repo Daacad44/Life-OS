@@ -58,7 +58,7 @@ export function HabitsPage() {
         {habits.map((h) => (
           <div
             key={h.id}
-            className="flex items-center gap-3.5 border-b border-slate-100 py-[15px] last:border-b-0"
+            className="flex items-center gap-3.5 border-b border-app-hairline py-[15px] last:border-b-0"
           >
             <span className="flex-1 text-[15px] font-bold">{h.name}</span>
             <span className="flex items-center gap-1.5 text-sm font-extrabold tabular-nums text-amber-600">

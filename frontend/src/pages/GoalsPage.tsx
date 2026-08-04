@@ -96,7 +96,7 @@ export function GoalsPage() {
               <span className="text-[15.5px] font-extrabold">{g.title}</span>
               <span className="text-sm font-extrabold tabular-nums">{g.pct}%</span>
             </div>
-            <div className="mt-[3px] mb-2.5 text-[12.5px] font-semibold text-slate-400">
+            <div className="mt-[3px] mb-2.5 text-[12.5px] font-semibold text-app-ink-faint">
               Target: {g.target}
             </div>
             <ProgressBar value={g.pct} tone={g.tone} label={g.title} />

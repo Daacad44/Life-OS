@@ -135,7 +135,7 @@ export function FinancePage() {
           {transactions.map((tx) => (
             <div
               key={tx.name}
-              className="flex items-center justify-between border-b border-slate-100 py-3 last:border-b-0"
+              className="flex items-center justify-between border-b border-app-hairline py-3 last:border-b-0"
             >
               <div className="flex items-center gap-3">
                 <span
@@ -151,7 +151,7 @@ export function FinancePage() {
               <span
                 className={cn(
                   'text-sm font-extrabold tabular-nums',
-                  tx.positive ? 'text-accent-emerald' : 'text-slate-700',
+                  tx.positive ? 'text-accent-emerald' : 'text-app-ink-soft',
                 )}
               >
                 {tx.amount}

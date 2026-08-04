@@ -28,7 +28,7 @@ export function FocusPage() {
 
   return (
     <div className="grid place-items-center py-[30px]">
-      <div className="text-lg font-extrabold text-slate-500">Focus Mode</div>
+      <div className="text-lg font-extrabold text-app-ink-muted">Focus Mode</div>
 
       <div className="relative my-[26px] size-[280px]">
         <svg viewBox="0 0 280 280" className="size-[280px] -rotate-90">
@@ -67,7 +67,7 @@ export function FocusPage() {
         {summary.map((s) => (
           <div key={s.label}>
             <div className="text-[22px] font-extrabold tabular-nums">{s.value}</div>
-            <div className="mt-[3px] text-[13px] font-semibold text-slate-500">
+            <div className="mt-[3px] text-[13px] font-semibold text-app-ink-muted">
               {s.label}
             </div>
           </div>
