@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Life OS">
+  <!-- Full-bleed navy so the icon reads as an app tile under a maskable crop. -->
+  <rect width="512" height="512" fill="#0b1f3a" />
+  <!-- Amber "L", kept inside the maskable safe zone (centre ~80%). -->
+  <path fill="#f59e0b" d="M168 148h56v168h120v56H168z" />
+</svg>

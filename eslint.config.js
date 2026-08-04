@@ -42,6 +42,13 @@ export default tseslint.config(
     },
   },
   {
+    // The PWA service worker runs in the ServiceWorkerGlobalScope, not the page.
+    files: ['frontend/public/sw.js'],
+    languageOptions: {
+      globals: { ...globals.serviceworker, ...globals.browser },
+    },
+  },
+  {
     files: ['backend/**/*.ts', 'packages/**/*.ts'],
     languageOptions: {
       globals: globals.node,
