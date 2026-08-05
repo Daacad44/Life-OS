@@ -38,3 +38,11 @@ export function updateProfile(input: UpdateProfileInput) {
 export function completeOnboarding() {
   return apiFetch<PublicUser>('/v1/users/me/complete-onboarding', { method: 'POST' })
 }
+
+export function exportData() {
+  return apiFetch<unknown>('/v1/users/me/export')
+}
+
+export async function deleteAccount() {
+  await apiFetch<null>('/v1/users/me', { method: 'DELETE' })
+}
