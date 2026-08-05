@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom'
 import { Avatar } from '@/components/ui-kit'
 import { useThemeStore } from '@/stores/themeStore'
 import { useCurrentUser, useLogout } from '@/features/auth/hooks/useAuth'
+import { useNotifications } from '@/features/notifications/hooks/useNotifications'
+import { useCommandBar } from '@/components/command/CommandBarProvider'
 
 /** Route → screen title for the topbar heading. Covers every workspace route. */
 const titles: Record<string, string> = {
@@ -43,8 +45,11 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   const logout = useLogout()
   const { theme, setTheme } = useThemeStore()
   const { pathname } = useLocation()
+  const { data: notifications } = useNotifications()
+  const { open: openCommandBar } = useCommandBar()
   const title = titles[pathname] ?? 'Life OS'
   const name = user?.name ?? user?.email ?? 'Guest'
+  const hasUnread = (notifications ?? []).some((n) => !n.read)
 
   return (
     <header className="sticky top-0 z-30 flex items-center gap-3.5 border-b border-app-hairline bg-app-canvas/85 px-5 py-3.5 font-display backdrop-blur-md">
@@ -64,14 +69,26 @@ export function TopBar({ onMenuClick }: TopBarProps) {
       </div>
 
       <div className="flex items-center gap-2.5">
-        <div className="hidden items-center gap-2 rounded-[11px] border border-app-hairline bg-app-surface px-3 py-2.5 text-app-ink-faint sm:flex">
+        <button
+          type="button"
+          onClick={openCommandBar}
+          aria-label="Open command bar"
+          className="hidden items-center gap-2 rounded-[11px] border border-app-hairline bg-app-surface px-3 py-2.5 text-app-ink-faint hover:bg-app-raised sm:flex"
+        >
           <Search size={16} aria-hidden="true" />
-          <input
-            placeholder="Search…"
-            aria-label="Search"
-            className="w-[120px] border-0 bg-transparent text-sm text-app-ink-soft outline-none"
-          />
-        </div>
+          <span className="text-sm">Search or create…</span>
+          <kbd className="ml-1 rounded-md border border-app-hairline bg-app-raised px-1.5 py-0.5 text-[11px] font-semibold">
+            ⌘K
+          </kbd>
+        </button>
+        <button
+          type="button"
+          onClick={openCommandBar}
+          aria-label="Open command bar"
+          className="grid place-items-center rounded-[11px] border border-app-hairline bg-app-surface p-2.5 text-app-ink-soft hover:bg-app-raised sm:hidden"
+        >
+          <Search size={18} aria-hidden="true" />
+        </button>
 
         <Link
           to="/notifications"
@@ -79,10 +96,12 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           className="relative grid place-items-center rounded-[11px] border border-app-hairline bg-app-surface p-2.5 text-app-ink-soft hover:bg-app-raised"
         >
           <Bell size={18} aria-hidden="true" />
-          <span
-            aria-hidden="true"
-            className="absolute top-2 right-2 size-[7px] rounded-full bg-amber-500"
-          />
+          {hasUnread ? (
+            <span
+              aria-label="Unread notifications"
+              className="absolute top-2 right-2 size-[7px] rounded-full bg-amber-500"
+            />
+          ) : null}
         </Link>
 
         <button
