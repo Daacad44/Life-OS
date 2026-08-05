@@ -102,6 +102,74 @@ export function formatDateTime(value: string | null, timezone: string): string {
   }).format(new Date(value))
 }
 
+/** The timezone's offset from UTC, in ms, at the given instant (handles DST). */
+function tzOffsetMs(date: Date, timezone: string): number {
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+  const map: Record<string, number> = {}
+  for (const part of dtf.formatToParts(date)) {
+    if (part.type !== 'literal') map[part.type] = Number(part.value)
+  }
+  const asUtc = Date.UTC(
+    map.year,
+    map.month - 1,
+    map.day,
+    map.hour,
+    map.minute,
+    map.second,
+  )
+  return asUtc - date.getTime()
+}
+
+/**
+ * Convert a wall-clock value the user picked (interpreted in their timezone)
+ * into a UTC ISO string for storage. `input` is a native date/datetime-local
+ * value: "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm". Date-only values default to 09:00
+ * local so they land squarely inside the intended calendar day in every zone.
+ */
+export function wallTimeToUtcIso(input: string, timezone: string): string {
+  const [datePart, timePart] = input.split('T')
+  const [y, m, d] = datePart.split('-').map(Number)
+  const [hh, mm] = (timePart ?? '09:00').split(':').map(Number)
+  const guessUtc = Date.UTC(y, m - 1, d, hh, mm)
+  const offset = tzOffsetMs(new Date(guessUtc), timezone)
+  return new Date(guessUtc - offset).toISOString()
+}
+
+/**
+ * Format a stored UTC ISO string as a native input value in the user's zone:
+ * "YYYY-MM-DD" for `date`, "YYYY-MM-DDTHH:mm" for `datetime`.
+ */
+export function isoToInputValue(
+  iso: string | null,
+  timezone: string,
+  mode: 'date' | 'datetime',
+): string {
+  if (!iso) return ''
+  const dtf = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    ...(mode === 'datetime' ? { hour: '2-digit', minute: '2-digit' } : {}),
+  })
+  const map: Record<string, string> = {}
+  for (const part of dtf.formatToParts(new Date(iso))) {
+    if (part.type !== 'literal') map[part.type] = part.value
+  }
+  const date = `${map.year}-${map.month}-${map.day}`
+  return mode === 'date' ? date : `${date}T${map.hour}:${map.minute}`
+}
+
 /** "2h 45m", "45m", or "0m" from a whole number of minutes. */
 export function formatMinutes(totalMinutes: number): string {
   const minutes = Math.max(0, Math.round(totalMinutes))
