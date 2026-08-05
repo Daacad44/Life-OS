@@ -18,6 +18,7 @@ import {
 } from '@/features/calendar/hooks/useCalendar'
 import { useTasks } from '@/features/tasks/hooks/useTasks'
 import { EventFormModal } from '@/features/calendar/components/EventFormModal'
+import { useCreateReminder } from '@/features/reminders/hooks/useReminders'
 import { dayKeyInTz, formatTime } from '@/lib/datetime'
 import type { CalendarEvent, CreateEventInput, ListTasksQuery } from '@life-os/shared'
 
@@ -78,6 +79,7 @@ export function CalendarPage() {
   const createEvent = useCreateEvent()
   const updateEvent = useUpdateEvent()
   const deleteEvent = useDeleteEvent()
+  const createReminder = useCreateReminder()
 
   // Group events and task deadlines by their day (in the user's timezone).
   const byDay = useMemo(() => {
@@ -130,14 +132,25 @@ export function CalendarPage() {
     setDefaultDate(undefined)
     setModalOpen(true)
   }
-  function submit(input: CreateEventInput) {
+  function submit(input: CreateEventInput, reminderAt: string | null) {
     if (editing) {
       updateEvent.mutate(
         { id: editing.id, input },
         { onSuccess: () => setModalOpen(false) },
       )
     } else {
-      createEvent.mutate(input, { onSuccess: () => setModalOpen(false) })
+      createEvent.mutate(input, {
+        onSuccess: (event) => {
+          if (reminderAt) {
+            createReminder.mutate({
+              entityType: 'event',
+              entityId: event.id,
+              remindAt: new Date(reminderAt),
+            })
+          }
+          setModalOpen(false)
+        },
+      })
     }
   }
   function remove() {

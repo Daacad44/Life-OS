@@ -23,6 +23,7 @@ import {
   toCreateInput,
   type TaskFormValues,
 } from '@/features/tasks/components/TaskFormModal'
+import { useCreateReminder } from '@/features/reminders/hooks/useReminders'
 import { dayDiffFromToday, formatDueLabel, formatDateTime } from '@/lib/datetime'
 import type { ListTasksQuery, Priority, Task } from '@life-os/shared'
 
@@ -60,6 +61,7 @@ export function TasksPage() {
   const createTask = useCreateTask(filters)
   const updateTask = useUpdateTask(filters)
   const deleteTask = useDeleteTask(filters)
+  const createReminder = useCreateReminder()
 
   const [tab, setTab] = useState<TaskTab>('today')
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -97,10 +99,20 @@ export function TasksPage() {
     setModalOpen(true)
   }
 
+  function scheduleReminder(taskId: string, reminderAt: string | null) {
+    if (!reminderAt) return
+    createReminder.mutate({
+      entityType: 'task',
+      entityId: taskId,
+      remindAt: new Date(reminderAt),
+    })
+  }
+
   function submit(values: TaskFormValues) {
     if (editing) {
+      const id = editing.id
       updateTask.mutate({
-        id: editing.id,
+        id,
         input: {
           title: values.title,
           description: values.description.trim() || null,
@@ -108,8 +120,11 @@ export function TasksPage() {
           dueDate: values.dueDate ? new Date(values.dueDate) : null,
         },
       })
+      scheduleReminder(id, values.reminderAt)
     } else {
-      createTask.mutate(toCreateInput(values))
+      createTask.mutate(toCreateInput(values), {
+        onSuccess: (task) => scheduleReminder(task.id, values.reminderAt),
+      })
     }
     setModalOpen(false)
   }

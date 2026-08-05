@@ -9,6 +9,8 @@ export interface TaskFormValues {
   description: string
   priority: Priority
   dueDate: string | null
+  /** Optional reminder time (UTC ISO); creates a reminder for this task. */
+  reminderAt: string | null
 }
 
 export function TaskFormModal({
@@ -30,12 +32,13 @@ export function TaskFormModal({
   const [description, setDescription] = useState(task?.description ?? '')
   const [priority, setPriority] = useState<Priority>(task?.priority ?? 'MEDIUM')
   const [dueDate, setDueDate] = useState<string | null>(task?.dueDate ?? null)
+  const [reminderAt, setReminderAt] = useState<string | null>(null)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
     const trimmed = title.trim()
     if (!trimmed) return
-    onSubmit({ title: trimmed, description, priority, dueDate })
+    onSubmit({ title: trimmed, description, priority, dueDate, reminderAt })
   }
 
   return (
@@ -114,6 +117,13 @@ export function TaskFormModal({
             mode="date"
           />
         </div>
+        <DateTimeField
+          label="Remind me (optional)"
+          value={reminderAt}
+          onChange={setReminderAt}
+          timezone={timezone}
+          mode="datetime"
+        />
       </form>
     </Modal>
   )

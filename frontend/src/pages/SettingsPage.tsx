@@ -45,6 +45,7 @@ const prefLabels: Record<NotificationCategory, string> = {
   budgetThreshold: 'Budget threshold alerts',
   weeklyReview: 'Weekly review ready',
   automationRan: 'Automation ran',
+  reminders: 'Reminders',
 }
 
 function timezoneList(): string[] {
@@ -87,6 +88,12 @@ export function SettingsPage() {
   const [timezone, setTimezone] = useState(user?.timezone ?? browserTimezone())
   const [saved, setSaved] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [qhStart, setQhStart] = useState<number | null>(user?.quietHoursStart ?? null)
+  const [qhEnd, setQhEnd] = useState<number | null>(user?.quietHoursEnd ?? null)
+
+  function saveQuietHours() {
+    updateProfile.mutate({ quietHoursStart: qhStart, quietHoursEnd: qhEnd })
+  }
 
   const zones = timezoneList()
 
@@ -197,6 +204,69 @@ export function SettingsPage() {
                 {o.label}
               </button>
             ))}
+          </div>
+
+          <div className="mt-8">
+            <CardTitle className="mb-1.5">Quiet Hours</CardTitle>
+            <p className="mb-3 text-sm font-medium text-app-ink-muted">
+              Reminders are held during these hours (your timezone) and delivered
+              afterwards. Leave both empty to disable.
+            </p>
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="flex flex-col gap-[7px]">
+                <label
+                  htmlFor="qh-start"
+                  className="text-[13px] font-semibold text-app-ink-soft"
+                >
+                  From
+                </label>
+                <select
+                  id="qh-start"
+                  value={qhStart ?? ''}
+                  onChange={(e) =>
+                    setQhStart(e.target.value === '' ? null : Number(e.target.value))
+                  }
+                  className={selectClass}
+                >
+                  <option value="">—</option>
+                  {Array.from({ length: 24 }, (_, h) => (
+                    <option key={h} value={h}>
+                      {String(h).padStart(2, '0')}:00
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-[7px]">
+                <label
+                  htmlFor="qh-end"
+                  className="text-[13px] font-semibold text-app-ink-soft"
+                >
+                  To
+                </label>
+                <select
+                  id="qh-end"
+                  value={qhEnd ?? ''}
+                  onChange={(e) =>
+                    setQhEnd(e.target.value === '' ? null : Number(e.target.value))
+                  }
+                  className={selectClass}
+                >
+                  <option value="">—</option>
+                  {Array.from({ length: 24 }, (_, h) => (
+                    <option key={h} value={h}>
+                      {String(h).padStart(2, '0')}:00
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <Button
+                size="md"
+                onClick={saveQuietHours}
+                disabled={updateProfile.isPending}
+              >
+                Save
+              </Button>
+            </div>
           </div>
         </Card>
       ) : null}

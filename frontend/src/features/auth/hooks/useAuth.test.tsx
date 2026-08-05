@@ -29,6 +29,8 @@ const user: PublicUser = {
   name: 'A',
   role: 'USER',
   timezone: 'UTC',
+  quietHoursStart: null,
+  quietHoursEnd: null,
   onboardedAt: new Date().toISOString(),
   createdAt: new Date().toISOString(),
 }

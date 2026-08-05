@@ -11,6 +11,7 @@ const LABELS: Record<NotificationCategory, string> = {
   budgetThreshold: 'Budget threshold reached',
   weeklyReview: 'Weekly review ready',
   automationRan: 'Automation ran',
+  reminders: 'Reminders',
 }
 
 export function NotificationPreferencesCard() {

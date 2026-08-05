@@ -26,6 +26,7 @@ import { useCreateTask } from '@/features/tasks/hooks/useTasks'
 import { useCreateNote } from '@/features/notes/hooks/useNotes'
 import { useCreateHabit } from '@/features/habits/hooks/useHabits'
 import { useCreateEvent } from '@/features/calendar/hooks/useCalendar'
+import { useCreateReminder } from '@/features/reminders/hooks/useReminders'
 import { parseQuickAdd } from '@/lib/quickAdd'
 import { formatDueLabel } from '@/lib/datetime'
 
@@ -66,6 +67,7 @@ export function CommandBar({ open, onClose }: { open: boolean; onClose: () => vo
   const createNote = useCreateNote()
   const createHabit = useCreateHabit()
   const createEvent = useCreateEvent()
+  const createReminder = useCreateReminder()
 
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(0)
@@ -98,12 +100,26 @@ export function CommandBar({ open, onClose }: { open: boolean; onClose: () => vo
         icon: CheckSquare,
         group: 'Create',
         run: () => {
-          createTask.mutate({
-            title: parsed.title,
-            status: 'TODO',
-            priority: 'MEDIUM',
-            dueDate: parsed.dueDate ? new Date(parsed.dueDate) : undefined,
-          })
+          createTask.mutate(
+            {
+              title: parsed.title,
+              status: 'TODO',
+              priority: 'MEDIUM',
+              dueDate: parsed.dueDate ? new Date(parsed.dueDate) : undefined,
+            },
+            {
+              onSuccess: (task) => {
+                // A parsed time doubles as a reminder — "call mom tomorrow 5pm".
+                if (parsed.dueDate && parsed.hasTime) {
+                  createReminder.mutate({
+                    entityType: 'task',
+                    entityId: task.id,
+                    remindAt: new Date(parsed.dueDate),
+                  })
+                }
+              },
+            },
+          )
           navigate('/tasks')
           onClose()
         },
@@ -174,6 +190,7 @@ export function CommandBar({ open, onClose }: { open: boolean; onClose: () => vo
     createNote,
     createEvent,
     createHabit,
+    createReminder,
     navigate,
     onClose,
   ])

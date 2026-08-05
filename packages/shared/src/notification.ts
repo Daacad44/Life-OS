@@ -6,6 +6,7 @@ export const NotificationCategory = [
   'budgetThreshold',
   'weeklyReview',
   'automationRan',
+  'reminders',
 ] as const
 export type NotificationCategory = (typeof NotificationCategory)[number]
 
@@ -16,6 +17,7 @@ export const updateNotificationPreferencesSchema = z.object({
   budgetThreshold: z.boolean().optional(),
   weeklyReview: z.boolean().optional(),
   automationRan: z.boolean().optional(),
+  reminders: z.boolean().optional(),
 })
 export type UpdateNotificationPreferencesInput = z.infer<
   typeof updateNotificationPreferencesSchema

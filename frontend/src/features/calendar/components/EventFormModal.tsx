@@ -16,7 +16,7 @@ export function EventFormModal({
 }: {
   open: boolean
   onClose: () => void
-  onSubmit: (input: CreateEventInput) => void
+  onSubmit: (input: CreateEventInput, reminderAt: string | null) => void
   onDelete?: () => void
   event?: CalendarEvent
   /** ISO day the user clicked, used to seed a new event's times. */
@@ -34,6 +34,7 @@ export function EventFormModal({
   const [allDay, setAllDay] = useState(event?.allDay ?? false)
   const [start, setStart] = useState<string | null>(seedStart)
   const [end, setEnd] = useState<string | null>(seedEnd)
+  const [reminderAt, setReminderAt] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   function handleSubmit(e: FormEvent) {
@@ -44,12 +45,15 @@ export function EventFormModal({
       setError('End time must be after the start time.')
       return
     }
-    onSubmit({
-      title: trimmed,
-      startTime: new Date(start),
-      endTime: new Date(end),
-      allDay,
-    })
+    onSubmit(
+      {
+        title: trimmed,
+        startTime: new Date(start),
+        endTime: new Date(end),
+        allDay,
+      },
+      reminderAt,
+    )
   }
 
   return (
@@ -121,6 +125,15 @@ export function EventFormModal({
             required
           />
         </div>
+        {!event ? (
+          <DateTimeField
+            label="Remind me (optional)"
+            value={reminderAt}
+            onChange={setReminderAt}
+            timezone={timezone}
+            mode="datetime"
+          />
+        ) : null}
         {error ? (
           <p className="text-[13px] font-semibold text-accent-red">{error}</p>
         ) : null}
