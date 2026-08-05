@@ -24,6 +24,7 @@ import { reviewsRouter } from './routes/reviews.js'
 import { analyticsRouter } from './routes/analytics.js'
 import { financeRouter } from './routes/finance.js'
 import { notificationsRouter } from './routes/notifications.js'
+import { remindersRouter } from './routes/reminders.js'
 import { focusRouter } from './routes/focus.js'
 import { healthLogsRouter } from './routes/healthLogs.js'
 import { studyRouter } from './routes/study.js'
@@ -35,6 +36,7 @@ import { voiceRouter } from './routes/voice.js'
 import { gamificationRouter } from './routes/gamification.js'
 import { communityRouter } from './routes/community.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
+import { startReminderScheduler } from './services/reminderScheduler.js'
 
 export const app = express()
 
@@ -83,6 +85,7 @@ v1.use('/reviews', reviewsRouter)
 v1.use('/analytics', analyticsRouter)
 v1.use('/finance', financeRouter)
 v1.use('/notifications', notificationsRouter)
+v1.use('/reminders', remindersRouter)
 v1.use('/focus', focusRouter)
 v1.use('/health-metrics', healthLogsRouter)
 v1.use('/study', studyRouter)
@@ -102,4 +105,5 @@ if (process.env.NODE_ENV !== 'test') {
   app.listen(env.PORT, () => {
     logger.info(`Life OS API listening on http://localhost:${env.PORT}`)
   })
+  startReminderScheduler()
 }

@@ -13,6 +13,7 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
   budgetThreshold: true,
   weeklyReview: true,
   automationRan: true,
+  reminders: true,
 }
 
 export function listForUser(userId: string) {

@@ -1,26 +1,86 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui-kit'
+import { useUserTimezone } from '@/features/auth/hooks/useTimezone'
+import {
+  useFocusSessions,
+  useStartFocus,
+  useEndFocus,
+} from '@/features/focus/hooks/useFocus'
+import { useTasks } from '@/features/tasks/hooks/useTasks'
+import { dayKeyInTz, formatMinutes } from '@/lib/datetime'
+import type { ListTasksQuery } from '@life-os/shared'
 
 const TOTAL_SECONDS = 45 * 60
 const RING_LENGTH = 785 // 2π·125, matching the prototype's r=125 ring
-
-const summary = [
-  { value: '2h 15m', label: "Today's Focus" },
-  { value: '4', label: 'Sessions' },
-  { value: '8', label: 'Tasks Done' },
-]
+const taskFilters: Partial<ListTasksQuery> = { pageSize: 100 }
 
 export function FocusPage() {
+  const timezone = useUserTimezone()
+  const { data: sessions } = useFocusSessions()
+  const { data: taskData } = useTasks(taskFilters)
+  const startFocus = useStartFocus()
+  const endFocus = useEndFocus()
+
   const [seconds, setSeconds] = useState(TOTAL_SECONDS)
   const [running, setRunning] = useState(false)
+  const sessionId = useRef<string | null>(null)
+
+  const stop = useRef<() => void>(() => {})
+  stop.current = () => {
+    if (sessionId.current) {
+      endFocus.mutate(sessionId.current)
+      sessionId.current = null
+    }
+    setRunning(false)
+  }
 
   useEffect(() => {
     if (!running) return
     const id = setInterval(() => {
-      setSeconds((s) => (s > 0 ? s - 1 : 0))
+      setSeconds((s) => {
+        if (s <= 1) {
+          clearInterval(id)
+          stop.current()
+          return 0
+        }
+        return s - 1
+      })
     }, 1000)
     return () => clearInterval(id)
   }, [running])
+
+  function toggle() {
+    if (running) {
+      stop.current()
+      return
+    }
+    if (seconds === 0) setSeconds(TOTAL_SECONDS)
+    startFocus.mutate(
+      {},
+      {
+        onSuccess: (session) => {
+          sessionId.current = session.id
+          setRunning(true)
+        },
+      },
+    )
+  }
+
+  const summary = useMemo(() => {
+    const todayKey = dayKeyInTz(new Date(), timezone)
+    const todays = (sessions ?? []).filter(
+      (s) => dayKeyInTz(s.startedAt, timezone) === todayKey,
+    )
+    const minutes = todays.reduce((sum, s) => sum + Math.round((s.duration ?? 0) / 60), 0)
+    const tasksDone = (taskData?.data ?? []).filter(
+      (t) => t.status === 'DONE' && dayKeyInTz(t.updatedAt, timezone) === todayKey,
+    ).length
+    return [
+      { value: formatMinutes(minutes), label: "Today's Focus" },
+      { value: String(todays.length), label: 'Sessions' },
+      { value: String(tasksDone), label: 'Tasks Done' },
+    ]
+  }, [sessions, taskData, timezone])
 
   const mm = String(Math.floor(seconds / 60)).padStart(2, '0')
   const ss = String(seconds % 60).padStart(2, '0')
@@ -59,8 +119,8 @@ export function FocusPage() {
         </div>
       </div>
 
-      <Button size="lg" onClick={() => setRunning((r) => !r)}>
-        {running ? 'Pause' : 'Start Focus'}
+      <Button size="lg" onClick={toggle} disabled={startFocus.isPending}>
+        {running ? 'End Focus' : 'Start Focus'}
       </Button>
 
       <div className="mt-9 flex gap-10 text-center">

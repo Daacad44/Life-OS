@@ -28,6 +28,9 @@ model User {
   // Per-category opt in/out, e.g. {"habitMilestones": true, "budgetThreshold": true, "weeklyReview": true}.
   // Missing keys default to "on" in application code — see Notifications.md Section 9.
   notificationPreferences Json?
+  // Quiet hours (hour-of-day, user timezone) during which reminders are held.
+  quietHoursStart         Int?
+  quietHoursEnd           Int?
   // Community is strictly opt-in — see Community.md Section 9.
   communityOptIn          Boolean  @default(false)
   // Null until the first-run wizard (profile -> first goal -> AI coach intro)
@@ -67,6 +70,7 @@ model User {
   connectionsReceived  Connection[]     @relation("ConnectionPartner")
   sharedGoals          SharedGoal[]
   communityPosts       CommunityPost[]
+  reminders            Reminder[]
 }
 
 enum TaskStatus {
@@ -205,6 +209,26 @@ model Notification {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+// Reminders — a scheduled worker turns these into Notifications at remindAt.
+// entityType/entityId link back to the task/event/habit/goal being reminded of,
+// so the reminder can be cleared when that record is completed or deleted.
+model Reminder {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entityType String // task | event | habit | goal
+  entityId   String
+  remindAt   DateTime
+  message    String?
+  // Set once the reminder has been delivered — the scheduler never re-sends.
+  sentAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([sentAt, remindAt])
+  @@index([entityType, entityId])
 }
 
 // AI memory — see docs/.../03-Architecture/AI Architecture.md

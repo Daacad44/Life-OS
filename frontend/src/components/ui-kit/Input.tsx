@@ -57,7 +57,8 @@ export function Input({
           id={inputId}
           aria-describedby={hintId}
           className={cn(
-            'w-full rounded-[11px] border px-3.5 py-[13px] font-display text-[15px]',
+            // 16px (text-base) so iOS Safari doesn't zoom the viewport on focus.
+            'w-full rounded-[11px] border px-3.5 py-[13px] font-display text-base',
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500',
             'disabled:cursor-not-allowed disabled:opacity-50',
             toneClasses[tone],

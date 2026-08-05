@@ -16,6 +16,10 @@ export type LoginInput = z.infer<typeof loginSchema>
 export const updateProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   timezone: z.string().min(1).optional(),
+  // Quiet hours: hour-of-day [0,23] in the user's timezone during which
+  // reminders are held back. Both null disables quiet hours.
+  quietHoursStart: z.number().int().min(0).max(23).nullable().optional(),
+  quietHoursEnd: z.number().int().min(0).max(23).nullable().optional(),
 })
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>
 
@@ -28,6 +32,8 @@ export interface PublicUser {
   name: string | null
   role: Role
   timezone: string
+  quietHoursStart: number | null
+  quietHoursEnd: number | null
   onboardedAt: string | null
   createdAt: string
 }

@@ -2,6 +2,7 @@ import { Suspense, useState } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
+import { CommandBarProvider } from '@/components/command/CommandBarProvider'
 import { useCurrentUser } from '@/features/auth/hooks/useAuth'
 
 function PageFallback() {
@@ -26,33 +27,35 @@ export function AppShell() {
   }
 
   return (
-    <div className="flex min-h-dvh bg-app-canvas font-display text-app-ink">
-      {/* Desktop sidebar */}
-      <Sidebar className="sticky top-0 hidden h-dvh md:flex" />
+    <CommandBarProvider>
+      <div className="flex min-h-dvh bg-app-canvas font-display text-app-ink">
+        {/* Desktop sidebar */}
+        <Sidebar className="sticky top-0 hidden h-dvh md:flex" />
 
-      {/* Mobile drawer + scrim */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div
-            className="absolute inset-0 bg-slate-900/50"
-            onClick={() => setMobileOpen(false)}
-            aria-hidden="true"
-          />
-          <Sidebar
-            onNavigate={() => setMobileOpen(false)}
-            className="absolute inset-y-0 left-0 h-dvh"
-          />
+        {/* Mobile drawer + scrim */}
+        {mobileOpen && (
+          <div className="fixed inset-0 z-50 md:hidden">
+            <div
+              className="absolute inset-0 bg-slate-900/50"
+              onClick={() => setMobileOpen(false)}
+              aria-hidden="true"
+            />
+            <Sidebar
+              onNavigate={() => setMobileOpen(false)}
+              className="absolute inset-y-0 left-0 h-dvh"
+            />
+          </div>
+        )}
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          <TopBar onMenuClick={() => setMobileOpen(true)} />
+          <main className="mx-auto w-full max-w-[1180px] flex-1 p-5 md:px-5 md:py-6">
+            <Suspense fallback={<PageFallback />}>
+              <Outlet />
+            </Suspense>
+          </main>
         </div>
-      )}
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar onMenuClick={() => setMobileOpen(true)} />
-        <main className="mx-auto w-full max-w-[1180px] flex-1 p-5 md:px-5 md:py-6">
-          <Suspense fallback={<PageFallback />}>
-            <Outlet />
-          </Suspense>
-        </main>
       </div>
-    </div>
+    </CommandBarProvider>
   )
 }

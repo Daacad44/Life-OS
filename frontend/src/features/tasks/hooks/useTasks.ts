@@ -53,6 +53,8 @@ export function useCreateTask(filters: Filters) {
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
       // Planner is another view over the same Task rows — keep it in sync.
       queryClient.invalidateQueries({ queryKey: ['planner'] })
+      // Dashboard aggregates the same Task rows (today's plan, counts).
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })
 }
@@ -102,6 +104,8 @@ export function useUpdateTask(filters: Filters) {
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
       // Planner is another view over the same Task rows — keep it in sync.
       queryClient.invalidateQueries({ queryKey: ['planner'] })
+      // Dashboard aggregates the same Task rows (today's plan, counts).
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })
 }
@@ -129,6 +133,8 @@ export function useDeleteTask(filters: Filters) {
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
       // Planner is another view over the same Task rows — keep it in sync.
       queryClient.invalidateQueries({ queryKey: ['planner'] })
+      // Dashboard aggregates the same Task rows (today's plan, counts).
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })
 }
