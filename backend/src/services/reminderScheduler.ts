@@ -3,42 +3,9 @@ import { prisma } from '../config/db.js'
 import { logger } from '../config/logger.js'
 import * as reminderRepo from '../repositories/reminderRepository.js'
 import { notify } from './notificationService.js'
+import { resolveEntity } from './reminderEntity.js'
 
 const INTERVAL_MS = 60_000
-
-interface EntityStatus {
-  exists: boolean
-  title: string | null
-  done: boolean
-}
-
-// Look up the reminder's target so we can (a) name it in the notification and
-// (b) drop the reminder if the item was completed or deleted.
-async function entityStatus(
-  entityType: ReminderEntityType,
-  entityId: string,
-  userId: string,
-): Promise<EntityStatus> {
-  const where = { id: entityId, userId }
-  switch (entityType) {
-    case 'task': {
-      const t = await prisma.task.findFirst({ where })
-      return { exists: !!t, title: t?.title ?? null, done: t?.status === 'DONE' }
-    }
-    case 'event': {
-      const e = await prisma.calendarEvent.findFirst({ where })
-      return { exists: !!e, title: e?.title ?? null, done: false }
-    }
-    case 'habit': {
-      const h = await prisma.habit.findFirst({ where })
-      return { exists: !!h, title: h?.title ?? null, done: false }
-    }
-    case 'goal': {
-      const g = await prisma.goal.findFirst({ where })
-      return { exists: !!g, title: g?.title ?? null, done: (g?.progress ?? 0) >= 100 }
-    }
-  }
-}
 
 // Quiet hours as an hour-of-day window in the user's timezone; may wrap midnight.
 function inQuietHours(hour: number, start: number | null, end: number | null): boolean {
@@ -70,7 +37,7 @@ async function tick() {
 
   for (const reminder of due) {
     try {
-      const status = await entityStatus(
+      const status = await resolveEntity(
         reminder.entityType as ReminderEntityType,
         reminder.entityId,
         reminder.userId,

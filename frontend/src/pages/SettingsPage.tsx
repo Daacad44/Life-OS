@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Avatar,
@@ -23,6 +23,7 @@ import {
 } from '@/features/notifications/hooks/useNotifications'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 import { browserTimezone } from '@/lib/datetime'
+import { ALARM_SOUNDS, previewAlarm, type AlarmSoundName } from '@/lib/alarm'
 import type { NotificationCategory } from '@life-os/shared'
 
 type SettingsTab = 'profile' | 'preferences' | 'security' | 'notifications'
@@ -90,9 +91,30 @@ export function SettingsPage() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [qhStart, setQhStart] = useState<number | null>(user?.quietHoursStart ?? null)
   const [qhEnd, setQhEnd] = useState<number | null>(user?.quietHoursEnd ?? null)
+  const [soundEnabled, setSoundEnabled] = useState(user?.soundEnabled ?? true)
+  const [alarmSound, setAlarmSound] = useState<AlarmSoundName>(
+    (user?.alarmSound as AlarmSoundName) ?? 'chime',
+  )
+  const [alarmVolume, setAlarmVolume] = useState(user?.alarmVolume ?? 70)
+  const [soundSaved, setSoundSaved] = useState(false)
+
+  // Hydrate alarm controls once the profile loads (query resolves after mount).
+  useEffect(() => {
+    if (!user) return
+    setSoundEnabled(user.soundEnabled)
+    setAlarmSound(user.alarmSound as AlarmSoundName)
+    setAlarmVolume(user.alarmVolume)
+  }, [user])
 
   function saveQuietHours() {
     updateProfile.mutate({ quietHoursStart: qhStart, quietHoursEnd: qhEnd })
+  }
+
+  function saveSound() {
+    updateProfile.mutate(
+      { soundEnabled, alarmSound, alarmVolume },
+      { onSuccess: () => setSoundSaved(true) },
+    )
   }
 
   const zones = timezoneList()
@@ -293,6 +315,97 @@ export function SettingsPage() {
                 </label>
               )
             })}
+          </div>
+        </Card>
+      ) : null}
+
+      {tab === 'notifications' ? (
+        <Card padding="lg" className="max-w-[640px]">
+          <CardTitle className="mb-1.5">Reminder Alarm</CardTitle>
+          <p className="mb-4 text-sm font-medium text-app-ink-muted">
+            When a reminder is due, Life OS plays an audible alarm and shows an alert you
+            can snooze or dismiss.
+          </p>
+
+          <label className="flex items-center justify-between py-2 text-sm font-semibold text-app-ink-soft">
+            Play alarm sound
+            <input
+              type="checkbox"
+              checked={soundEnabled}
+              onChange={(e) => {
+                setSoundEnabled(e.target.checked)
+                setSoundSaved(false)
+              }}
+              className="size-5 accent-amber-500"
+            />
+          </label>
+
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-[7px]">
+              <label
+                htmlFor="alarm-sound"
+                className="text-[13px] font-semibold text-app-ink-soft"
+              >
+                Alarm sound
+              </label>
+              <select
+                id="alarm-sound"
+                value={alarmSound}
+                disabled={!soundEnabled}
+                onChange={(e) => {
+                  const next = e.target.value as AlarmSoundName
+                  setAlarmSound(next)
+                  setSoundSaved(false)
+                  previewAlarm(next, alarmVolume)
+                }}
+                className={selectClass}
+              >
+                {ALARM_SOUNDS.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-[7px]">
+              <label
+                htmlFor="alarm-volume"
+                className="text-[13px] font-semibold text-app-ink-soft"
+              >
+                Volume: {alarmVolume}%
+              </label>
+              <input
+                id="alarm-volume"
+                type="range"
+                min={0}
+                max={100}
+                step={5}
+                value={alarmVolume}
+                disabled={!soundEnabled}
+                onChange={(e) => {
+                  setAlarmVolume(Number(e.target.value))
+                  setSoundSaved(false)
+                }}
+                className="mt-2 w-full accent-amber-500"
+              />
+            </div>
+          </div>
+
+          <div className="mt-5 flex items-center gap-3">
+            <Button size="md" onClick={saveSound} disabled={updateProfile.isPending}>
+              {updateProfile.isPending ? 'Saving…' : 'Save'}
+            </Button>
+            <Button
+              variant="surface"
+              size="md"
+              disabled={!soundEnabled}
+              onClick={() => previewAlarm(alarmSound, alarmVolume)}
+            >
+              Test alarm
+            </Button>
+            {soundSaved ? (
+              <span className="text-sm font-semibold text-accent-emerald">Saved</span>
+            ) : null}
           </div>
         </Card>
       ) : null}

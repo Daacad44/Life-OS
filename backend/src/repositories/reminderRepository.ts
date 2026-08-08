@@ -24,6 +24,7 @@ export function create(userId: string, input: CreateReminderInput) {
       entityId: input.entityId,
       remindAt: input.remindAt,
       message: input.message ?? null,
+      offsetLabel: input.offsetLabel ?? null,
     },
   })
 }
@@ -34,6 +35,28 @@ export function deleteById(id: string) {
 
 export function deleteForEntity(userId: string, entityType: string, entityId: string) {
   return prisma.reminder.deleteMany({ where: { userId, entityType, entityId } })
+}
+
+/** Reminders that have fired but the user hasn't dismissed yet, oldest first. */
+export function findPendingAlarms(userId: string, limit = 20) {
+  return prisma.reminder.findMany({
+    where: { userId, sentAt: { not: null }, acknowledgedAt: null },
+    orderBy: { remindAt: 'asc' },
+    take: limit,
+  })
+}
+
+/** Mark a fired reminder as dismissed so it stops surfacing as an alarm. */
+export function acknowledge(id: string, at: Date) {
+  return prisma.reminder.update({ where: { id }, data: { acknowledgedAt: at } })
+}
+
+/** Re-arm a reminder for a later time (snooze): clears sent/ack, pushes remindAt. */
+export function snooze(id: string, remindAt: Date) {
+  return prisma.reminder.update({
+    where: { id },
+    data: { remindAt, sentAt: null, acknowledgedAt: null },
+  })
 }
 
 /** Undelivered reminders whose time has arrived, oldest first. */
