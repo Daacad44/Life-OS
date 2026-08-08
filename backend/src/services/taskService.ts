@@ -1,12 +1,17 @@
 import type { CreateTaskInput, ListTasksQuery, UpdateTaskInput } from '@life-os/shared'
 import { prisma } from '../config/db.js'
 import { ApiError } from '../middleware/errorHandler.js'
+import type { CreateSubtaskInput, UpdateSubtaskInput } from '@life-os/shared'
 import {
   listTasks as repoListTasks,
   findTaskById,
   createTask as repoCreateTask,
   updateTask as repoUpdateTask,
   softDeleteTask,
+  findSubtaskById,
+  createSubtask as repoCreateSubtask,
+  updateSubtask as repoUpdateSubtask,
+  deleteSubtask as repoDeleteSubtask,
 } from '../repositories/taskRepository.js'
 import { recomputeProgress } from '../repositories/goalRepository.js'
 import * as automationService from './automationService.js'
@@ -85,4 +90,38 @@ export async function getOne(userId: string, id: string) {
     throw new ApiError(404, 'NOT_FOUND', 'Task not found')
   }
   return task
+}
+
+// --- Subtasks ---------------------------------------------------------------
+
+export async function addSubtask(
+  userId: string,
+  taskId: string,
+  input: CreateSubtaskInput,
+) {
+  const task = await findTaskById(userId, taskId)
+  if (!task) throw new ApiError(404, 'NOT_FOUND', 'Task not found')
+  return repoCreateSubtask(taskId, input.title)
+}
+
+async function assertSubtaskOwned(userId: string, subtaskId: string) {
+  const subtask = await findSubtaskById(subtaskId)
+  if (!subtask || subtask.task.userId !== userId || subtask.task.deletedAt) {
+    throw new ApiError(404, 'NOT_FOUND', 'Subtask not found')
+  }
+  return subtask
+}
+
+export async function editSubtask(
+  userId: string,
+  subtaskId: string,
+  input: UpdateSubtaskInput,
+) {
+  await assertSubtaskOwned(userId, subtaskId)
+  return repoUpdateSubtask(subtaskId, input)
+}
+
+export async function removeSubtask(userId: string, subtaskId: string) {
+  await assertSubtaskOwned(userId, subtaskId)
+  await repoDeleteSubtask(subtaskId)
 }

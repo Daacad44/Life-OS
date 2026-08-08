@@ -4,6 +4,7 @@ import { logger } from '../config/logger.js'
 import * as reminderRepo from '../repositories/reminderRepository.js'
 import { notify } from './notificationService.js'
 import { resolveEntity } from './reminderEntity.js'
+import { generateDueOccurrences } from './recurringTaskService.js'
 
 const INTERVAL_MS = 60_000
 
@@ -30,6 +31,9 @@ type UserQuiet = {
 } | null
 
 async function tick() {
+  // Top up recurring-task occurrences (and their reminders) before delivering.
+  await generateDueOccurrences()
+
   const due = await reminderRepo.findDue(new Date())
   if (due.length === 0) return
 

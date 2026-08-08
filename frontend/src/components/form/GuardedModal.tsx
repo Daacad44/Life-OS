@@ -7,7 +7,8 @@ export interface GuardedModalProps {
   title: string
   description?: string
   children?: ReactNode
-  footer?: ReactNode
+  /** ReactNode, or a render fn given `requestClose` so a footer Cancel is guarded too. */
+  footer?: ReactNode | ((api: { requestClose: () => void }) => ReactNode)
   className?: string
   /** True when the form has unsaved edits — enables the exit guard. */
   dirty: boolean
@@ -54,7 +55,7 @@ export function GuardedModal({
         onClose={requestClose}
         title={title}
         description={description}
-        footer={footer}
+        footer={typeof footer === 'function' ? footer({ requestClose }) : footer}
         className={className}
       >
         {children}

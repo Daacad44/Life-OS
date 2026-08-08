@@ -33,11 +33,14 @@ export function useCreateTask(filters: Filters) {
         status: input.status ?? 'TODO',
         priority: input.priority ?? 'MEDIUM',
         dueDate: input.dueDate ? input.dueDate.toString() : null,
+        tags: input.tags ?? [],
         order: 0,
         goalId: input.goalId ?? null,
         projectId: input.projectId ?? null,
+        recurringTaskId: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        subtasks: [],
       }
 
       queryClient.setQueryData<{ data: Task[] } | undefined>(key, (old) =>
@@ -107,6 +110,72 @@ export function useUpdateTask(filters: Filters) {
       // Dashboard aggregates the same Task rows (today's plan, counts).
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
+  })
+}
+
+// Subtask + recurring mutations invalidate the task list so detail/rows refresh.
+function useTaskInvalidator() {
+  const queryClient = useQueryClient()
+  return () => {
+    queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    queryClient.invalidateQueries({ queryKey: ['planner'] })
+  }
+}
+
+export function useAddSubtask() {
+  const invalidate = useTaskInvalidator()
+  return useMutation({
+    mutationFn: ({ taskId, title }: { taskId: string; title: string }) =>
+      tasksApi.addSubtask(taskId, { title }),
+    onSuccess: invalidate,
+  })
+}
+
+export function useUpdateSubtask() {
+  const invalidate = useTaskInvalidator()
+  return useMutation({
+    mutationFn: ({
+      subtaskId,
+      input,
+    }: {
+      subtaskId: string
+      input: Parameters<typeof tasksApi.updateSubtask>[1]
+    }) => tasksApi.updateSubtask(subtaskId, input),
+    onSuccess: invalidate,
+  })
+}
+
+export function useDeleteSubtask() {
+  const invalidate = useTaskInvalidator()
+  return useMutation({
+    mutationFn: (subtaskId: string) => tasksApi.deleteSubtask(subtaskId),
+    onSuccess: invalidate,
+  })
+}
+
+export function useRecurringTasks() {
+  return useQuery({
+    queryKey: ['tasks', 'recurring'],
+    queryFn: tasksApi.listRecurringTasks,
+  })
+}
+
+export function useCreateRecurringTask() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: tasksApi.createRecurringTask,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      queryClient.invalidateQueries({ queryKey: ['planner'] })
+    },
+  })
+}
+
+export function useDeleteRecurringTask() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: tasksApi.deleteRecurringTask,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks', 'recurring'] }),
   })
 }
 

@@ -17,12 +17,18 @@ import {
   useCreateTask,
   useUpdateTask,
   useDeleteTask,
+  useCreateRecurringTask,
+  useAddSubtask,
+  useUpdateSubtask,
+  useDeleteSubtask,
 } from '@/features/tasks/hooks/useTasks'
 import {
   TaskFormModal,
   toCreateInput,
+  type RecurringFormValues,
   type TaskFormValues,
 } from '@/features/tasks/components/TaskFormModal'
+import { SubtaskChecklist } from '@/features/tasks/components/SubtaskChecklist'
 import { useCreateReminder } from '@/features/reminders/hooks/useReminders'
 import { dayDiffFromToday, formatDueLabel, formatDateTime } from '@/lib/datetime'
 import type { ListTasksQuery, Priority, Task } from '@life-os/shared'
@@ -61,7 +67,11 @@ export function TasksPage() {
   const createTask = useCreateTask(filters)
   const updateTask = useUpdateTask(filters)
   const deleteTask = useDeleteTask(filters)
+  const createRecurring = useCreateRecurringTask()
   const createReminder = useCreateReminder()
+  const addSubtask = useAddSubtask()
+  const updateSubtask = useUpdateSubtask()
+  const deleteSubtask = useDeleteSubtask()
 
   const [tab, setTab] = useState<TaskTab>('today')
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -99,12 +109,13 @@ export function TasksPage() {
     setModalOpen(true)
   }
 
-  function scheduleReminder(taskId: string, reminderAt: string | null) {
-    if (!reminderAt) return
+  function scheduleReminder(taskId: string, reminder: TaskFormValues['reminder']) {
+    if (!reminder) return
     createReminder.mutate({
       entityType: 'task',
       entityId: taskId,
-      remindAt: new Date(reminderAt),
+      remindAt: new Date(reminder.remindAt),
+      offsetLabel: reminder.offsetLabel,
     })
   }
 
@@ -118,14 +129,20 @@ export function TasksPage() {
           description: values.description.trim() || null,
           priority: values.priority,
           dueDate: values.dueDate ? new Date(values.dueDate) : null,
+          tags: values.tags,
         },
       })
-      scheduleReminder(id, values.reminderAt)
+      scheduleReminder(id, values.reminder)
     } else {
       createTask.mutate(toCreateInput(values), {
-        onSuccess: (task) => scheduleReminder(task.id, values.reminderAt),
+        onSuccess: (task) => scheduleReminder(task.id, values.reminder),
       })
     }
+    setModalOpen(false)
+  }
+
+  function submitRecurring(values: RecurringFormValues) {
+    createRecurring.mutate(values)
     setModalOpen(false)
   }
 
@@ -273,7 +290,37 @@ export function TasksPage() {
                       : 'To do'}
                 </span>
               </div>
+              {active.recurringTaskId ? (
+                <div className="flex items-center justify-between">
+                  <span className="text-[13px] font-semibold text-app-ink-muted">
+                    Repeats
+                  </span>
+                  <Badge tone="navy">Recurring</Badge>
+                </div>
+              ) : null}
             </div>
+
+            {active.tags && active.tags.length > 0 ? (
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {active.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full bg-app-raised px-2.5 py-1 text-[11px] font-bold text-app-ink-soft"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+
+            <SubtaskChecklist
+              subtasks={active.subtasks ?? []}
+              onAdd={(title) => addSubtask.mutate({ taskId: active.id, title })}
+              onToggle={(subtaskId, done) =>
+                updateSubtask.mutate({ subtaskId, input: { done } })
+              }
+              onDelete={(subtaskId) => deleteSubtask.mutate(subtaskId)}
+            />
 
             <div className="mt-6 flex gap-2.5">
               <Button variant="navy" size="sm" onClick={() => openEdit(active)}>
@@ -306,8 +353,11 @@ export function TasksPage() {
           open={modalOpen}
           onClose={() => setModalOpen(false)}
           onSubmit={submit}
+          onSubmitRecurring={submitRecurring}
           task={editing}
-          pending={createTask.isPending || updateTask.isPending}
+          pending={
+            createTask.isPending || updateTask.isPending || createRecurring.isPending
+          }
         />
       ) : null}
     </div>

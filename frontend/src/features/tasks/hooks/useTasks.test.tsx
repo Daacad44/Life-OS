@@ -28,9 +28,11 @@ const existingTask: Task = {
   status: 'TODO',
   priority: 'MEDIUM',
   dueDate: null,
+  tags: [],
   order: 0,
   goalId: null,
   projectId: null,
+  recurringTaskId: null,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
 }
