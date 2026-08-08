@@ -12,6 +12,7 @@ export {
   type CardProps,
   type CardTitleProps,
 } from './Card'
+export { ConfirmDialog, type ConfirmDialogProps } from './ConfirmDialog'
 export { EmptyState, type EmptyStateProps } from './EmptyState'
 export { Input, type InputProps } from './Input'
 export { Logo, type LogoProps } from './Logo'
