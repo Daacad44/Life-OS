@@ -6,7 +6,6 @@ import {
   Card,
   EmptyState,
   Input,
-  Modal,
   ProgressBar,
   Skeleton,
   Tabs,
@@ -15,7 +14,13 @@ import {
   type Tone,
 } from '@/components/ui-kit'
 import { cn } from '@/lib/utils'
+import { GuardedModal } from '@/components/form/GuardedModal'
 import { DateTimeField } from '@/components/form/DateTimeField'
+import {
+  ReminderField,
+  resolveReminder,
+} from '@/features/reminders/components/ReminderField'
+import { useCreateReminder } from '@/features/reminders/hooks/useReminders'
 import { useUserTimezone } from '@/features/auth/hooks/useTimezone'
 import { useGoals, useCreateGoal } from '@/features/goals/hooks/useGoals'
 import { formatDate } from '@/lib/datetime'
@@ -36,12 +41,17 @@ export function GoalsPage() {
   const timezone = useUserTimezone()
   const { data: goals, isLoading, isError, refetch } = useGoals()
   const createGoal = useCreateGoal()
+  const createReminder = useCreateReminder()
 
   const [tab, setTab] = useState<GoalTab>('all')
   const [modalOpen, setModalOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [startDate, setStartDate] = useState<string | null>(null)
   const [targetDate, setTargetDate] = useState<string | null>(null)
+  const [reminderPreset, setReminderPreset] = useState('none')
+  const [reminderCustom, setReminderCustom] = useState<string | null>(null)
+  const [touched, setTouched] = useState(false)
 
   const visible = useMemo(() => {
     const list = goals ?? []
@@ -53,21 +63,40 @@ export function GoalsPage() {
   function openCreate() {
     setTitle('')
     setDescription('')
+    setStartDate(null)
     setTargetDate(null)
+    setReminderPreset('none')
+    setReminderCustom(null)
+    setTouched(false)
     setModalOpen(true)
   }
 
-  function submit(e: FormEvent) {
-    e.preventDefault()
+  function submit(e?: FormEvent) {
+    e?.preventDefault()
     const trimmed = title.trim()
     if (!trimmed) return
     createGoal.mutate(
       {
         title: trimmed,
         description: description.trim() || undefined,
+        startDate: startDate ? new Date(startDate) : undefined,
         targetDate: targetDate ? new Date(targetDate) : undefined,
       },
-      { onSuccess: () => setModalOpen(false) },
+      {
+        onSuccess: (goal) => {
+          const reminder = resolveReminder(reminderPreset, targetDate, reminderCustom)
+          if (reminder) {
+            createReminder.mutate({
+              entityType: 'goal',
+              entityId: goal.id,
+              remindAt: new Date(reminder.remindAt),
+              offsetLabel: reminder.offsetLabel,
+              message: `The time for "${trimmed}" is up — let's complete it.`,
+            })
+          }
+          setModalOpen(false)
+        },
+      },
     )
   }
 
@@ -158,28 +187,34 @@ export function GoalsPage() {
         })
       )}
 
-      <Modal
+      <GuardedModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onDiscard={() => setModalOpen(false)}
+        onSave={submit}
+        dirty={touched}
         title="New goal"
-        footer={
+        footer={({ requestClose }) => (
           <>
-            <Button variant="surface" size="sm" onClick={() => setModalOpen(false)}>
+            <Button variant="surface" size="sm" onClick={requestClose}>
               Cancel
             </Button>
             <Button
               variant="navy"
               size="sm"
-              type="submit"
-              form="goal-form"
+              onClick={() => submit()}
               disabled={!title.trim() || createGoal.isPending}
             >
               Create goal
             </Button>
           </>
-        }
+        )}
       >
-        <form id="goal-form" onSubmit={submit} className="flex flex-col gap-4">
+        <form
+          id="goal-form"
+          onSubmit={submit}
+          onChange={() => setTouched(true)}
+          className="flex flex-col gap-4"
+        >
           <Input
             label="Title"
             value={title}
@@ -204,15 +239,42 @@ export function GoalsPage() {
               className="w-full rounded-[11px] border border-app-hairline bg-app-canvas px-3.5 py-[13px] font-display text-base text-app-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
             />
           </div>
-          <DateTimeField
-            label="Target date"
-            value={targetDate}
-            onChange={setTargetDate}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <DateTimeField
+              label="Start date"
+              value={startDate}
+              onChange={(v) => {
+                setStartDate(v)
+                setTouched(true)
+              }}
+              timezone={timezone}
+              mode="date"
+            />
+            <DateTimeField
+              label="Deadline"
+              value={targetDate}
+              onChange={(v) => {
+                setTargetDate(v)
+                setTouched(true)
+              }}
+              timezone={timezone}
+              mode="datetime"
+            />
+          </div>
+          <ReminderField
+            label="Deadline reminder"
+            baseTime={targetDate}
+            presetKey={reminderPreset}
+            onPresetChange={(k) => {
+              setReminderPreset(k)
+              setTouched(true)
+            }}
+            customAt={reminderCustom}
+            onCustomChange={setReminderCustom}
             timezone={timezone}
-            mode="date"
           />
         </form>
-      </Modal>
+      </GuardedModal>
     </div>
   )
 }

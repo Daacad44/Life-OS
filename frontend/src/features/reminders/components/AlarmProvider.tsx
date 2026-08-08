@@ -21,6 +21,7 @@ const ENTITY_LABEL: Record<PendingAlarm['entityType'], string> = {
   event: 'Event',
   habit: 'Habit',
   goal: 'Goal',
+  subgoal: 'Sub-goal',
 }
 
 /**

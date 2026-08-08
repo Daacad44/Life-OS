@@ -41,5 +41,12 @@ export async function resolveEntity(
         done: (g?.progress ?? 0) >= 100,
       }
     }
+    case 'subgoal': {
+      // Sub-goals are owned through their parent goal.
+      const sg = await prisma.subGoal.findFirst({
+        where: { id: entityId, goal: { userId } },
+      })
+      return { exists: !!sg, title: sg?.title ?? null, done: sg?.done ?? false }
+    }
   }
 }

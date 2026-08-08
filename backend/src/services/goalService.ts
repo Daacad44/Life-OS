@@ -53,7 +53,7 @@ export async function addSubGoal(
   input: CreateSubGoalInput,
 ) {
   await getOne(userId, goalId)
-  const subGoal = await goalRepo.createSubGoal(goalId, input.title)
+  const subGoal = await goalRepo.createSubGoal(goalId, input.title, input.dueDate)
   await recomputeProgressAndCheckAutomations(userId, goalId)
   return subGoal
 }

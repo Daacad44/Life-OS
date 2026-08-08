@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 // Reminders can be attached to any of these entities — see Notifications.md.
-export const ReminderEntityType = ['task', 'event', 'habit', 'goal'] as const
+export const ReminderEntityType = ['task', 'event', 'habit', 'goal', 'subgoal'] as const
 export type ReminderEntityType = (typeof ReminderEntityType)[number]
 
 export const createReminderSchema = z.object({
