@@ -9,6 +9,8 @@ import { apiFetch } from '@/lib/api'
 export function listNotes(query: Partial<ListNotesQuery> = {}) {
   const params = new URLSearchParams()
   if (query.tag) params.set('tag', query.tag)
+  if (query.folder) params.set('folder', query.folder)
+  if (query.q) params.set('q', query.q)
   const qs = params.toString()
   return apiFetch<Note[]>(`/v1/notes${qs ? `?${qs}` : ''}`)
 }

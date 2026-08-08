@@ -18,7 +18,8 @@ import {
 } from '@/features/calendar/hooks/useCalendar'
 import { useTasks } from '@/features/tasks/hooks/useTasks'
 import { EventFormModal } from '@/features/calendar/components/EventFormModal'
-import { useCreateReminder } from '@/features/reminders/hooks/useReminders'
+import type { ReminderValue } from '@/features/reminders/components/ReminderField'
+import * as remindersApi from '@/features/reminders/api'
 import { dayKeyInTz, formatTime } from '@/lib/datetime'
 import type { CalendarEvent, CreateEventInput, ListTasksQuery } from '@life-os/shared'
 
@@ -79,7 +80,24 @@ export function CalendarPage() {
   const createEvent = useCreateEvent()
   const updateEvent = useUpdateEvent()
   const deleteEvent = useDeleteEvent()
-  const createReminder = useCreateReminder()
+
+  // Replace any existing reminders for an event with the chosen one, so editing
+  // an event's time doesn't leave a stale reminder or stack duplicates.
+  async function syncEventReminder(eventId: string, reminder: ReminderValue | null) {
+    const existing = await remindersApi.listReminders({
+      entityType: 'event',
+      entityId: eventId,
+    })
+    await Promise.all(existing.map((r) => remindersApi.deleteReminder(r.id)))
+    if (reminder) {
+      await remindersApi.createReminder({
+        entityType: 'event',
+        entityId: eventId,
+        remindAt: new Date(reminder.remindAt),
+        offsetLabel: reminder.offsetLabel,
+      })
+    }
+  }
 
   // Group events and task deadlines by their day (in the user's timezone).
   const byDay = useMemo(() => {
@@ -132,22 +150,22 @@ export function CalendarPage() {
     setDefaultDate(undefined)
     setModalOpen(true)
   }
-  function submit(input: CreateEventInput, reminderAt: string | null) {
+  function submit(input: CreateEventInput, reminder: ReminderValue | null) {
     if (editing) {
+      const id = editing.id
       updateEvent.mutate(
-        { id: editing.id, input },
-        { onSuccess: () => setModalOpen(false) },
+        { id, input },
+        {
+          onSuccess: async () => {
+            await syncEventReminder(id, reminder)
+            setModalOpen(false)
+          },
+        },
       )
     } else {
       createEvent.mutate(input, {
-        onSuccess: (event) => {
-          if (reminderAt) {
-            createReminder.mutate({
-              entityType: 'event',
-              entityId: event.id,
-              remindAt: new Date(reminderAt),
-            })
-          }
+        onSuccess: async (event) => {
+          await syncEventReminder(event.id, reminder)
           setModalOpen(false)
         },
       })

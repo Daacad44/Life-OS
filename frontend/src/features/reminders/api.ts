@@ -1,4 +1,9 @@
-import type { CreateReminderInput, ListRemindersQuery, Reminder } from '@life-os/shared'
+import type {
+  CreateReminderInput,
+  ListRemindersQuery,
+  PendingAlarm,
+  Reminder,
+} from '@life-os/shared'
 import { apiFetch } from '@/lib/api'
 
 export function listReminders(query: Partial<ListRemindersQuery> = {}) {
@@ -19,4 +24,20 @@ export function createReminder(input: CreateReminderInput) {
 
 export async function deleteReminder(id: string) {
   await apiFetch<null>(`/v1/reminders/${id}`, { method: 'DELETE' })
+}
+
+/** Fired-but-undismissed reminders — polled to raise the on-screen alarm. */
+export function listPendingAlarms() {
+  return apiFetch<PendingAlarm[]>('/v1/reminders/alarms')
+}
+
+export async function acknowledgeReminder(id: string) {
+  await apiFetch<null>(`/v1/reminders/${id}/acknowledge`, { method: 'POST' })
+}
+
+export function snoozeReminder(id: string, minutes: number) {
+  return apiFetch<Reminder>(`/v1/reminders/${id}/snooze`, {
+    method: 'POST',
+    body: JSON.stringify({ minutes }),
+  })
 }

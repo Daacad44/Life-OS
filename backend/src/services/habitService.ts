@@ -2,6 +2,7 @@ import type { CreateHabitInput, HabitInsight, UpdateHabitInput } from '@life-os/
 import { ApiError } from '../middleware/errorHandler.js'
 import { calculateStreak } from '../utils/streak.js'
 import * as habitRepo from '../repositories/habitRepository.js'
+import * as reminderRepo from '../repositories/reminderRepository.js'
 import * as aiService from '../ai/service.js'
 import * as notificationService from './notificationService.js'
 import * as automationService from './automationService.js'
@@ -42,12 +43,19 @@ export function create(userId: string, input: CreateHabitInput) {
 }
 
 export async function update(userId: string, id: string, input: UpdateHabitInput) {
-  await getOne(userId, id)
-  return habitRepo.updateHabit(id, input)
+  const existing = await getOne(userId, id)
+  const habit = await habitRepo.updateHabit(id, input)
+  // If the time changed/cleared, drop queued reminders so the generator re-queues
+  // at the new time instead of firing at the old one.
+  if (input.timeOfDay !== undefined && input.timeOfDay !== existing.timeOfDay) {
+    await reminderRepo.deleteForEntity(userId, 'habit', id)
+  }
+  return habit
 }
 
 export async function remove(userId: string, id: string) {
   await getOne(userId, id)
+  await reminderRepo.deleteForEntity(userId, 'habit', id)
   await habitRepo.deleteHabit(id)
 }
 

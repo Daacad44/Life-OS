@@ -35,7 +35,7 @@ export function PlannerList({ date }: { date: string }) {
   })
   const reschedule = useMutation({
     mutationFn: ({ id, dueDate }: { id: string; dueDate: string }) =>
-      tasksApi.updateTask(id, { dueDate: new Date(`${dueDate}T12:00:00.000Z`) }),
+      tasksApi.updateTask(id, { dueDate: new Date(dueDate) }),
     onSuccess: invalidate,
   })
 

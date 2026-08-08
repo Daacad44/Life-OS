@@ -20,6 +20,10 @@ export const updateProfileSchema = z.object({
   // reminders are held back. Both null disables quiet hours.
   quietHoursStart: z.number().int().min(0).max(23).nullable().optional(),
   quietHoursEnd: z.number().int().min(0).max(23).nullable().optional(),
+  // Audible-alarm settings (Global Requirement A).
+  soundEnabled: z.boolean().optional(),
+  alarmSound: z.string().min(1).max(30).optional(),
+  alarmVolume: z.number().int().min(0).max(100).optional(),
 })
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>
 
@@ -34,6 +38,9 @@ export interface PublicUser {
   timezone: string
   quietHoursStart: number | null
   quietHoursEnd: number | null
+  soundEnabled: boolean
+  alarmSound: string
+  alarmVolume: number
   onboardedAt: string | null
   createdAt: string
 }

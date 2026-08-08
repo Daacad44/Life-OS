@@ -31,6 +31,11 @@ model User {
   // Quiet hours (hour-of-day, user timezone) during which reminders are held.
   quietHoursStart         Int?
   quietHoursEnd           Int?
+  // Audible-alarm settings for reminders (Global Requirement A).
+  // soundEnabled is the global mute toggle; alarmSound picks the chime; volume 0-100.
+  soundEnabled            Boolean  @default(true)
+  alarmSound              String   @default("chime")
+  alarmVolume             Int      @default(70)
   // Community is strictly opt-in — see Community.md Section 9.
   communityOptIn          Boolean  @default(false)
   // Null until the first-run wizard (profile -> first goal -> AI coach intro)
@@ -71,6 +76,7 @@ model User {
   sharedGoals          SharedGoal[]
   communityPosts       CommunityPost[]
   reminders            Reminder[]
+  recurringTasks       RecurringTask[]
 }
 
 enum TaskStatus {
@@ -94,19 +100,72 @@ model Task {
   status        TaskStatus     @default(TODO)
   priority      Priority       @default(MEDIUM)
   dueDate       DateTime?
+  tags          String[]       @default([])
   order         Int            @default(0)
   goalId        String?
   goal          Goal?          @relation(fields: [goalId], references: [id])
   // A task linked to a Project is a business task — see Business Workspace.md Section 7.
   projectId     String?
   project       Project?       @relation(fields: [projectId], references: [id])
+  // Set when this task was generated from a recurring template.
+  recurringTaskId String?
+  recurringTask   RecurringTask? @relation(fields: [recurringTaskId], references: [id], onDelete: SetNull)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   deletedAt     DateTime?
   focusSessions FocusSession[]
+  subtasks      Subtask[]
 
   @@index([userId])
   @@index([status])
+  @@index([recurringTaskId])
+}
+
+model Subtask {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  title     String
+  done      Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([taskId])
+}
+
+// Recurring task template — the scheduler materializes concrete Task occurrences
+// (with their reminders) from this on a rolling window. See Tasks feature.
+model RecurringTask {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  priority    Priority @default(MEDIUM)
+  tags        String[] @default([])
+  goalId      String?
+  // DAILY | WEEKLY | MONTHLY
+  freq        String
+  // Repeat every N units of `freq` (e.g. every 2 weeks).
+  interval    Int      @default(1)
+  // For WEEKLY: weekdays to run on, 0=Sunday .. 6=Saturday.
+  byWeekday   Int[]    @default([])
+  // Wall-clock time of day "HH:mm" in the user's timezone.
+  timeOfDay   String
+  // Optional reminder lead time in minutes before each occurrence (0 = at time).
+  reminderMinutesBefore Int?
+  startDate   DateTime
+  endDate     DateTime?
+  active      Boolean  @default(true)
+  // Last calendar day (UTC midnight) an occurrence was materialized for.
+  lastGeneratedFor DateTime?
+  tasks       Task[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([active])
 }
 
 model Goal {
@@ -116,6 +175,7 @@ model Goal {
   title        String
   description  String?
   progress     Int           @default(0)
+  startDate    DateTime?
   targetDate   DateTime?
   tasks        Task[]
   subGoals     SubGoal[]
@@ -134,6 +194,7 @@ model SubGoal {
   goal      Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
   title     String
   done      Boolean  @default(false)
+  dueDate   DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -152,6 +213,8 @@ model Habit {
   title     String
   frequency HabitFrequency @default(DAILY)
   streak    Int            @default(0)
+  // Wall-clock time of day "HH:mm" (user timezone) to practice the habit; drives reminders.
+  timeOfDay String?
   checkins  HabitCheckin[]
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
@@ -192,6 +255,8 @@ model Note {
   title     String
   content   String
   tags      String[]  @default([])
+  // Optional single-level folder name for organizing notes.
+  folder    String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -222,13 +287,20 @@ model Reminder {
   entityId   String
   remindAt   DateTime
   message    String?
+  // Human label for how far ahead this fires, e.g. "At time", "10 min before".
+  offsetLabel String?
   // Set once the reminder has been delivered — the scheduler never re-sends.
   sentAt     DateTime?
+  // Set when the user dismisses the on-screen alarm. Until then the client keeps
+  // surfacing it as a pending alarm (survives reloads). Snoozing clears sentAt
+  // and pushes remindAt forward instead.
+  acknowledgedAt DateTime?
   createdAt  DateTime  @default(now())
 
   @@index([userId])
   @@index([sentAt, remindAt])
   @@index([entityType, entityId])
+  @@index([userId, acknowledgedAt])
 }
 
 // AI memory — see docs/.../03-Architecture/AI Architecture.md

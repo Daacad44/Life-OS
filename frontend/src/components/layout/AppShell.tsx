@@ -3,6 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 import { CommandBarProvider } from '@/components/command/CommandBarProvider'
+import { AlarmProvider } from '@/features/reminders/components/AlarmProvider'
 import { useCurrentUser } from '@/features/auth/hooks/useAuth'
 
 function PageFallback() {
@@ -55,6 +56,7 @@ export function AppShell() {
             </Suspense>
           </main>
         </div>
+        <AlarmProvider />
       </div>
     </CommandBarProvider>
   )

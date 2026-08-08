@@ -13,6 +13,9 @@ export function toPublicUser(user: User): PublicUser {
     timezone: user.timezone,
     quietHoursStart: user.quietHoursStart,
     quietHoursEnd: user.quietHoursEnd,
+    soundEnabled: user.soundEnabled,
+    alarmSound: user.alarmSound,
+    alarmVolume: user.alarmVolume,
     onboardedAt: user.onboardedAt ? user.onboardedAt.toISOString() : null,
     createdAt: user.createdAt.toISOString(),
   }

@@ -5,6 +5,96 @@ mobile-responsive product **without changing the approved UI design**. The
 navy/amber design, layout, and components are preserved; only data and behavior
 became real.
 
+---
+
+# Production Feature Upgrade (2026-08-08)
+
+A follow-up pass that took seven features to production quality and added a
+**system-wide reminder + audible-alarm** capability and a **Done/Cancel exit
+guard**, without changing the approved UI design. Built the two cross-cutting
+systems once, then used them everywhere.
+
+## Global A — Reminders + audible alarm (system-wide)
+
+Every reminder in the app now produces a real in-app notification **and** an
+audible alarm, done professionally.
+
+- **Backend.** `Reminder` gained `acknowledgedAt` + `offsetLabel`. The 60s
+  in-process scheduler (`reminderScheduler.ts`) marks reminders `sentAt`,
+  respects the `reminders` preference and quiet hours (defers, never drops),
+  auto-cancels a reminder when its item is completed/deleted, and dedupes via
+  `sentAt`. New endpoints: `GET /v1/reminders/alarms` (fired-but-undismissed,
+  with the resolved item title), `POST /v1/reminders/:id/acknowledge`,
+  `POST /v1/reminders/:id/snooze`. Snooze re-arms (clears sent/ack, pushes
+  `remindAt`). A shared `reminderEntity` resolver backs both the scheduler and
+  the alarm endpoint and now covers `task | event | habit | goal | subgoal`.
+- **User settings.** `soundEnabled` (global mute), `alarmSound`, `alarmVolume`
+  on `User`, surfaced via profile GET/PATCH and the Settings → Notifications tab
+  (sound picker, volume, mute, Test button). Quiet hours already existed.
+- **Frontend.** A Web Audio alarm engine (`lib/alarm.ts`) synthesizes five
+  selectable chimes at the chosen volume — no binary asset — and unlocks audio
+  on first interaction (autoplay policy). `AlarmProvider` (mounted in the app
+  shell) polls `/reminders/alarms` every 20s, plays the alarm, and shows a
+  per-reminder alert naming the item with **Snooze 5/10/15** and **Done**;
+  falls back to the Notifications API + vibration when the tab is hidden.
+- **Extensible.** Email/push can be layered behind the same `notify()` pipeline
+  and reminder rows without rework.
+
+## Global B — Done/Cancel exit guard (every flow)
+
+- `GuardedModal` intercepts scrim/Escape/X/Cancel while a form is dirty and asks
+  **Done (save)** vs **Discard** instead of silently losing work.
+  `useNavigationGuard` (react-router `useBlocker` + `beforeunload`) does the same
+  for route-based flows (Focus, Notes). `ConfirmDialog` is the shared prompt.
+- Wired into Tasks, Goals, Calendar, Focus, and Notes; inline add forms (Planner,
+  Habits, sub-goals) keep typed input until submitted.
+
+## Per-feature
+
+- **Planner.** Plan items take an optional time + reminder (audible), read as a
+  schedule, and preserve their time-of-day when dragged to another day.
+- **Tasks.** Recurring tasks (DAILY/WEEKLY-with-weekdays/MONTHLY + interval +
+  time) — a rolling-window generator materializes occurrences and their
+  reminders each scheduler tick (DST-safe wall-time→UTC). Subtasks (CRUD +
+  checklist), tags, and reminders with offset labels. Endpoints:
+  `/v1/tasks/recurring` (CRUD), `/v1/tasks/:id/subtasks`,
+  `/v1/tasks/subtasks/:id`.
+- **Goals.** Goal start date + datetime deadline; per-sub-goal deadline; deadline
+  reminders fire the alarm (new `subgoal` reminder entity). Progress still
+  derives from sub-goals for analytics/AI.
+- **Calendar.** Event reminder **fixed** — relative presets (at time / N before /
+  custom) on create **and** edit; editing syncs the reminder (no stale/dupes);
+  fired reminders raise the alarm.
+- **Habits.** Optional time-of-day → a generator queues daily/weekly reminders
+  (skips today once checked in; clears on time-change/delete) that raise the alarm.
+- **Focus.** Configurable Pomodoro (focus/break) tied to a real task, alarm at
+  interval/break end, time logged to the task + analytics, exit guard on a
+  running session.
+- **Notes.** Folders + full-text search (`q`/`folder` query params), debounced
+  autosave with live state, exit guard on unsaved edits.
+
+## New migration (run in each environment)
+
+`prisma/migrations/20260808120000_production_upgrade` adds: `User` alarm
+settings; `Reminder.offsetLabel` + `acknowledgedAt`; `Task.tags` +
+`recurringTaskId`; `Subtask` and `RecurringTask` tables; `Goal.startDate`;
+`SubGoal.dueDate`; `Habit.timeOfDay`; `Note.folder`. The reminder/alarm,
+recurring-task, and habit-reminder features depend on it.
+
+## Verification
+
+- `npm run build` (shared + frontend `vite build` + backend `tsc`) passes clean.
+- Tests: backend 15/15, frontend 9/9. `eslint .` reports 0 errors.
+
+## Follow-ups
+
+- Reminders/alarms poll (20s) and the scheduler ticks (60s); websockets/push are
+  the eventual upgrade, and the pipeline is already structured for it.
+- Editing an existing recurring template from the UI (create + delete exist);
+  a dedicated "manage recurring" screen is a natural next step.
+
+---
+
 ## TL;DR
 
 - All 11 prototype screens now render the authenticated user's **real data**

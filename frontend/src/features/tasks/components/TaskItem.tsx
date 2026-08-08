@@ -50,7 +50,12 @@ export function TaskItem({
         </p>
         {task.dueDate && (
           <p className="text-xs text-text-muted">
-            Due {new Date(task.dueDate).toLocaleDateString()}
+            {new Date(task.dueDate).toLocaleString([], {
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+            })}
           </p>
         )}
       </div>

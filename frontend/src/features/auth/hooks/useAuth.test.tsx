@@ -31,6 +31,9 @@ const user: PublicUser = {
   timezone: 'UTC',
   quietHoursStart: null,
   quietHoursEnd: null,
+  soundEnabled: true,
+  alarmSound: 'chime',
+  alarmVolume: 70,
   onboardedAt: new Date().toISOString(),
   createdAt: new Date().toISOString(),
 }

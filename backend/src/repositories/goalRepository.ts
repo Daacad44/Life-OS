@@ -33,8 +33,8 @@ export async function softDeleteGoal(id: string) {
   await prisma.goal.update({ where: { id }, data: { deletedAt: new Date() } })
 }
 
-export function createSubGoal(goalId: string, title: string) {
-  return prisma.subGoal.create({ data: { goalId, title } })
+export function createSubGoal(goalId: string, title: string, dueDate?: Date | null) {
+  return prisma.subGoal.create({ data: { goalId, title, dueDate: dueDate ?? null } })
 }
 
 export function findSubGoal(goalId: string, id: string) {
