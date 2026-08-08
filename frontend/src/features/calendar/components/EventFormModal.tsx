@@ -1,7 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { Trash2 } from 'lucide-react'
-import { Button, Input, Modal } from '@/components/ui-kit'
+import { Button, Input } from '@/components/ui-kit'
+import { GuardedModal } from '@/components/form/GuardedModal'
 import { DateTimeField } from '@/components/form/DateTimeField'
+import {
+  ReminderField,
+  resolveReminder,
+  type ReminderValue,
+} from '@/features/reminders/components/ReminderField'
 import { useUserTimezone } from '@/features/auth/hooks/useTimezone'
 import type { CalendarEvent, CreateEventInput } from '@life-os/shared'
 
@@ -16,7 +22,7 @@ export function EventFormModal({
 }: {
   open: boolean
   onClose: () => void
-  onSubmit: (input: CreateEventInput, reminderAt: string | null) => void
+  onSubmit: (input: CreateEventInput, reminder: ReminderValue | null) => void
   onDelete?: () => void
   event?: CalendarEvent
   /** ISO day the user clicked, used to seed a new event's times. */
@@ -34,11 +40,13 @@ export function EventFormModal({
   const [allDay, setAllDay] = useState(event?.allDay ?? false)
   const [start, setStart] = useState<string | null>(seedStart)
   const [end, setEnd] = useState<string | null>(seedEnd)
-  const [reminderAt, setReminderAt] = useState<string | null>(null)
+  const [reminderPreset, setReminderPreset] = useState('none')
+  const [reminderCustom, setReminderCustom] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [touched, setTouched] = useState(false)
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  function handleSubmit(e?: FormEvent) {
+    e?.preventDefault()
     const trimmed = title.trim()
     if (!trimmed || !start || !end) return
     if (new Date(start) >= new Date(end)) {
@@ -46,22 +54,19 @@ export function EventFormModal({
       return
     }
     onSubmit(
-      {
-        title: trimmed,
-        startTime: new Date(start),
-        endTime: new Date(end),
-        allDay,
-      },
-      reminderAt,
+      { title: trimmed, startTime: new Date(start), endTime: new Date(end), allDay },
+      resolveReminder(reminderPreset, start, reminderCustom),
     )
   }
 
   return (
-    <Modal
+    <GuardedModal
       open={open}
-      onClose={onClose}
+      onDiscard={onClose}
+      onSave={handleSubmit}
+      dirty={touched}
       title={event ? 'Edit event' : 'New event'}
-      footer={
+      footer={({ requestClose }) => (
         <>
           {event && onDelete ? (
             <Button
@@ -74,22 +79,26 @@ export function EventFormModal({
               Delete
             </Button>
           ) : null}
-          <Button variant="surface" size="sm" onClick={onClose}>
+          <Button variant="surface" size="sm" onClick={requestClose}>
             Cancel
           </Button>
           <Button
             variant="navy"
             size="sm"
-            type="submit"
-            form="event-form"
+            onClick={() => handleSubmit()}
             disabled={!title.trim() || pending}
           >
             {event ? 'Save changes' : 'Add event'}
           </Button>
         </>
-      }
+      )}
     >
-      <form id="event-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form
+        id="event-form"
+        onSubmit={handleSubmit}
+        onChange={() => setTouched(true)}
+        className="flex flex-col gap-4"
+      >
         <Input
           label="Title"
           value={title}
@@ -102,7 +111,10 @@ export function EventFormModal({
           <input
             type="checkbox"
             checked={allDay}
-            onChange={(e) => setAllDay(e.target.checked)}
+            onChange={(e) => {
+              setAllDay(e.target.checked)
+              setTouched(true)
+            }}
             className="size-4 accent-amber-500"
           />
           All day
@@ -111,7 +123,10 @@ export function EventFormModal({
           <DateTimeField
             label="Starts"
             value={start}
-            onChange={setStart}
+            onChange={(v) => {
+              setStart(v)
+              setTouched(true)
+            }}
             timezone={timezone}
             mode={allDay ? 'date' : 'datetime'}
             required
@@ -119,25 +134,30 @@ export function EventFormModal({
           <DateTimeField
             label="Ends"
             value={end}
-            onChange={setEnd}
+            onChange={(v) => {
+              setEnd(v)
+              setTouched(true)
+            }}
             timezone={timezone}
             mode={allDay ? 'date' : 'datetime'}
             required
           />
         </div>
-        {!event ? (
-          <DateTimeField
-            label="Remind me (optional)"
-            value={reminderAt}
-            onChange={setReminderAt}
-            timezone={timezone}
-            mode="datetime"
-          />
-        ) : null}
+        <ReminderField
+          baseTime={start}
+          presetKey={reminderPreset}
+          onPresetChange={(k) => {
+            setReminderPreset(k)
+            setTouched(true)
+          }}
+          customAt={reminderCustom}
+          onCustomChange={setReminderCustom}
+          timezone={timezone}
+        />
         {error ? (
           <p className="text-[13px] font-semibold text-accent-red">{error}</p>
         ) : null}
       </form>
-    </Modal>
+    </GuardedModal>
   )
 }
