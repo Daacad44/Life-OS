@@ -7,6 +7,13 @@ function whereFor(userId: string, query: ListNotesQuery): Prisma.NoteWhereInput 
     userId,
     deletedAt: null,
     ...(query.tag && { tags: { has: query.tag } }),
+    ...(query.folder && { folder: query.folder }),
+    ...(query.q && {
+      OR: [
+        { title: { contains: query.q, mode: 'insensitive' } },
+        { content: { contains: query.q, mode: 'insensitive' } },
+      ],
+    }),
   }
 }
 
