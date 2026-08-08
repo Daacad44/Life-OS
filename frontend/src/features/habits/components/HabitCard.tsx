@@ -1,4 +1,4 @@
-import { Flame, Sparkles, Trash2 } from 'lucide-react'
+import { Clock, Flame, Sparkles, Trash2 } from 'lucide-react'
 import type { Habit } from '@life-os/shared'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -29,8 +29,14 @@ export function HabitCard({ habit }: { habit: Habit }) {
         <div className="flex items-center justify-between gap-2">
           <div>
             <p className="font-medium text-text">{habit.title}</p>
-            <p className="text-xs text-text-muted">
+            <p className="flex items-center gap-1.5 text-xs text-text-muted">
               {habit.frequency === 'DAILY' ? 'Daily' : 'Weekly'}
+              {habit.timeOfDay ? (
+                <span className="inline-flex items-center gap-1">
+                  <Clock className="size-3" />
+                  {habit.timeOfDay}
+                </span>
+              ) : null}
             </p>
           </div>
           <div className="flex items-center gap-2">
