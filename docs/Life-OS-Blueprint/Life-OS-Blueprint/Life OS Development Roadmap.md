@@ -61,7 +61,7 @@ The core rule: **build the skeleton first, add intelligence later.** You never b
 | Database | PostgreSQL | Relational, reliable, scalable |
 | ORM | Prisma | Type-safe schema and queries |
 | Auth | Custom (bcrypt/argon2 + httpOnly cookie sessions in Redis) | Full control, zero third-party cost, matches self-hosted positioning; Passport.js added later for Google OAuth only |
-| AI | Claude API (Anthropic) | Coaching, memory, reasoning |
+| AI | Gemini API (Google) | Coaching, memory, reasoning |
 | Vector Store | pgvector (Postgres extension) | AI memory / semantic search |
 | Cache/Queue | Redis | Sessions, background jobs, rate limits |
 | Hosting | VPS + Coolify | Self-hosted, cost-controlled |
@@ -150,7 +150,7 @@ Build these **in order**, each as a full vertical slice (DB → API → UI):
 **Goal:** Add the intelligence layer on top of the working data.
 
 **Tasks:**
-- **AI Infrastructure:** wrap the Claude API in a service layer (prompt templates, error handling, rate limiting, token tracking).
+- **AI Infrastructure:** wrap the Gemini API in a service layer (prompt templates, error handling, rate limiting, token tracking).
 - **AI Memory:** set up `pgvector`, embeddings, and a memory store (facts, preferences, history).
 - **AI Personal Coach:** the flagship feature — reads the user's tasks, goals, and habits and coaches them.
 - **AI Goal Engine (intelligence):** goal breakdown, suggestions, progress insights.

@@ -31,7 +31,7 @@ This document defines how intelligence works in Life OS: the AI service layer, t
 ## 2. Principles
 
 1. **AI is a layer, not the base.** The app works with AI switched off.
-2. **All AI runs on the backend.** The frontend never calls Claude directly.
+2. **All AI runs on the backend.** The frontend never calls the AI provider directly.
 3. **Memory makes it personal.** The AI is only useful because it remembers the user.
 4. **Data before AI.** A feature's tables must exist before its AI layer is added.
 5. **Deterministic where possible.** Use AI for reasoning, not for things plain code can do.
@@ -40,21 +40,21 @@ This document defines how intelligence works in Life OS: the AI service layer, t
 
 ## 3. The AI Service Layer
 
-Every AI call goes through one internal module (`src/ai`). It is the single gateway to the Claude API and is responsible for:
+Every AI call goes through one internal module (`src/ai`). It is the single gateway to the AI provider (the Gemini API) and is responsible for:
 
 - Building prompts from templates.
 - Fetching relevant memory (via pgvector).
-- Sending requests to the Claude API.
+- Sending requests to the AI provider.
 - Handling retries, timeouts, and fallbacks.
 - Tracking token usage per user.
 - Enforcing rate limits.
 - Storing results and new memories.
 
 ```
-Feature Service → AI Service Layer → [ memory lookup ] → Claude API → response → [ store memory ] → Feature Service
+Feature Service → AI Service Layer → [ memory lookup ] → AI provider → response → [ store memory ] → Feature Service
 ```
 
-No feature ever talks to Claude directly — always through this layer.
+No feature ever talks to the AI provider directly — always through this layer.
 
 ---
 
@@ -89,7 +89,7 @@ The standard retrieval-augmented generation flow for a personalized response:
 2. Gather structured context (today's tasks, active goals, habits) from the database.
 3. Embed the request and query pgvector for relevant long-term memories.
 4. Assemble the prompt: system role + structured data + retrieved memories + request.
-5. Call the Claude API.
+5. Call the AI provider.
 6. Parse and validate the response.
 7. Store any new durable memory.
 8. Return the result to the feature.

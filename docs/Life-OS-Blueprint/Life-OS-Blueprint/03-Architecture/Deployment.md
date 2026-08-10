@@ -85,13 +85,23 @@ Required in every environment (stored in Coolify, never in code):
 DATABASE_URL=
 REDIS_URL=
 JWT_SECRET=
-CLAUDE_API_KEY=
+GEMINI_API_KEY=
+GEMINI_MODEL=
+GEMINI_EMBEDDING_MODEL=
+GEMINI_EMBEDDING_DIM=
 FRONTEND_ORIGIN=
 S3_ENDPOINT=
 S3_ACCESS_KEY=
 S3_SECRET_KEY=
 NODE_ENV=
 ```
+
+> **AI provider (Gemini).** `GEMINI_API_KEY` must be added as a **runtime** variable
+> in Coolify for each environment; the backend refuses to start in production without
+> it. Remove the old `CLAUDE_API_KEY` (and any `VOYAGE_API_KEY`) after the migration is
+> verified. The key is server-side only and is never baked into the frontend build or
+> image layers. `GEMINI_MODEL` / `GEMINI_EMBEDDING_MODEL` / `GEMINI_EMBEDDING_DIM` are
+> optional overrides — they fall back to sensible defaults in code.
 
 A typed config module validates these on startup and fails fast if any are missing.
 

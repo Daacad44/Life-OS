@@ -1,3 +1,99 @@
+# AI Provider Migration — Claude → Google Gemini (2026-08-10)
+
+A **provider-only** migration: every AI feature keeps its exact behavior, prompts,
+and UI — only the underlying LLM/embedding provider changed. The app already routed
+all AI through a single **AI Service Layer** (`backend/src/ai/`), so the swap stayed
+contained there plus config and docs. Twelve feature services (AI Coach, Reflection,
+Weekly Review, AI Search, Smart Recommendations, goal/study/career/health/analytics
+insight, habit insight, voice) were untouched — they still call `generateText` /
+`generateJson` / `streamText` / `embed`.
+
+## What was swapped
+
+- **Chat / JSON / streaming:** Anthropic Claude (`@anthropic-ai/sdk`, `claude-opus-5`)
+  → **Google Gemini** via `@google/genai`.
+  - `client.ts` now holds a lazy `GoogleGenAI` singleton (still throws `503
+AI_UNAVAILABLE` when no key — "the app works with AI switched off").
+  - `service.ts` maps our provider-agnostic request onto Gemini: `system` →
+    `systemInstruction`, messages → `contents` with `user`/`model` roles,
+    `maxTokens` → `maxOutputTokens`, `thinking` → `thinkingConfig` (`thinkingBudget`
+    `-1` adaptive / `0` off), usage → `usageMetadata` (`promptTokenCount` /
+    `candidatesTokenCount`), streaming via `generateContentStream`, JSON via
+    `responseMimeType: application/json` (plus the existing strict-JSON instruction +
+    tolerant parse). Rate limiting, usage logging, error mapping, and the Coach's
+    graceful fallback are all preserved.
+- **Embeddings / AI memory:** Voyage AI (`voyage-3.5`, 1024-dim REST) → **Gemini**
+  `embedContent` (`gemini-embedding-2`) at **1536 dims**, L2-normalized (Gemini only
+  pre-normalizes its full 3072-dim output; reduced dims must be normalized for cosine
+  search).
+- **Provider abstraction hardened:** introduced a provider-agnostic `ChatMessage`
+  type; removed the last `@anthropic-ai/sdk` type leak from `coachService.ts`. No
+  feature imports a provider SDK anymore.
+
+## New env vars (server-side only, never in the frontend)
+
+| Var                      | Default              | Purpose                                    |
+| ------------------------ | -------------------- | ------------------------------------------ |
+| `GEMINI_API_KEY`         | — (required in prod) | Gemini API key                             |
+| `GEMINI_MODEL`           | `gemini-3.6-flash`   | Main chat/completions model                |
+| `GEMINI_EMBEDDING_MODEL` | `gemini-embedding-2` | AI-memory embedding model                  |
+| `GEMINI_EMBEDDING_DIM`   | `1536`               | Embedding width; **must** match the schema |
+
+Removed: `CLAUDE_API_KEY`, `VOYAGE_API_KEY`. `backend/src/app.ts` now **fails fast in
+production** if `GEMINI_API_KEY` is missing (warns, doesn't crash, in dev). Updated
+`backend/.env.example` and `03-Architecture/Deployment.md` (Coolify runtime var + old
+key removal + no-frontend-leak note).
+
+## Chosen models
+
+- **Chat:** `gemini-3.6-flash` — current Flash generation; fast, cost-effective, strong
+  agentic/planning fit for the Coach. Override `GEMINI_MODEL` to a Pro-tier model for
+  deeper reasoning, no code change.
+- **Embedding:** `gemini-embedding-2` @ 1536 dims (a Google-recommended output size;
+  also the column's original width before it was narrowed for Voyage).
+- Both IDs were **verified against the live docs (ai.google.dev)** on 2026-08-10.
+
+## Schema / migration
+
+- `prisma/migrations/20260810120000_memory_embedding_gemini_1536_dim/` alters
+  `MemoryItem.embedding` from `vector(1024)` → `vector(1536)`.
+- Old 1024-dim Voyage vectors are **cleared** in the same migration (a dimension change
+  invalidates them, and pgvector rejects an in-place cast across widths). Row **content
+  is preserved**; embeddings are `NULL` until re-generated. No pgvector index exists on
+  the column, so nothing to rebuild.
+
+## SDK note
+
+The prompt named `@google/generative-ai`, but that package is the **legacy/frozen** SDK
+(last published Apr 2025). Google's current, actively-maintained official Node SDK is
+**`@google/genai`** (v2.16.x) — used here, consistent with the prompt's "verify against
+live docs / treat defaults as non-certain" rule.
+
+## Verification
+
+- `npm run build` (shared + frontend + backend), `npm run lint` (0 errors), backend
+  tests (15/15) and frontend tests (9/9) all **pass**. `tsc --noEmit` clean.
+- Grep-confirmed **zero** `anthropic`/`claude`/`voyage` references remain in code or
+  config; the only surviving "Claude" mentions are docs referring to _Claude Code /
+  Cursor_ the coding assistant, plus the Deployment note instructing operators to remove
+  the old keys.
+- Gemini SDK contract (`generateContent`, `generateContentStream`, `embedContent`,
+  `ApiError`) verified at runtime.
+
+## Follow-ups
+
+- **Live end-to-end test** each AI feature against a real `GEMINI_API_KEY` in a running
+  environment (Postgres + Redis) — the CI sandbox has no key/infra, so live calls
+  weren't exercised here: AI Coach (incl. streaming), Reflection, Weekly Review, AI
+  Search, Smart Recommendations, goal/study/career breakdowns, voice.
+- **Re-embed existing memories.** Because the embedding model + dimension changed, any
+  pre-existing `MemoryItem` rows need re-embedding (their vectors are now `NULL`). Notes
+  re-embed on next edit; conversation-derived memories regenerate as the Coach is used.
+  Consider a one-off backfill script if a production DB already has memory rows.
+- Remove `CLAUDE_API_KEY` / `VOYAGE_API_KEY` from Coolify after verification.
+
+---
+
 # Life OS — Production Hardening Changes
 
 This pass took the deployed app from a mock-data prototype to a real,

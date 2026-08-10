@@ -77,7 +77,7 @@ This blueprint is designed to be fed to AI coding assistants (Claude Code, Curso
 - **Backend:** Node.js + Express
 - **Database:** PostgreSQL + pgvector
 - **ORM:** Prisma
-- **AI:** Claude API (Anthropic)
+- **AI:** Gemini API (Google)
 - **Cache/Queue:** Redis
 - **Hosting:** VPS + Coolify
 
