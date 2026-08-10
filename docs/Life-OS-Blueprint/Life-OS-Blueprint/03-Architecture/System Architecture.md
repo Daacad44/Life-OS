@@ -34,7 +34,7 @@ Life OS uses a **decoupled client-server architecture**:
 - A **React.js single-page application** (the client) runs in the browser.
 - A **Node.js + Express REST API** (the server) handles all business logic.
 - A **PostgreSQL database** (with the pgvector extension) stores all data and AI memory.
-- The **Claude API** provides all AI intelligence, wrapped behind an internal AI service layer.
+- The **Gemini API** provides all AI intelligence, wrapped behind an internal AI service layer.
 - **Redis** handles caching, sessions, rate limiting, and background job queues.
 - Everything is **self-hosted on a VPS, orchestrated by Coolify**.
 
@@ -59,7 +59,7 @@ The frontend and backend are fully separated. They communicate only over HTTP(S)
                  ┌──────────▼──┐ ┌────▼────┐ ┌─▼──────────────┐
                  │ PostgreSQL  │ │  Redis  │ │  AI Service    │
                  │ + pgvector  │ │ (cache/ │ │  Layer         │
-                 │ (Prisma)    │ │  queue) │ │  → Claude API  │
+                 │ (Prisma)    │ │  queue) │ │  → Gemini API  │
                  └─────────────┘ └─────────┘ └────────────────┘
                             │
                  ┌──────────▼──────────┐
@@ -82,7 +82,7 @@ The frontend and backend are fully separated. They communicate only over HTTP(S)
 | **PostgreSQL** | Primary data store (users, tasks, goals, habits, etc.) |
 | **pgvector** | Vector embeddings for AI memory and semantic search |
 | **Redis** | Sessions, caching, rate limiting, background job queue |
-| **AI Service Layer** | Wraps the Claude API: prompts, memory, tokens, retries |
+| **AI Service Layer** | Wraps the Gemini API: prompts, memory, tokens, retries |
 | **File Storage** | User uploads, attachments, exports |
 | **Coolify** | Deployment, containers, environment management |
 
@@ -107,7 +107,7 @@ A typical authenticated request flows as follows:
 
 - **Reads:** Client → API → (Redis cache → if miss →) PostgreSQL → API → Client.
 - **Writes:** Client → API → validation → PostgreSQL → cache invalidation → Client.
-- **AI operations:** Client → API → AI Service Layer → (memory lookup via pgvector) → Claude API → response processed → stored/returned.
+- **AI operations:** Client → API → AI Service Layer → (memory lookup via pgvector) → Gemini API → response processed → stored/returned.
 
 ---
 

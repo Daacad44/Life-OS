@@ -7,8 +7,17 @@ const envSchema = z.object({
   DATABASE_URL: z.string().optional(),
   REDIS_URL: z.string().optional(),
   SESSION_SECRET: z.string().min(1).default('dev-secret-change-me'),
-  CLAUDE_API_KEY: z.string().optional(),
-  VOYAGE_API_KEY: z.string().optional(),
+  // AI provider (Google Gemini) — server-side only, never exposed to the frontend.
+  GEMINI_API_KEY: z.string().optional(),
+  // Main chat/completions model. Flash generation: fast, cost-effective, strong at
+  // agentic/planning work (AI Coach + feature reasoning). Override to a Pro-tier model
+  // for deeper reasoning without a code change.
+  GEMINI_MODEL: z.string().default('gemini-3.6-flash'),
+  // Embedding model for AI memory. gemini-embedding-2 default output is 3072 dims;
+  // we request 1536 (a Google-recommended size) via GEMINI_EMBEDDING_DIM.
+  GEMINI_EMBEDDING_MODEL: z.string().default('gemini-embedding-2'),
+  // Must match MemoryItem.embedding's vector() width in prisma/schema.prisma.
+  GEMINI_EMBEDDING_DIM: z.coerce.number().default(1536),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])

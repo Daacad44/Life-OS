@@ -83,7 +83,7 @@ Life OS uses a **custom auth implementation** — no third-party auth provider (
 
 ## 7. AI-Specific Security
 
-- The frontend never holds the Claude API key — all AI runs server-side.
+- The frontend never holds the Gemini API key — all AI runs server-side.
 - Memory is strictly user-scoped; one user's data can never enter another's prompt.
 - Prompt inputs are structured, not raw concatenation, to reduce prompt injection.
 - AI outputs that create/modify data are validated before being applied.
@@ -108,7 +108,7 @@ Life OS holds deeply personal data (goals, habits, health, finance, reflections)
 - **Right to export:** `GET /users/me/export` returns all of a user's data (profile, tasks, goals, habits, notes, memories, etc.) as a single JSON document.
 - **Right to deletion:** `DELETE /users/me` hard-deletes the user and all owned records (overrides soft-delete), after re-authentication confirmation. Backups age out on the standard backup retention window.
 - **Consent:** account creation requires accepting a Privacy Policy and Terms of Service (placeholder documents until legal review before public launch — see *Life OS Development Roadmap*, Phase 6).
-- **Third-party processors:** Claude API (Anthropic) processes user content sent in prompts; per Anthropic's API data policy this is not used for model training by default. Document this in the Privacy Policy.
+- **Third-party processors:** the Gemini API (Google) processes user content sent in prompts; per Google's Gemini API terms, paid-tier API content is not used to train models. Document this in the Privacy Policy.
 - **Data minimization:** only send the AI Service Layer the structured data and memory needed for the current request (see *AI Architecture.md*) — never the user's full record.
 - **Scope:** this is a practical baseline (export, deletion, consent, minimization), not a substitute for formal legal review (GDPR/CCPA applicability) before public launch.
 

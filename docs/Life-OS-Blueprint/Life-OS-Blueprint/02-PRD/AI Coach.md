@@ -71,7 +71,7 @@ The AI Personal Coach is the flagship feature of Life OS. It reads the user's ta
 
 ## 6. AI Behavior
 
-The Coach is the primary consumer of the AI Service Layer and Memory Engine. Each response assembles: user data (tasks/goals/habits) + retrieved long-term memory + the conversation, then calls Claude. New durable facts are written back to memory.
+The Coach is the primary consumer of the AI Service Layer and Memory Engine. Each response assembles: user data (tasks/goals/habits) + retrieved long-term memory + the conversation, then calls the AI provider. New durable facts are written back to memory.
 
 All AI runs through the AI Service Layer and only suggests — the user stays in control. See *03-Architecture / AI Architecture.md*.
 

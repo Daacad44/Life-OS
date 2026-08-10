@@ -40,7 +40,7 @@ This document defines the Life OS backend: a Node.js + Express REST API written 
 | Cache/Queue | Redis + BullMQ |
 | Validation | Zod |
 | Auth | JWT / session cookies |
-| AI | Claude API (via AI Service Layer) |
+| AI | Gemini API (via AI Service Layer) |
 
 ---
 
@@ -72,7 +72,7 @@ src/
 ├── controllers/       # Request/response handlers
 ├── services/          # Business logic (per feature)
 ├── repositories/      # Prisma data access
-├── ai/                # AI Service Layer (prompts, memory, Claude client)
+├── ai/                # AI Service Layer (prompts, memory, Gemini client)
 ├── jobs/              # Background workers (BullMQ)
 ├── utils/             # Helpers
 ├── types/             # Shared types
@@ -136,7 +136,7 @@ Long-running or async work never blocks a request. It is pushed to a **Redis-bac
 ## 9. Configuration & Secrets
 
 - All configuration comes from environment variables.
-- Secrets (DB URL, Claude API key, Redis URL, JWT secret) are stored in Coolify's environment manager — never in code.
+- Secrets (DB URL, Gemini API key, Redis URL, JWT secret) are stored in Coolify's environment manager — never in code.
 - A typed config module validates required env vars on startup and fails fast if any are missing.
 
 ---

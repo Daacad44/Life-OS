@@ -68,7 +68,7 @@ AI Search lets users find anything across Life OS by meaning, not just keywords.
 
 ## 6. AI Behavior
 
-The query is embedded and run against the user's vector store (notes, memories, etc.). Top matches are returned, and optionally passed to Claude to synthesize a direct answer (RAG).
+The query is embedded and run against the user's vector store (notes, memories, etc.). Top matches are returned, and optionally passed to the AI provider to synthesize a direct answer (RAG).
 
 All AI runs through the AI Service Layer and only suggests — the user stays in control. See *03-Architecture / AI Architecture.md*.
 

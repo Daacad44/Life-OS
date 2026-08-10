@@ -1,42 +1,48 @@
+import { ApiError as GenAIError } from '@google/genai'
+import { getClient, EMBEDDING_MODEL, EMBEDDING_DIM } from './client.js'
 import { env } from '../config/env.js'
 import { ApiError } from '../middleware/errorHandler.js'
 import { logger } from '../config/logger.js'
 
-const VOYAGE_API_URL = 'https://api.voyageai.com/v1/embeddings'
-// Best-effort default — verify the real output dimension against a live response once
-// VOYAGE_API_KEY is set, and adjust MemoryItem.embedding's vector() width if it differs.
-const VOYAGE_MODEL = 'voyage-3.5'
-
-interface VoyageEmbeddingResponse {
-  data: { embedding: number[]; index: number }[]
+// L2-normalize so cosine search behaves consistently. Gemini pre-normalizes only its
+// full-width (3072-dim) output; any reduced dimension must be normalized by us.
+function normalize(values: number[]): number[] {
+  let sum = 0
+  for (const v of values) sum += v * v
+  const norm = Math.sqrt(sum)
+  return norm > 0 ? values.map((v) => v / norm) : values
 }
 
+// AI memory embeddings. The output dimension must match MemoryItem.embedding's
+// vector() width — configured together via GEMINI_EMBEDDING_DIM (see schema.prisma).
 export async function embed(text: string): Promise<number[]> {
-  if (!env.VOYAGE_API_KEY) {
+  if (!env.GEMINI_API_KEY) {
     throw new ApiError(503, 'AI_UNAVAILABLE', 'Embeddings are not configured')
   }
 
-  const res = await fetch(VOYAGE_API_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.VOYAGE_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ input: [text], model: VOYAGE_MODEL, input_type: 'document' }),
-  })
+  try {
+    const client = getClient()
+    const res = await client.models.embedContent({
+      model: EMBEDDING_MODEL,
+      contents: [{ parts: [{ text }] }],
+      config: {
+        outputDimensionality: EMBEDDING_DIM,
+        taskType: 'RETRIEVAL_DOCUMENT',
+      },
+    })
 
-  if (!res.ok) {
-    logger.error(
-      { status: res.status, body: await res.text() },
-      'Voyage AI embedding request failed',
-    )
+    const values = res.embeddings?.[0]?.values
+    if (!values || values.length === 0) {
+      throw new ApiError(502, 'AI_EMBEDDING_ERROR', 'Embedding response was empty')
+    }
+    return normalize(values)
+  } catch (err) {
+    if (err instanceof ApiError) throw err
+    if (err instanceof GenAIError) {
+      logger.error({ status: err.status, err }, 'Gemini embedding request failed')
+    } else {
+      logger.error({ err }, 'Gemini embedding request failed')
+    }
     throw new ApiError(502, 'AI_EMBEDDING_ERROR', 'Failed to generate embedding')
   }
-
-  const body = (await res.json()) as VoyageEmbeddingResponse
-  const embedding = body.data[0]?.embedding
-  if (!embedding) {
-    throw new ApiError(502, 'AI_EMBEDDING_ERROR', 'Embedding response was empty')
-  }
-  return embedding
 }

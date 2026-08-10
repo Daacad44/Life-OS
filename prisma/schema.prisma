@@ -304,14 +304,15 @@ model Reminder {
 }
 
 // AI memory — see docs/.../03-Architecture/AI Architecture.md
-// embedding dimension (1024) matches Voyage AI's voyage-3.5 default output — verified live.
+// embedding dimension (1536) matches the Gemini embedding model's requested output width
+// (GEMINI_EMBEDDING_DIM). Keep this in sync with that env var.
 model MemoryItem {
   id         String                       @id @default(uuid())
   userId     String
   user       User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
   content    String
   type       String // fact, preference, event, summary, note
-  embedding  Unsupported("vector(1024)")?
+  embedding  Unsupported("vector(1536)")?
   // Links a memory back to its origin record (e.g. a Note) for AI Search — null for
   // memories extracted from conversation/reflection, which have no single source entity.
   sourceType String?
