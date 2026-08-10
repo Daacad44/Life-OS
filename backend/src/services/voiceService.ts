@@ -17,7 +17,7 @@ const FALLBACK: VoiceCommandResult = {
   actionTaken: null,
 }
 
-// No speech-to-text provider is configured (Claude has no audio input, and no
+// No speech-to-text provider is configured (the LLM path here takes text only, and no
 // dedicated STT key exists) — transcription happens client-side via the browser's
 // Web Speech API. This only interprets the resulting text. See Voice Assistant.md.
 export async function handleCommand(

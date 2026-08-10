@@ -1,19 +1,23 @@
-import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenAI } from '@google/genai'
 import { env } from '../config/env.js'
 import { ApiError } from '../middleware/errorHandler.js'
 
-export const AI_MODEL = 'claude-opus-5'
+// Main chat/completions model and embedding model — configured via env so a provider
+// or model swap needs no code edit (AI Architecture.md Section 3).
+export const AI_MODEL = env.GEMINI_MODEL
+export const EMBEDDING_MODEL = env.GEMINI_EMBEDDING_MODEL
+export const EMBEDDING_DIM = env.GEMINI_EMBEDDING_DIM
 
-let client: Anthropic | null = null
+let client: GoogleGenAI | null = null
 
 // Lazy singleton — AI Architecture.md principle 1: "the app works with AI switched off."
 // Feature code must still exist and degrade gracefully if no key is configured.
-export function getClient(): Anthropic {
-  if (!env.CLAUDE_API_KEY) {
+export function getClient(): GoogleGenAI {
+  if (!env.GEMINI_API_KEY) {
     throw new ApiError(503, 'AI_UNAVAILABLE', 'AI features are not configured')
   }
   if (!client) {
-    client = new Anthropic({ apiKey: env.CLAUDE_API_KEY })
+    client = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY })
   }
   return client
 }

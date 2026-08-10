@@ -102,6 +102,16 @@ app.use(notFoundHandler)
 app.use(errorHandler)
 
 if (process.env.NODE_ENV !== 'test') {
+  // AI provider key check. AI is a layer, not the base (see AI Architecture.md), so a
+  // missing key only degrades AI features locally — but in production it's a
+  // misconfiguration, so fail fast rather than silently ship an app with AI switched off.
+  if (!env.GEMINI_API_KEY) {
+    if (env.NODE_ENV === 'production') {
+      logger.fatal('GEMINI_API_KEY is not set — refusing to start in production')
+      process.exit(1)
+    }
+    logger.warn('GEMINI_API_KEY is not set — AI features will be unavailable')
+  }
   app.listen(env.PORT, () => {
     logger.info(`Life OS API listening on http://localhost:${env.PORT}`)
   })

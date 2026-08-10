@@ -1,4 +1,3 @@
-import type Anthropic from '@anthropic-ai/sdk'
 import * as coachRepo from '../repositories/coachRepository.js'
 import * as dashboardService from './dashboardService.js'
 import * as memoryService from './memoryService.js'
@@ -40,7 +39,7 @@ export async function sendMessage(
 
   const system = `${coachSystemPrompt()}\n\n${formatCoachContext({ ...dashboard, memories })}`
 
-  const messages: Anthropic.MessageParam[] = [
+  const messages: aiService.ChatMessage[] = [
     ...history.map((m) => ({
       role: (m.role === 'USER' ? 'user' : 'assistant') as 'user' | 'assistant',
       content: m.content,
