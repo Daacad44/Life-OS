@@ -17,13 +17,14 @@ AI_UNAVAILABLE` when no key — "the app works with AI switched off").
   - `service.ts` maps our provider-agnostic request onto Gemini: `system` →
     `systemInstruction`, messages → `contents` with `user`/`model` roles,
     `maxTokens` → `maxOutputTokens`, `thinking` → `thinkingConfig` (`thinkingBudget`
-    `-1` adaptive / `0` off), usage → `usageMetadata` (`promptTokenCount` /
+    `-1` adaptive when requested, omitted otherwise so the model uses its default),
+    usage → `usageMetadata` (`promptTokenCount` /
     `candidatesTokenCount`), streaming via `generateContentStream`, JSON via
     `responseMimeType: application/json` (plus the existing strict-JSON instruction +
     tolerant parse). Rate limiting, usage logging, error mapping, and the Coach's
     graceful fallback are all preserved.
 - **Embeddings / AI memory:** Voyage AI (`voyage-3.5`, 1024-dim REST) → **Gemini**
-  `embedContent` (`gemini-embedding-2`) at **1536 dims**, L2-normalized (Gemini only
+  `embedContent` (`gemini-embedding-001`) at **1536 dims**, L2-normalized (Gemini only
   pre-normalizes its full 3072-dim output; reduced dims must be normalized for cosine
   search).
 - **Provider abstraction hardened:** introduced a provider-agnostic `ChatMessage`
@@ -32,12 +33,12 @@ AI_UNAVAILABLE` when no key — "the app works with AI switched off").
 
 ## New env vars (server-side only, never in the frontend)
 
-| Var                      | Default              | Purpose                                    |
-| ------------------------ | -------------------- | ------------------------------------------ |
-| `GEMINI_API_KEY`         | — (required in prod) | Gemini API key                             |
-| `GEMINI_MODEL`           | `gemini-3.6-flash`   | Main chat/completions model                |
-| `GEMINI_EMBEDDING_MODEL` | `gemini-embedding-2` | AI-memory embedding model                  |
-| `GEMINI_EMBEDDING_DIM`   | `1536`               | Embedding width; **must** match the schema |
+| Var                      | Default                | Purpose                                    |
+| ------------------------ | ---------------------- | ------------------------------------------ |
+| `GEMINI_API_KEY`         | — (required in prod)   | Gemini API key                             |
+| `GEMINI_MODEL`           | `gemini-3.6-flash`     | Main chat/completions model                |
+| `GEMINI_EMBEDDING_MODEL` | `gemini-embedding-001` | AI-memory embedding model                  |
+| `GEMINI_EMBEDDING_DIM`   | `1536`                 | Embedding width; **must** match the schema |
 
 Removed: `CLAUDE_API_KEY`, `VOYAGE_API_KEY`. `backend/src/app.ts` now **fails fast in
 production** if `GEMINI_API_KEY` is missing (warns, doesn't crash, in dev). Updated
@@ -49,9 +50,12 @@ key removal + no-frontend-leak note).
 - **Chat:** `gemini-3.6-flash` — current Flash generation; fast, cost-effective, strong
   agentic/planning fit for the Coach. Override `GEMINI_MODEL` to a Pro-tier model for
   deeper reasoning, no code change.
-- **Embedding:** `gemini-embedding-2` @ 1536 dims (a Google-recommended output size;
-  also the column's original width before it was narrowed for Voyage).
-- Both IDs were **verified against the live docs (ai.google.dev)** on 2026-08-10.
+- **Embedding:** `gemini-embedding-001` @ 1536 dims — the GA, free-tier text embedding
+  model (supports 3072/1536/768; 1536 is also the column's original width before it was
+  narrowed for Voyage). `gemini-embedding-2` exists only as a `*-preview` id, so the
+  stable GA model is used.
+- Model IDs were **verified against the live docs (ai.google.dev)** and free-tier
+  availability confirmed.
 
 ## Schema / migration
 
