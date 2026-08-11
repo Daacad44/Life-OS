@@ -24,7 +24,7 @@ import {
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 import { browserTimezone } from '@/lib/datetime'
 import { ALARM_SOUNDS, previewAlarm, type AlarmSoundName } from '@/lib/alarm'
-import type { NotificationCategory } from '@life-os/shared'
+import type { Language, NotificationCategory } from '@life-os/shared'
 
 type SettingsTab = 'profile' | 'preferences' | 'security' | 'notifications'
 
@@ -39,6 +39,11 @@ const themeOptions: { key: Theme; label: string }[] = [
   { key: 'light', label: 'Light' },
   { key: 'dark', label: 'Dark' },
   { key: 'system', label: 'System' },
+]
+
+const languageOptions: { key: Language; label: string }[] = [
+  { key: 'en', label: 'English' },
+  { key: 'so', label: 'Soomaali' },
 ]
 
 const prefLabels: Record<NotificationCategory, string> = {
@@ -226,6 +231,34 @@ export function SettingsPage() {
                 {o.label}
               </button>
             ))}
+          </div>
+
+          <div className="mt-8">
+            <span className="text-[13px] font-semibold text-app-ink-soft">
+              AI language
+            </span>
+            <p className="mb-2 mt-1 text-sm font-medium text-app-ink-muted">
+              The language the AI replies in — Coach, Reflection, Weekly Review and all AI
+              features. Takes effect on the next response.
+            </p>
+            <div className="flex gap-2">
+              {languageOptions.map((o) => (
+                <button
+                  key={o.key}
+                  type="button"
+                  onClick={() => updateProfile.mutate({ language: o.key })}
+                  disabled={updateProfile.isPending}
+                  className={cn(
+                    'rounded-[10px] border px-4 py-2 text-sm font-semibold',
+                    (user?.language ?? 'en') === o.key
+                      ? 'border-amber-500 bg-amber-100 text-amber-700'
+                      : 'border-app-hairline bg-app-surface text-app-ink-soft hover:bg-app-raised',
+                  )}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="mt-8">
