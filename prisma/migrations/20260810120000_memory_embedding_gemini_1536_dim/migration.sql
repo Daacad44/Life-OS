@@ -1,5 +1,5 @@
 -- AI provider migration: embeddings moved from Voyage AI (voyage-3.5, 1024-dim) to the
--- Gemini embedding model (gemini-embedding-2) with a 1536-dim requested output.
+-- Gemini embedding model (gemini-embedding-001) with a 1536-dim requested output.
 --
 -- The old 1024-dim vectors are meaningless under the new model AND pgvector rejects an
 -- in-place type change when existing vectors don't match the new width, so clear them

@@ -46,13 +46,17 @@ function toContents(messages: ChatMessage[]): Content[] {
 }
 
 function buildConfig(req: CompletionRequest): GenerateContentConfig {
-  return {
+  const config: GenerateContentConfig = {
     systemInstruction: req.system,
     maxOutputTokens: req.maxTokens ?? 2000,
-    // Preserves the prior "adaptive thinking" behavior: -1 lets the model size its own
-    // thinking budget; 0 disables it for latency-sensitive, non-reasoning calls.
-    thinkingConfig: { thinkingBudget: req.thinking ? -1 : 0 },
   }
+  // Preserves the prior "adaptive thinking" behavior: -1 lets the model size its own
+  // thinking budget. When thinking isn't requested we omit the field entirely and let
+  // the model use its default — safer than forcing a budget a given model may reject.
+  if (req.thinking) {
+    config.thinkingConfig = { thinkingBudget: -1 }
+  }
+  return config
 }
 
 function usageTokens(res: GenerateContentResponse): { input: number; output: number } {
