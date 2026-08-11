@@ -6,6 +6,7 @@ import {
 } from '@google/genai'
 import { getClient, AI_MODEL } from './client.js'
 import { enforceRateLimit } from './rateLimit.js'
+import { getUserLanguage, withLanguageDirective } from './language.js'
 import { recordUsage } from './usage.js'
 import { ApiError } from '../middleware/errorHandler.js'
 import { logger } from '../config/logger.js'
@@ -45,9 +46,11 @@ function toContents(messages: ChatMessage[]): Content[] {
   }))
 }
 
-function buildConfig(req: CompletionRequest): GenerateContentConfig {
+// `system` is the language-augmented instruction (see withLanguageDirective) — resolved
+// per request so the user's saved language governs every feature's output.
+function buildConfig(req: CompletionRequest, system: string): GenerateContentConfig {
   const config: GenerateContentConfig = {
-    systemInstruction: req.system,
+    systemInstruction: system,
     maxOutputTokens: req.maxTokens ?? 2000,
   }
   // Preserves the prior "adaptive thinking" behavior: -1 lets the model size its own
@@ -72,10 +75,11 @@ export async function generateText(req: CompletionRequest): Promise<string> {
   await enforceRateLimit(req.userId, req.feature)
   try {
     const client = getClient()
+    const system = withLanguageDirective(req.system, await getUserLanguage(req.userId))
     const response = await client.models.generateContent({
       model: AI_MODEL,
       contents: toContents(req.messages),
-      config: buildConfig(req),
+      config: buildConfig(req, system),
     })
     const { input, output } = usageTokens(response)
     await recordUsage(req.userId, req.feature, input, output)
@@ -90,15 +94,17 @@ export async function generateJson<T>(req: CompletionRequest): Promise<T> {
   await enforceRateLimit(req.userId, req.feature)
   try {
     const client = getClient()
+    const system = withLanguageDirective(req.system, await getUserLanguage(req.userId))
     const response = await client.models.generateContent({
       model: AI_MODEL,
       contents: toContents(req.messages),
       config: {
-        ...buildConfig(req),
+        ...buildConfig(req, system),
         // Ask the provider for JSON directly; the strict instruction + parse below stay
-        // as a belt-and-suspenders guard, matching prior behavior.
+        // as a belt-and-suspenders guard, matching prior behavior. The language directive
+        // (already in `system`) keeps JSON keys/enums English, values in the user's language.
         responseMimeType: 'application/json',
-        systemInstruction: `${req.system}\n\nRespond with ONLY valid JSON — no prose, no markdown code fences.`,
+        systemInstruction: `${system}\n\nRespond with ONLY valid JSON — no prose, no markdown code fences.`,
       },
     })
     const { input, output } = usageTokens(response)
@@ -135,10 +141,11 @@ export async function streamText(
   await enforceRateLimit(req.userId, req.feature)
   try {
     const client = getClient()
+    const system = withLanguageDirective(req.system, await getUserLanguage(req.userId))
     const stream = await client.models.generateContentStream({
       model: AI_MODEL,
       contents: toContents(req.messages),
-      config: buildConfig(req),
+      config: buildConfig(req, system),
     })
 
     let text = ''

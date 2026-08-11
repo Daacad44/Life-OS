@@ -13,9 +13,14 @@ export const loginSchema = z.object({
 })
 export type LoginInput = z.infer<typeof loginSchema>
 
+// AI response language — the language every AI feature replies in.
+export const Language = ['en', 'so'] as const
+export type Language = (typeof Language)[number]
+
 export const updateProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   timezone: z.string().min(1).optional(),
+  language: z.enum(Language).optional(),
   // Quiet hours: hour-of-day [0,23] in the user's timezone during which
   // reminders are held back. Both null disables quiet hours.
   quietHoursStart: z.number().int().min(0).max(23).nullable().optional(),
@@ -36,6 +41,7 @@ export interface PublicUser {
   name: string | null
   role: Role
   timezone: string
+  language: Language
   quietHoursStart: number | null
   quietHoursEnd: number | null
   soundEnabled: boolean

@@ -25,6 +25,9 @@ model User {
   passwordHash            String?
   role                    Role     @default(USER)
   timezone                String   @default("UTC")
+  // AI response language — 'en' | 'so'. Governs the language every AI feature replies
+  // in (injected in the AI Service Layer). Constrained to en/so in the app layer.
+  language                String   @default("en")
   // Per-category opt in/out, e.g. {"habitMilestones": true, "budgetThreshold": true, "weeklyReview": true}.
   // Missing keys default to "on" in application code — see Notifications.md Section 9.
   notificationPreferences Json?
