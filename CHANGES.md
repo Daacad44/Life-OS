@@ -1,3 +1,58 @@
+# Bilingual AI — Somali / English response language (2026-08-11)
+
+Users can now choose their AI language — **English** or **Soomaali** — and every AI
+feature replies in that language. Implemented **once** in the AI Service Layer, so it
+covers all current and future AI features with no per-feature wiring. The static UI
+labels are unchanged (that's separate i18n); this task is the AI's reply language plus
+the selector.
+
+## What changed
+
+- **Data.** `User.language` (`"en"` default, `"so"` allowed) + migration
+  `20260811130000_add_user_language`. Exposed through the existing profile API: added
+  `language` to `updateProfileSchema` (`z.enum(['en','so'])`) and to `PublicUser`
+  (`shared`), and `toPublicUser` now returns it. `updateUser` is a generic Prisma
+  passthrough, so `PATCH /v1/users/me { "language": "so" }` just works, user-scoped.
+- **AI Service Layer (the core).** New `backend/src/ai/language.ts`:
+  - `getUserLanguage(userId)` loads the saved preference (defaults to `en` on any
+    miss/error — AI stays a layer, never a hard dependency).
+  - `withLanguageDirective(system, language)` appends a forceful response-language
+    contract, kept **last** so it overrides anything the feature prompt implied.
+  - `service.ts` calls it in **all three** gateways — `generateText`, `generateJson`,
+    `streamText` — so streaming (Coach) and structured output are both covered. Every
+    feature (Coach, Reflection, Weekly Review, Recommendations, goal/study/career/
+    health/analytics insight, habit insight, search, voice) inherits it automatically.
+  - **Preference governs, not input.** The directive tells the model to reply in the
+    chosen language even when the user types the other language or mixes them — unless
+    the user explicitly asks for another language in that message.
+  - **JSON stays stable.** Keys/enums remain English; only human-readable text values
+    localize — so parsing/code is unaffected.
+- **UI.** Settings → **Preferences** → an "AI language" segmented control
+  (English / Soomaali) matching the existing Theme control's styling. Persists
+  immediately via `useUpdateProfile`; react-query updates the `me` cache so the next AI
+  response uses the new language with **no reload**. (No topbar toggle added — kept the
+  chrome untouched; it's an easy follow-up if wanted.)
+
+## Verified
+
+- `npm run build` (shared + frontend + backend), `npm run lint` (0 errors), backend
+  15/15 and frontend 9/9 tests all pass.
+- **Live behavior proven** against Gemini: with preference **Somali** and the user
+  typing **English** ("Help me plan my day"), the model replied in Somali
+  ("Assalaamu…") — confirming the preference, not the input language, governs. (English
+  is the default/base path.) Full multi-feature live testing needs a working prod key
+  and headroom under the free-tier request quota.
+
+## Follow-ups
+
+- Where full **UI i18n** would plug in later: static labels via `react-i18next` with
+  `en`/`so` files — out of scope here.
+- Note: `gemini-3.6-flash` free tier has a low request cap; sustained testing returns
+  HTTP 429, which currently surfaces as the Coach's generic fallback (a separate polish
+  item — map Gemini 429 → a "rate limited, try again" message).
+
+---
+
 # AI Provider Migration — Claude → Google Gemini (2026-08-10)
 
 A **provider-only** migration: every AI feature keeps its exact behavior, prompts,

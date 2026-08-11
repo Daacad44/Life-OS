@@ -29,6 +29,7 @@ const user: PublicUser = {
   name: 'A',
   role: 'USER',
   timezone: 'UTC',
+  language: 'en',
   quietHoursStart: null,
   quietHoursEnd: null,
   soundEnabled: true,

@@ -15,7 +15,7 @@ const DIRECTIVES: Record<Language, string> = {
   so: [
     'LANGUAGE: Respond ONLY in Somali (Af-Soomaali).',
     'Isticmaal Af-Soomaali dabiici ah oo cad. Had iyo jeer ku jawaab Af-Soomaali iyadoo aan loo eegin luqadda farriinta uu qoray isticmaaluhu (xitaa hadduu Ingiriisi ku qoro ama luqado isku daro), ilaa uu isticmaaluhu si cad ugu codsado luqad kale farriintiisa.',
-    'Ka fogow tarjumaad suax ah oo aan dabiici ahayn — isticmaal hadal Soomaali oo dabiici ah. Ereyada muhiimka ah ee farsamada/summada barnaamijka ku dhaaf si la fahmi karo.',
+    'Ka fogow tarjumaad sax-ahaaneed (literal) oo qallafsan — isticmaal hadal Soomaali oo dabiici ah. Ereyada muhiimka ah ee alaabta/summada barnaamijka ku dhaaf si la fahmi karo.',
     'Haddii jawaabtu ay JSON ku jirto, furayaasha (keys) iyo qiimayaasha enum-ka ku dhaaf Ingiriisi; kaliya qoraalka dadku akhriyo ayaa Af-Soomaali noqon kara.',
   ].join(' '),
 }
