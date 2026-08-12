@@ -37,6 +37,14 @@ export function Modal({
   const titleId = useId()
   const descriptionId = `${titleId}-description`
 
+  // Keep the latest onClose in a ref so the focus/keydown effect below does NOT
+  // depend on its identity. Parents often pass an inline (unstable) onClose; if
+  // it were an effect dependency, every parent re-render (e.g. each keystroke in
+  // a form field inside the modal) would re-run the effect and steal focus back
+  // to the first focusable element — the classic "can only type one letter" bug.
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+
   useEffect(() => {
     if (!open) return
 
@@ -50,7 +58,7 @@ export function Modal({
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         event.stopPropagation()
-        onClose()
+        onCloseRef.current()
         return
       }
       if (event.key !== 'Tab') return
@@ -77,7 +85,9 @@ export function Modal({
       document.body.style.overflow = overflow
       previouslyFocused?.focus()
     }
-  }, [open, onClose])
+    // Intentionally depends only on `open`: onClose is read via onCloseRef so an
+    // unstable onClose can't re-run this effect and steal focus mid-typing.
+  }, [open])
 
   if (!open) return null
 

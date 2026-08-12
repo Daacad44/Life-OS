@@ -98,4 +98,35 @@ describe('Modal', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
+
+  // Regression: a controlled input inside the modal must accept continuous
+  // typing even when the parent passes a NEW onClose on every render (as the
+  // Goals create form does). Previously the focus effect depended on onClose,
+  // so each keystroke stole focus back and only the first letter registered.
+  it('keeps input focus while typing when onClose is unstable', async () => {
+    const user = userEvent.setup()
+
+    function Harness() {
+      const [title, setTitle] = useState('')
+      return (
+        // A fresh arrow fn each render == unstable onClose, like the real page.
+        <Modal open onClose={() => {}} title="New goal">
+          <input
+            aria-label="Goal title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </Modal>
+      )
+    }
+
+    render(<Harness />)
+    const input = screen.getByLabelText('Goal title') as HTMLInputElement
+
+    await user.click(input)
+    await user.keyboard('Learn Somali history')
+
+    expect(input).toHaveValue('Learn Somali history')
+    expect(input).toHaveFocus()
+  })
 })
