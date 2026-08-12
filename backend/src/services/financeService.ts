@@ -21,6 +21,8 @@ function toTransactionDTO(t: PrismaTransaction): Transaction {
     type: t.type,
     amount: Number(t.amount),
     category: t.category,
+    description: t.description,
+    paymentMethod: t.paymentMethod,
     note: t.note,
     date: t.date.toISOString(),
     goalId: t.goalId,

@@ -396,11 +396,14 @@ model Transaction {
   id        String          @id @default(uuid())
   userId    String
   user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      TransactionType
-  amount    Decimal         @db.Decimal(12, 2)
-  category  String
-  note      String?
-  date      DateTime
+  type          TransactionType
+  amount        Decimal     @db.Decimal(12, 2)
+  category      String
+  // Free-text label ("where did the money go?") and how it was paid.
+  description   String?
+  paymentMethod String?
+  note          String?
+  date          DateTime
   goalId    String?
   goal      Goal?           @relation(fields: [goalId], references: [id])
   createdAt DateTime        @default(now())
