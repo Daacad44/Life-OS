@@ -10,11 +10,13 @@ export function SortableTaskItem({
   task,
   onToggleDone,
   onDelete,
+  onEdit,
   onReschedule,
 }: {
   task: Task
   onToggleDone: () => void
   onDelete: () => void
+  onEdit: () => void
   onReschedule: (iso: string) => void
 }) {
   const timezone = useUserTimezone()
@@ -42,6 +44,7 @@ export function SortableTaskItem({
           task={task}
           onToggleDone={onToggleDone}
           onDelete={onDelete}
+          onEdit={onEdit}
           dragHandle={
             <button
               type="button"
