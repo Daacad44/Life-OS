@@ -15,3 +15,18 @@ export function createReflection(
 export function updateReflectionInsights(id: string, insights: string) {
   return prisma.reflection.update({ where: { id }, data: { insights } })
 }
+
+export function findReflectionById(userId: string, id: string) {
+  return prisma.reflection.findFirst({ where: { id, userId } })
+}
+
+export function updateReflection(
+  id: string,
+  data: Prisma.ReflectionUncheckedUpdateInput,
+) {
+  return prisma.reflection.update({ where: { id }, data })
+}
+
+export function deleteReflection(id: string) {
+  return prisma.reflection.delete({ where: { id } })
+}

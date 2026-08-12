@@ -1,3 +1,93 @@
+# Professional hardening — alarm, planner, goals, dashboard, finance (2026-08-12)
+
+A pass to fix behavior and complete features to a professional standard. The UI
+design is unchanged — this is functionality, CRUD, and a real alarm system. Every
+change builds and type-checks; new tests pass.
+
+## 1. Professional alarm system (uploadable MP3, rings ~1 min, stoppable)
+
+- **Rings until stopped.** `frontend/src/lib/alarm.ts` `playAlarm()` now loops the
+  chosen sound for up to ~60s (`RING_DURATION_MS`) or until `stop()` — not a 3s beep.
+  Returns a real `AlarmHandle`. Options-object API (`{ sound, volume, ringtoneUrl,
+durationMs }`).
+- **Custom MP3 ringtone.** Uploaded to object storage (S3 / Cloudflare R2) and played
+  on loop via `HTMLAudioElement`; presets remain as synthesized Web-Audio chimes.
+  - Backend: `services/storageService.ts` (S3 client + `uploadObject`,
+    `isStorageConfigured` guard); env `S3_ENDPOINT/REGION/BUCKET/ACCESS_KEY_ID/
+SECRET_ACCESS_KEY/PUBLIC_URL` (+ `.env.example`); `POST`/`DELETE
+/v1/users/me/ringtone` (multer memory upload, 3 MB MP3 cap). Returns **501** when
+    storage is unconfigured, so the app degrades to preset chimes.
+  - Data: `User.customRingtoneUrl` (shared schema + `PublicUser` + Prisma + migration
+    `20260812000000_add_custom_ringtone`).
+  - UI: Settings → Notifications uploads / previews / removes the ringtone, with
+    client-side MP3 + size validation; Test/preset preview use it.
+- **Stoppable + snooze.** `AlarmProvider` owns an `AlarmHandle` per ringing alarm;
+  Stop / Snooze (5/10/15m) / Dismiss silence that exact alarm immediately.
+- **Mobile + browser notifications.** Notification permission requested on first
+  interaction; a device notification (`requireInteraction`) fires per alarm with the
+  in-app card as fallback; stronger vibration. Quiet hours + global mute already
+  respected by the scheduler; alarms cancel on complete/delete and reschedule on edit.
+
+## 2. Planner — full CRUD
+
+The Planner (built on Tasks) had create / read / delete / reschedule / reorder but no
+way to edit an item. Added `PlannerEditModal` (title, time-of-day, priority via
+`PATCH /tasks/:id`) and an edit affordance on each item (`TaskItem` gained an optional
+`onEdit`). Values held locally until Save.
+
+## 3. Goals — the "type one letter" bug fixed (systemic)
+
+Root cause was in **`Modal`**, not Goals: the focus/keydown effect depended on
+`onClose`. Parents pass an inline (unstable) `onClose`, so every keystroke in a field
+inside a modal re-ran the effect and called `first.focus()`, yanking focus to the close
+button — only the first letter registered. Fix: read `onClose` from a ref; depend the
+effect only on `[open]`. This fixes typing in **every** modal (Goals, Planner edit,
+Finance, Settings…). Added a regression test that types a multi-word string with an
+unstable `onClose` and asserts the full value + retained focus. Goals already had full
+CRUD (goals + sub-goals).
+
+## 4. Dashboard — grouped Core / AI / Life / Growth hub
+
+`lib/navigation.ts` is now the single source of truth for nav groups (+ per-item
+blurbs); the Sidebar consumes it (no duplication). New `GroupHub` on the dashboard
+shows the four workspaces as accessible expand/collapse cards revealing each group's
+features as a link grid (`aria-expanded`/`aria-controls`, keyboard + mobile).
+
+## 5. Finance — manual + preset entry, full CRUD
+
+- **Category is free text** (type where the money went) with a **datalist of presets**
+  (pick a prepared one). Added `description` ("where did the money go?") and
+  `paymentMethod` (free text + presets) to the transaction schema + DTO + Prisma +
+  migration `20260812010000_transaction_description`.
+- **Full CRUD.** `TransactionFormModal` handles create **and** edit (self-contained
+  mutations); transaction rows show description / category / payment and gained inline
+  Edit + Delete. Real totals (income / expenses / savings) and spend-by-category
+  breakdown were already computed from real data.
+
+## New / changed endpoints
+
+- `POST   /v1/users/me/ringtone` — upload a custom MP3 ringtone (multipart, ≤3 MB).
+- `DELETE /v1/users/me/ringtone` — clear the custom ringtone.
+- `PATCH  /v1/tasks/:id` — now also drives Planner item edits (existing endpoint).
+- Finance transaction endpoints unchanged in shape; payload gained `description`,
+  `paymentMethod`, and free-text `category`.
+
+## Migrations
+
+`20260812000000_add_custom_ringtone`, `20260812010000_transaction_description`.
+Both are additive (nullable columns) — safe to `prisma migrate deploy`.
+
+## Follow-ups (not in this pass)
+
+The broad "make every feature professional" sweep is partially outstanding. Concrete
+backend CRUD gaps still to fill: Reflection (update/delete), Health logs (update/
+delete), Study (delete), Career (delete), Business (update/delete), Community (delete).
+The rest (Tasks, Calendar, Habits, Notes, Focus, Coach, Analytics, Recommendations,
+Voice, Automations, Achievements) already ship full CRUD + 4 states and need
+verification/polish only.
+
+---
+
 # Bilingual AI — Somali / English response language (2026-08-11)
 
 Users can now choose their AI language — **English** or **Soomaali** — and every AI
