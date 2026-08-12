@@ -77,14 +77,26 @@ features as a link grid (`aria-expanded`/`aria-controls`, keyboard + mobile).
 `20260812000000_add_custom_ringtone`, `20260812010000_transaction_description`.
 Both are additive (nullable columns) — safe to `prisma migrate deploy`.
 
-## Follow-ups (not in this pass)
+## 6. Feature CRUD completion (the backend gaps)
 
-The broad "make every feature professional" sweep is partially outstanding. Concrete
-backend CRUD gaps still to fill: Reflection (update/delete), Health logs (update/
-delete), Study (delete), Career (delete), Business (update/delete), Community (delete).
-The rest (Tasks, Calendar, Habits, Notes, Focus, Coach, Analytics, Recommendations,
-Voice, Automations, Achievements) already ship full CRUD + 4 states and need
-verification/polish only.
+Every feature entity is now full-CRUD. The gaps found in the audit were filled with
+ownership-checked update/delete endpoints plus the frontend controls to use them:
+
+- **Reflection** — `PATCH`/`DELETE /v1/reflections/:id`; delete button per entry.
+- **Health** — `PATCH`/`DELETE /v1/health-metrics/logs/:id`; a "Recent entries" list
+  with per-entry delete.
+- **Study** — `DELETE /v1/study/subjects/:id` (soft) and `/sessions/:id`; delete on
+  each subject and session.
+- **Career** — `DELETE /v1/career/goals/:id` (soft), `/skills/:id`, `/milestones/:id`;
+  delete on each.
+- **Business** — `PATCH`/`DELETE /v1/business/projects/:id` (soft) and `DELETE
+/clients/:id`; a status select + delete on projects, delete on clients.
+- **Community** — `DELETE /v1/community/posts/:id` (author only); delete on your own
+  posts (report stays for others').
+
+The remaining features (Tasks, Calendar, Habits, Notes, Focus, Coach, Analytics,
+Recommendations, Voice, Automations, Achievements, Weekly Review) already shipped full
+CRUD / accept-dismiss / real-data + 4 states and were verified by inspection.
 
 ---
 

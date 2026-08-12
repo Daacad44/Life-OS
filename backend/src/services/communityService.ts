@@ -134,6 +134,15 @@ export async function getFeed(userId: string): Promise<CommunityPost[]> {
   }))
 }
 
+// Delete a post — only the author may delete their own.
+export async function deletePost(userId: string, id: string): Promise<void> {
+  const post = await communityRepo.findPostById(id)
+  if (!post || post.userId !== userId) {
+    throw new ApiError(404, 'NOT_FOUND', 'Post not found')
+  }
+  await communityRepo.deletePost(id)
+}
+
 export async function reportPost(userId: string, id: string): Promise<void> {
   await assertOptedIn(userId)
   const post = await communityRepo.findPostById(id)

@@ -1,14 +1,16 @@
 import { useState, type FormEvent } from 'react'
-import { Check, Flag, Share2, UserPlus, X } from 'lucide-react'
+import { Check, Flag, Share2, Trash2, UserPlus, X } from 'lucide-react'
 import type { ShareVisibility } from '@life-os/shared'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
+import { useCurrentUser } from '@/features/auth/hooks/useAuth'
 import { useGoals } from '@/features/goals/hooks/useGoals'
 import {
   useCommunityOptIn,
   useConnect,
   useConnections,
+  useDeletePost,
   useFeed,
   useReportPost,
   useRespondToConnection,
@@ -84,6 +86,8 @@ function CommunityContent() {
     refetch: refetchFeed,
   } = useFeed()
   const reportPost = useReportPost()
+  const deletePost = useDeletePost()
+  const { data: currentUser } = useCurrentUser()
 
   const [partnerEmail, setPartnerEmail] = useState('')
   const [goalId, setGoalId] = useState('')
@@ -273,14 +277,26 @@ function CommunityContent() {
                   </p>
                   <p className="text-sm text-text">{post.content}</p>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Report post"
-                  onClick={() => reportPost.mutate(post.id)}
-                >
-                  <Flag className="size-4" />
-                </Button>
+                {post.userId === currentUser?.id ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Delete post"
+                    disabled={deletePost.isPending}
+                    onClick={() => deletePost.mutate(post.id)}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Report post"
+                    onClick={() => reportPost.mutate(post.id)}
+                  >
+                    <Flag className="size-4" />
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}

@@ -44,3 +44,7 @@ export function getFeed() {
 export async function reportPost(id: string) {
   await apiFetch<null>(`/v1/community/posts/${id}/report`, { method: 'POST' })
 }
+
+export async function deletePost(id: string) {
+  await apiFetch<null>(`/v1/community/posts/${id}`, { method: 'DELETE' })
+}

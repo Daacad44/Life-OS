@@ -44,3 +44,8 @@ export async function handleReportPost(req: Request, res: Response) {
   await communityService.reportPost(req.user!.id, req.params.id as string)
   res.status(204).send()
 }
+
+export async function handleDeletePost(req: Request, res: Response) {
+  await communityService.deletePost(req.user!.id, req.params.id as string)
+  res.status(204).send()
+}

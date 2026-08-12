@@ -58,3 +58,11 @@ export function useReportPost() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['community', 'feed'] }),
   })
 }
+
+export function useDeletePost() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: communityApi.deletePost,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['community', 'feed'] }),
+  })
+}
