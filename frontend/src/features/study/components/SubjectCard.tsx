@@ -1,14 +1,21 @@
 import { useState, type FormEvent } from 'react'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, Trash2, X } from 'lucide-react'
 import type { Subject } from '@life-os/shared'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { ProgressBar } from '@/features/goals/components/ProgressBar'
-import { useGeneratePlan, useUpdateSession } from '../hooks/useStudy'
+import {
+  useDeleteStudySession,
+  useDeleteSubject,
+  useGeneratePlan,
+  useUpdateSession,
+} from '../hooks/useStudy'
 
 export function SubjectCard({ subject }: { subject: Subject }) {
   const updateSession = useUpdateSession()
+  const deleteSession = useDeleteStudySession()
+  const deleteSubject = useDeleteSubject()
   const generatePlan = useGeneratePlan()
   const [deadline, setDeadline] = useState('')
   const [hoursPerWeek, setHoursPerWeek] = useState('5')
@@ -32,7 +39,18 @@ export function SubjectCard({ subject }: { subject: Subject }) {
       <CardContent className="flex flex-col gap-3 p-4">
         <div className="flex items-center justify-between gap-2">
           <span className="font-medium text-text">{subject.title}</span>
-          <span className="text-xs text-text-muted">{subject.progress}%</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-text-muted">{subject.progress}%</span>
+            <button
+              type="button"
+              aria-label="Delete subject"
+              disabled={deleteSubject.isPending}
+              onClick={() => deleteSubject.mutate(subject.id)}
+              className="rounded p-1 text-text-muted hover:bg-primary-muted hover:text-danger"
+            >
+              <Trash2 className="size-4" />
+            </button>
+          </div>
         </div>
         <ProgressBar value={subject.progress} />
 
@@ -54,6 +72,15 @@ export function SubjectCard({ subject }: { subject: Subject }) {
                 <span className="ml-auto text-xs text-text-muted">
                   {new Date(s.scheduledAt).toLocaleDateString()}
                 </span>
+                <button
+                  type="button"
+                  aria-label="Delete session"
+                  disabled={deleteSession.isPending}
+                  onClick={() => deleteSession.mutate(s.id)}
+                  className="rounded p-0.5 text-text-muted hover:text-danger"
+                >
+                  <X className="size-3.5" />
+                </button>
               </label>
             ))}
           </div>

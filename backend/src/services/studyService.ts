@@ -101,6 +101,20 @@ export async function updateSession(
   return toSessionDTO(session)
 }
 
+export async function deleteSubject(userId: string, id: string): Promise<void> {
+  await getRawSubject(userId, id)
+  await studyRepo.softDeleteSubject(id)
+}
+
+export async function deleteSession(userId: string, id: string): Promise<void> {
+  const existing = await studyRepo.findSessionById(userId, id)
+  if (!existing) {
+    throw new ApiError(404, 'NOT_FOUND', 'Study session not found')
+  }
+  await studyRepo.deleteSession(id)
+  await studyRepo.recomputeProgress(existing.subjectId)
+}
+
 // Spaces sessions across the available days — see Study Planner.md Section 6.
 export async function generatePlan(
   userId: string,

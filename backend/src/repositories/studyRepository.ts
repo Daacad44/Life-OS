@@ -36,6 +36,14 @@ export function updateSession(id: string, done: boolean) {
   return prisma.studySession.update({ where: { id }, data: { done } })
 }
 
+export function softDeleteSubject(id: string) {
+  return prisma.subject.update({ where: { id }, data: { deletedAt: new Date() } })
+}
+
+export function deleteSession(id: string) {
+  return prisma.studySession.delete({ where: { id } })
+}
+
 export async function recomputeProgress(subjectId: string) {
   const sessions = await prisma.studySession.findMany({ where: { subjectId } })
   const progress =

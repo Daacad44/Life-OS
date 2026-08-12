@@ -33,3 +33,13 @@ export function useGeneratePlan() {
   const invalidate = useInvalidateStudy()
   return useMutation({ mutationFn: studyApi.generatePlan, onSuccess: invalidate })
 }
+
+export function useDeleteSubject() {
+  const invalidate = useInvalidateStudy()
+  return useMutation({ mutationFn: studyApi.deleteSubject, onSuccess: invalidate })
+}
+
+export function useDeleteStudySession() {
+  const invalidate = useInvalidateStudy()
+  return useMutation({ mutationFn: studyApi.deleteSession, onSuccess: invalidate })
+}
