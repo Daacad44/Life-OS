@@ -3,7 +3,9 @@ import type {
   HealthLog,
   HealthTrend,
   HealthTrendsResponse,
+  UpdateHealthLogInput,
 } from '@life-os/shared'
+import { ApiError } from '../middleware/errorHandler.js'
 import * as healthRepo from '../repositories/healthRepository.js'
 import * as aiService from '../ai/service.js'
 import { healthInsightsSystemPrompt, healthInsightsUserPrompt } from '../ai/prompts.js'
@@ -38,6 +40,29 @@ export async function create(
 ): Promise<HealthLog> {
   const log = await healthRepo.createLog(userId, input.type, input.value, input.date)
   return toDTO(log)
+}
+
+async function getOwned(userId: string, id: string) {
+  const log = await healthRepo.findLogById(userId, id)
+  if (!log) {
+    throw new ApiError(404, 'NOT_FOUND', 'Health log not found')
+  }
+  return log
+}
+
+export async function update(
+  userId: string,
+  id: string,
+  input: UpdateHealthLogInput,
+): Promise<HealthLog> {
+  await getOwned(userId, id)
+  const log = await healthRepo.updateLog(id, { value: input.value, date: input.date })
+  return toDTO(log)
+}
+
+export async function remove(userId: string, id: string): Promise<void> {
+  await getOwned(userId, id)
+  await healthRepo.deleteLog(id)
 }
 
 // Charts alone don't answer "is this a pattern?" — the AI insight closes that gap,

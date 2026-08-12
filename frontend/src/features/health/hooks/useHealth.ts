@@ -19,3 +19,11 @@ export function useCreateHealthLog() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['health'] }),
   })
 }
+
+export function useDeleteHealthLog() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: healthApi.deleteLog,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['health'] }),
+  })
+}

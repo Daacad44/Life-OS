@@ -19,3 +19,7 @@ export function createLog(input: CreateHealthLogInput) {
 export function getTrends(range: 'week' | 'month') {
   return apiFetch<HealthTrendsResponse>(`/v1/health-metrics/trends?range=${range}`)
 }
+
+export async function deleteLog(id: string) {
+  await apiFetch<null>(`/v1/health-metrics/logs/${id}`, { method: 'DELETE' })
+}
