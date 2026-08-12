@@ -23,6 +23,17 @@ const envSchema = z.object({
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
     .optional(),
+  // Object storage (S3 / Cloudflare R2) for user-uploaded assets (custom alarm
+  // ringtones). All must be set for uploads to work; when any is missing the
+  // ringtone-upload endpoint returns 501 and the app falls back to preset chimes.
+  S3_ENDPOINT: z.string().optional(), // e.g. https://<acct>.r2.cloudflarestorage.com
+  S3_REGION: z.string().default('auto'),
+  S3_BUCKET: z.string().optional(),
+  S3_ACCESS_KEY_ID: z.string().optional(),
+  S3_SECRET_ACCESS_KEY: z.string().optional(),
+  // Public base URL the bucket is served from, e.g. https://cdn.example.com or an
+  // R2 public bucket URL. Uploaded object keys are appended to this.
+  S3_PUBLIC_URL: z.string().optional(),
 })
 
 export const env = envSchema.parse(process.env)

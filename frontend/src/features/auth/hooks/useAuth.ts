@@ -51,3 +51,19 @@ export function useCompleteOnboarding() {
     onSuccess: (user) => queryClient.setQueryData(ME_KEY, user),
   })
 }
+
+export function useUploadRingtone() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (file: File) => authApi.uploadRingtone(file),
+    onSuccess: (user) => queryClient.setQueryData(ME_KEY, user),
+  })
+}
+
+export function useDeleteRingtone() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: authApi.deleteRingtone,
+    onSuccess: (user) => queryClient.setQueryData(ME_KEY, user),
+  })
+}
