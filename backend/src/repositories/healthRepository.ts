@@ -16,3 +16,15 @@ export function createLog(
 ) {
   return prisma.healthLog.create({ data: { userId, type, value, date } })
 }
+
+export function findLogById(userId: string, id: string) {
+  return prisma.healthLog.findFirst({ where: { id, userId } })
+}
+
+export function updateLog(id: string, data: { value?: number; date?: Date }) {
+  return prisma.healthLog.update({ where: { id }, data })
+}
+
+export function deleteLog(id: string) {
+  return prisma.healthLog.delete({ where: { id } })
+}

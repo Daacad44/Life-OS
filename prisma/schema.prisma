@@ -39,6 +39,9 @@ model User {
   soundEnabled            Boolean  @default(true)
   alarmSound              String   @default("chime")
   alarmVolume             Int      @default(70)
+  // URL of the user's uploaded MP3 ringtone (object storage). When set it plays
+  // instead of the synthesized preset named by alarmSound.
+  customRingtoneUrl       String?
   // Community is strictly opt-in — see Community.md Section 9.
   communityOptIn          Boolean  @default(false)
   // Null until the first-run wizard (profile -> first goal -> AI coach intro)
@@ -393,11 +396,14 @@ model Transaction {
   id        String          @id @default(uuid())
   userId    String
   user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      TransactionType
-  amount    Decimal         @db.Decimal(12, 2)
-  category  String
-  note      String?
-  date      DateTime
+  type          TransactionType
+  amount        Decimal     @db.Decimal(12, 2)
+  category      String
+  // Free-text label ("where did the money go?") and how it was paid.
+  description   String?
+  paymentMethod String?
+  note          String?
+  date          DateTime
   goalId    String?
   goal      Goal?           @relation(fields: [goalId], references: [id])
   createdAt DateTime        @default(now())

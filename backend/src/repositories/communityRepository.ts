@@ -83,3 +83,7 @@ export function findPostById(id: string) {
 export function reportPost(id: string) {
   return prisma.communityPost.update({ where: { id }, data: { reported: true } })
 }
+
+export function deletePost(id: string) {
+  return prisma.communityPost.delete({ where: { id } })
+}

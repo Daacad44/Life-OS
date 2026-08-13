@@ -8,16 +8,19 @@ import {
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import type { Task } from '@life-os/shared'
 import * as tasksApi from '@/features/tasks/api'
 import { Button } from '@/components/ui/button'
 import { usePlan, useReorder } from '../hooks/usePlanner'
 import { SortableTaskItem } from './SortableTaskItem'
+import { PlannerEditModal } from './PlannerEditModal'
 
 export function PlannerList({ date }: { date: string }) {
   const { data, isLoading, isError, refetch } = usePlan(date)
   const reorder = useReorder(date)
   const queryClient = useQueryClient()
+  const [editing, setEditing] = useState<Task | null>(null)
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['planner'] })
@@ -108,6 +111,7 @@ export function PlannerList({ date }: { date: string }) {
                 })
               }
               onDelete={() => deleteTask.mutate(task.id)}
+              onEdit={() => setEditing(task)}
               onReschedule={(newDate) =>
                 reschedule.mutate({ id: task.id, dueDate: newDate })
               }
@@ -137,6 +141,7 @@ export function PlannerList({ date }: { date: string }) {
                   })
                 }
                 onDelete={() => deleteTask.mutate(task.id)}
+                onEdit={() => setEditing(task)}
                 onReschedule={(newDate) =>
                   reschedule.mutate({ id: task.id, dueDate: newDate })
                 }
@@ -145,6 +150,10 @@ export function PlannerList({ date }: { date: string }) {
           </div>
         </SortableContext>
       </DndContext>
+
+      {editing && (
+        <PlannerEditModal task={editing} date={date} onClose={() => setEditing(null)} />
+      )}
     </div>
   )
 }

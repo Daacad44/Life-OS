@@ -3,40 +3,61 @@ import { Button, Input, Modal } from '@/components/ui-kit'
 import { DateTimeField } from '@/components/form/DateTimeField'
 import { useUserTimezone } from '@/features/auth/hooks/useTimezone'
 import {
+  PaymentMethod,
   TransactionCategory,
   TransactionType,
-  type CreateTransactionInput,
+  type Transaction,
 } from '@life-os/shared'
+import { useCreateTransaction, useUpdateTransaction } from '../hooks/useFinance'
 
+/**
+ * Create or edit a transaction. Category and payment method are free-text inputs
+ * backed by a datalist of common presets — the user can type where the money
+ * went (any label) OR pick a prepared one. Handles both income and expense, and
+ * both create and edit (pass `editing`). Values are held locally until Save.
+ */
 export function TransactionFormModal({
   open,
   onClose,
-  onSubmit,
-  pending,
+  editing,
 }: {
   open: boolean
   onClose: () => void
-  onSubmit: (input: CreateTransactionInput) => void
-  pending?: boolean
+  editing?: Transaction
 }) {
   const timezone = useUserTimezone()
-  const [type, setType] = useState<(typeof TransactionType)[number]>('EXPENSE')
-  const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState<(typeof TransactionCategory)[number]>('food')
-  const [note, setNote] = useState('')
-  const [date, setDate] = useState<string | null>(new Date().toISOString())
+  const create = useCreateTransaction()
+  const update = useUpdateTransaction(editing?.id ?? '')
+  const pending = create.isPending || update.isPending
+
+  const [type, setType] = useState<(typeof TransactionType)[number]>(
+    editing?.type ?? 'EXPENSE',
+  )
+  const [amount, setAmount] = useState(editing ? String(editing.amount) : '')
+  const [description, setDescription] = useState(editing?.description ?? '')
+  const [category, setCategory] = useState(editing?.category ?? '')
+  const [paymentMethod, setPaymentMethod] = useState(editing?.paymentMethod ?? '')
+  const [note, setNote] = useState(editing?.note ?? '')
+  const [date, setDate] = useState<string | null>(
+    editing?.date ?? new Date().toISOString(),
+  )
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
     const value = Number(amount)
-    if (!value || value <= 0 || !date) return
-    onSubmit({
+    if (!value || value <= 0 || !date || !category.trim()) return
+    const payload = {
       type,
       amount: value,
-      category,
+      category: category.trim(),
+      description: description.trim() || undefined,
+      paymentMethod: paymentMethod.trim() || undefined,
       note: note.trim() || undefined,
       date: new Date(date),
-    })
+    }
+    const opts = { onSuccess: () => onClose() }
+    if (editing) update.mutate(payload, opts)
+    else create.mutate(payload, opts)
   }
 
   const selectClass =
@@ -46,7 +67,7 @@ export function TransactionFormModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="New transaction"
+      title={editing ? 'Edit transaction' : 'New transaction'}
       footer={
         <>
           <Button variant="surface" size="sm" onClick={onClose}>
@@ -57,14 +78,21 @@ export function TransactionFormModal({
             size="sm"
             type="submit"
             form="transaction-form"
-            disabled={!amount || Number(amount) <= 0 || pending}
+            disabled={!amount || Number(amount) <= 0 || !category.trim() || pending}
           >
-            Add transaction
+            {pending ? 'Saving…' : editing ? 'Save changes' : 'Add transaction'}
           </Button>
         </>
       }
     >
       <form id="transaction-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <Input
+          label="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Where did the money go? (e.g. Groceries)"
+          autoFocus
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-[7px]">
             <label
@@ -96,7 +124,6 @@ export function TransactionFormModal({
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="0.00"
-            autoFocus
             required
           />
         </div>
@@ -108,20 +135,20 @@ export function TransactionFormModal({
             >
               Category
             </label>
-            <select
+            <input
               id="tx-category"
+              list="tx-category-presets"
               value={category}
-              onChange={(e) =>
-                setCategory(e.target.value as (typeof TransactionCategory)[number])
-              }
+              onChange={(e) => setCategory(e.target.value)}
+              placeholder="Type or pick a category"
               className={selectClass}
-            >
+              required
+            />
+            <datalist id="tx-category-presets">
               {TransactionCategory.map((c) => (
-                <option key={c} value={c}>
-                  {c.charAt(0).toUpperCase() + c.slice(1)}
-                </option>
+                <option key={c} value={c} />
               ))}
-            </select>
+            </datalist>
           </div>
           <DateTimeField
             label="Date"
@@ -132,12 +159,35 @@ export function TransactionFormModal({
             required
           />
         </div>
-        <Input
-          label="Note"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Optional"
-        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-[7px]">
+            <label
+              htmlFor="tx-payment"
+              className="text-[13px] font-semibold text-app-ink-soft"
+            >
+              Payment method
+            </label>
+            <input
+              id="tx-payment"
+              list="tx-payment-presets"
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+              placeholder="Optional (cash, card…)"
+              className={selectClass}
+            />
+            <datalist id="tx-payment-presets">
+              {PaymentMethod.map((p) => (
+                <option key={p} value={p} />
+              ))}
+            </datalist>
+          </div>
+          <Input
+            label="Note"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Optional"
+          />
+        </div>
       </form>
     </Modal>
   )

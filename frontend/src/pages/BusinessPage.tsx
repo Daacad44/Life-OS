@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { ProjectStatus } from '@life-os/shared'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,7 +8,10 @@ import {
   useClients,
   useCreateClient,
   useCreateProject,
+  useDeleteClient,
+  useDeleteProject,
   useProjects,
+  useUpdateProject,
 } from '@/features/business/hooks/useBusiness'
 
 const STATUS_LABEL: Record<ProjectStatus, string> = {
@@ -32,6 +35,12 @@ export function BusinessPage() {
   } = useClients()
   const createProject = useCreateProject()
   const createClient = useCreateClient()
+  const updateProject = useUpdateProject()
+  const deleteProject = useDeleteProject()
+  const deleteClient = useDeleteClient()
+
+  const selectClass =
+    'rounded-md border border-border bg-surface px-2 py-1 text-xs text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
 
   const [projectName, setProjectName] = useState('')
   const [clientName, setClientName] = useState('')
@@ -96,9 +105,34 @@ export function BusinessPage() {
             <Card key={p.id}>
               <CardContent className="flex items-center justify-between gap-2 p-4">
                 <span className="text-sm font-medium text-text">{p.name}</span>
-                <span className="rounded-full bg-primary-muted px-2 py-0.5 text-xs text-primary">
-                  {STATUS_LABEL[p.status]}
-                </span>
+                <div className="flex items-center gap-2">
+                  <select
+                    aria-label="Project status"
+                    value={p.status}
+                    onChange={(e) =>
+                      updateProject.mutate({
+                        id: p.id,
+                        input: { status: e.target.value as ProjectStatus },
+                      })
+                    }
+                    className={selectClass}
+                  >
+                    {ProjectStatus.map((s) => (
+                      <option key={s} value={s}>
+                        {STATUS_LABEL[s]}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    aria-label="Delete project"
+                    disabled={deleteProject.isPending}
+                    onClick={() => deleteProject.mutate(p.id)}
+                    className="rounded p-1 text-text-muted hover:bg-primary-muted hover:text-danger"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -136,11 +170,22 @@ export function BusinessPage() {
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {clients?.map((c) => (
             <Card key={c.id}>
-              <CardContent className="flex flex-col gap-1 p-4">
-                <span className="text-sm font-medium text-text">{c.name}</span>
-                {c.details && (
-                  <span className="text-xs text-text-muted">{c.details}</span>
-                )}
+              <CardContent className="flex items-start justify-between gap-2 p-4">
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm font-medium text-text">{c.name}</span>
+                  {c.details && (
+                    <span className="text-xs text-text-muted">{c.details}</span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  aria-label="Delete client"
+                  disabled={deleteClient.isPending}
+                  onClick={() => deleteClient.mutate(c.id)}
+                  className="rounded p-1 text-text-muted hover:bg-primary-muted hover:text-danger"
+                >
+                  <Trash2 className="size-4" />
+                </button>
               </CardContent>
             </Card>
           ))}

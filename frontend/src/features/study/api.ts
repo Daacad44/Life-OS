@@ -39,3 +39,11 @@ export function generatePlan(input: GenerateStudyPlanInput) {
     body: JSON.stringify(input),
   })
 }
+
+export async function deleteSubject(id: string) {
+  await apiFetch<null>(`/v1/study/subjects/${id}`, { method: 'DELETE' })
+}
+
+export async function deleteSession(id: string) {
+  await apiFetch<null>(`/v1/study/sessions/${id}`, { method: 'DELETE' })
+}

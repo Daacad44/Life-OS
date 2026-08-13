@@ -17,3 +17,17 @@ export async function handleCreate(req: Request, res: Response) {
   const reflection = await reflectionService.create(req.user!.id, req.body)
   res.status(201).json({ success: true, data: reflection })
 }
+
+export async function handleUpdate(req: Request, res: Response) {
+  const reflection = await reflectionService.update(
+    req.user!.id,
+    req.params.id as string,
+    req.body,
+  )
+  res.json({ success: true, data: reflection })
+}
+
+export async function handleDelete(req: Request, res: Response) {
+  await reflectionService.remove(req.user!.id, req.params.id as string)
+  res.status(204).send()
+}

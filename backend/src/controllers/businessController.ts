@@ -11,6 +11,25 @@ export async function handleCreateProject(req: Request, res: Response) {
   res.status(201).json({ success: true, data: project })
 }
 
+export async function handleUpdateProject(req: Request, res: Response) {
+  const project = await businessService.updateProject(
+    req.user!.id,
+    req.params.id as string,
+    req.body,
+  )
+  res.json({ success: true, data: project })
+}
+
+export async function handleDeleteProject(req: Request, res: Response) {
+  await businessService.deleteProject(req.user!.id, req.params.id as string)
+  res.status(204).send()
+}
+
+export async function handleDeleteClient(req: Request, res: Response) {
+  await businessService.deleteClient(req.user!.id, req.params.id as string)
+  res.status(204).send()
+}
+
 export async function handleListClients(req: Request, res: Response) {
   const clients = await businessService.listClients(req.user!.id)
   res.json({ success: true, data: clients })

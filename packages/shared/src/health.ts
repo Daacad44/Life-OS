@@ -10,6 +10,12 @@ export const createHealthLogSchema = z.object({
 })
 export type CreateHealthLogInput = z.infer<typeof createHealthLogSchema>
 
+export const updateHealthLogSchema = z.object({
+  value: z.number().min(0).max(1000).optional(),
+  date: z.coerce.date().optional(),
+})
+export type UpdateHealthLogInput = z.infer<typeof updateHealthLogSchema>
+
 export const healthTrendsQuerySchema = z.object({
   range: z.enum(['week', 'month']).default('week'),
 })

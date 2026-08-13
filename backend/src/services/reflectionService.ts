@@ -1,4 +1,9 @@
-import type { CreateReflectionInput, ReflectionPeriod } from '@life-os/shared'
+import type {
+  CreateReflectionInput,
+  ReflectionPeriod,
+  UpdateReflectionInput,
+} from '@life-os/shared'
+import { ApiError } from '../middleware/errorHandler.js'
 import * as reflectionRepo from '../repositories/reflectionRepository.js'
 import * as dashboardService from './dashboardService.js'
 import * as memoryService from './memoryService.js'
@@ -21,6 +26,24 @@ const FALLBACK_PROMPTS: Record<ReflectionPeriod, string> = {
 
 export function listForUser(userId: string) {
   return reflectionRepo.listReflections(userId)
+}
+
+async function getOwned(userId: string, id: string) {
+  const reflection = await reflectionRepo.findReflectionById(userId, id)
+  if (!reflection) {
+    throw new ApiError(404, 'NOT_FOUND', 'Reflection not found')
+  }
+  return reflection
+}
+
+export async function update(userId: string, id: string, input: UpdateReflectionInput) {
+  await getOwned(userId, id)
+  return reflectionRepo.updateReflection(id, { content: input.content })
+}
+
+export async function remove(userId: string, id: string): Promise<void> {
+  await getOwned(userId, id)
+  await reflectionRepo.deleteReflection(id)
 }
 
 export async function getPrompt(

@@ -14,6 +14,9 @@ import {
   handleCreateSkill,
   handleCreateMilestone,
   handleUpdateMilestone,
+  handleDeleteCareerGoal,
+  handleDeleteSkill,
+  handleDeleteMilestone,
   handleGeneratePlan,
 } from '../controllers/careerController.js'
 
@@ -36,4 +39,7 @@ careerRouter.patch(
   validateBody(updateMilestoneSchema),
   handleUpdateMilestone,
 )
+careerRouter.delete('/goals/:id', handleDeleteCareerGoal)
+careerRouter.delete('/skills/:id', handleDeleteSkill)
+careerRouter.delete('/milestones/:id', handleDeleteMilestone)
 careerRouter.post('/plan', validateBody(generateCareerPlanSchema), handleGeneratePlan)

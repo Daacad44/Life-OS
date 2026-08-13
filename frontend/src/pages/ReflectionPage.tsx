@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, Trash2 } from 'lucide-react'
 import type { ReflectionPeriod } from '@life-os/shared'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   useCreateReflection,
+  useDeleteReflection,
   useReflectionPrompt,
   useReflections,
 } from '@/features/reflection/hooks/useReflections'
@@ -28,6 +29,7 @@ export function ReflectionPage() {
     refetch: refetchHistory,
   } = useReflections()
   const createReflection = useCreateReflection()
+  const deleteReflection = useDeleteReflection()
   const [answer, setAnswer] = useState('')
 
   function handleSubmit() {
@@ -111,7 +113,18 @@ export function ReflectionPage() {
               <CardContent className="flex flex-col gap-2 p-4">
                 <div className="flex items-center justify-between text-xs text-text-muted">
                   <span>{r.period === 'daily' ? 'Daily' : 'Weekly'}</span>
-                  <span>{new Date(r.createdAt).toLocaleDateString()}</span>
+                  <div className="flex items-center gap-2">
+                    <span>{new Date(r.createdAt).toLocaleDateString()}</span>
+                    <button
+                      type="button"
+                      aria-label="Delete reflection"
+                      disabled={deleteReflection.isPending}
+                      onClick={() => deleteReflection.mutate(r.id)}
+                      className="rounded p-1 hover:bg-primary-muted hover:text-danger"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </div>
                 </div>
                 <p className="text-sm font-medium text-text">{r.prompt}</p>
                 <p className="text-sm text-text-muted">{r.content}</p>

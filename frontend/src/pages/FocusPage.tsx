@@ -41,7 +41,12 @@ export function FocusPage() {
   )
 
   function chime() {
-    playAlarm((user?.alarmSound as AlarmSoundName) ?? 'chime', user?.alarmVolume ?? 70, 2)
+    // A short end-of-session cue, not the full 1-minute reminder alarm.
+    playAlarm({
+      sound: (user?.alarmSound as AlarmSoundName) ?? 'chime',
+      volume: user?.alarmVolume ?? 70,
+      durationMs: 3000,
+    })
   }
 
   // Ref indirection keeps the 1s interval free of stale state closures.

@@ -30,6 +30,21 @@ export async function handleUpdateMilestone(req: Request, res: Response) {
   res.json({ success: true, data: milestone })
 }
 
+export async function handleDeleteCareerGoal(req: Request, res: Response) {
+  await careerService.deleteCareerGoal(req.user!.id, req.params.id as string)
+  res.status(204).send()
+}
+
+export async function handleDeleteSkill(req: Request, res: Response) {
+  await careerService.deleteSkill(req.user!.id, req.params.id as string)
+  res.status(204).send()
+}
+
+export async function handleDeleteMilestone(req: Request, res: Response) {
+  await careerService.deleteMilestone(req.user!.id, req.params.id as string)
+  res.status(204).send()
+}
+
 export async function handleGeneratePlan(req: Request, res: Response) {
   const result = await careerService.generatePlan(req.user!.id, req.body)
   res.status(201).json({ success: true, data: result })

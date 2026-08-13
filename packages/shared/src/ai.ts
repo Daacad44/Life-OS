@@ -33,6 +33,11 @@ export const createReflectionSchema = z.object({
 })
 export type CreateReflectionInput = z.infer<typeof createReflectionSchema>
 
+export const updateReflectionSchema = z.object({
+  content: z.string().min(1).max(4000),
+})
+export type UpdateReflectionInput = z.infer<typeof updateReflectionSchema>
+
 export interface Reflection {
   id: string
   userId: string

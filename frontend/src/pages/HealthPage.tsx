@@ -1,11 +1,16 @@
 import { useState, type FormEvent } from 'react'
-import { Plus, Sparkles } from 'lucide-react'
+import { Plus, Sparkles, Trash2 } from 'lucide-react'
 import { HealthMetricType } from '@life-os/shared'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { TrendChart } from '@/features/health/components/TrendChart'
-import { useCreateHealthLog, useHealthTrends } from '@/features/health/hooks/useHealth'
+import {
+  useCreateHealthLog,
+  useDeleteHealthLog,
+  useHealthLogs,
+  useHealthTrends,
+} from '@/features/health/hooks/useHealth'
 
 const METRIC_LABEL: Record<string, string> = {
   SLEEP: 'Sleep (hrs)',
@@ -21,7 +26,9 @@ const selectClass =
 export function HealthPage() {
   const [range, setRange] = useState<'week' | 'month'>('week')
   const { data, isLoading, isError, refetch } = useHealthTrends(range)
+  const { data: logs } = useHealthLogs()
   const createLog = useCreateHealthLog()
+  const deleteLog = useDeleteHealthLog()
 
   const [type, setType] = useState<HealthMetricType>('SLEEP')
   const [value, setValue] = useState('')
@@ -132,6 +139,38 @@ export function HealthPage() {
             ))}
           </CardContent>
         </Card>
+      )}
+
+      {logs && logs.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-sm font-semibold text-text-muted">Recent entries</h2>
+          <div className="flex flex-col divide-y divide-border rounded-md border border-border">
+            {logs.slice(0, 12).map((log) => (
+              <div
+                key={log.id}
+                className="flex items-center justify-between gap-3 px-3 py-2"
+              >
+                <div className="flex flex-col">
+                  <span className="text-sm text-text">
+                    {METRIC_LABEL[log.type]}: {log.value}
+                  </span>
+                  <span className="text-xs text-text-muted">
+                    {new Date(log.date).toLocaleDateString()}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Delete entry"
+                  disabled={deleteLog.isPending}
+                  onClick={() => deleteLog.mutate(log.id)}
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   )

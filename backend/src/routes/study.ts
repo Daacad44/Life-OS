@@ -12,6 +12,8 @@ import {
   handleCreateSubject,
   handleCreateSession,
   handleUpdateSession,
+  handleDeleteSubject,
+  handleDeleteSession,
   handleGeneratePlan,
 } from '../controllers/studyController.js'
 
@@ -27,4 +29,6 @@ studyRouter.patch(
   validateBody(updateStudySessionSchema),
   handleUpdateSession,
 )
+studyRouter.delete('/subjects/:id', handleDeleteSubject)
+studyRouter.delete('/sessions/:id', handleDeleteSession)
 studyRouter.post('/plan', validateBody(generateStudyPlanSchema), handleGeneratePlan)

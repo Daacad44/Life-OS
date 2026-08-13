@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ArrowDownLeft, ArrowUpRight, Plus, Wallet } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, Pencil, Plus, Trash2, Wallet } from 'lucide-react'
 import {
   Button,
   Card,
@@ -13,12 +13,12 @@ import { useUserTimezone } from '@/features/auth/hooks/useTimezone'
 import {
   useTransactions,
   useBudgetOverview,
-  useCreateTransaction,
+  useDeleteTransaction,
 } from '@/features/finance/hooks/useFinance'
 import { TransactionFormModal } from '@/features/finance/components/TransactionFormModal'
 import { donutArcs } from '@/lib/chart'
 import { formatDate } from '@/lib/datetime'
-import type { CreateTransactionInput } from '@life-os/shared'
+import type { Transaction } from '@life-os/shared'
 
 const breakdownColors = ['#1d4e89', '#f59e0b', '#059669', '#8b5cf6', '#94a3b8']
 
@@ -36,8 +36,9 @@ export function FinancePage() {
     refetch: refetchTx,
   } = useTransactions()
   const { data: overview, isLoading: ovLoading } = useBudgetOverview()
-  const createTransaction = useCreateTransaction()
+  const deleteTransaction = useDeleteTransaction()
   const [modalOpen, setModalOpen] = useState(false)
+  const [editing, setEditing] = useState<Transaction | null>(null)
 
   const stats = [
     {
@@ -70,8 +71,9 @@ export function FinancePage() {
 
   const arcs = donutArcs(breakdown.segments.map(([, v]) => v))
 
-  function submit(input: CreateTransactionInput) {
-    createTransaction.mutate(input, { onSuccess: () => setModalOpen(false) })
+  function closeModal() {
+    setModalOpen(false)
+    setEditing(null)
   }
 
   return (
@@ -212,25 +214,47 @@ export function FinancePage() {
                         <ArrowUpRight size={17} aria-hidden="true" />
                       )}
                     </span>
-                    <div>
-                      <div className="text-sm font-bold">
-                        {tx.note ||
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-bold">
+                        {tx.description ||
                           tx.category.charAt(0).toUpperCase() + tx.category.slice(1)}
                       </div>
                       <div className="text-[12px] font-semibold text-app-ink-faint">
                         {formatDate(tx.date, timezone)}
+                        {' · '}
+                        {tx.category}
+                        {tx.paymentMethod ? ` · ${tx.paymentMethod}` : ''}
                       </div>
                     </div>
                   </div>
-                  <span
-                    className={cn(
-                      'text-sm font-extrabold tabular-nums',
-                      positive ? 'text-accent-emerald' : 'text-app-ink-soft',
-                    )}
-                  >
-                    {positive ? '+' : '−'}
-                    {money(tx.amount).replace('-', '')}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={cn(
+                        'text-sm font-extrabold tabular-nums',
+                        positive ? 'text-accent-emerald' : 'text-app-ink-soft',
+                      )}
+                    >
+                      {positive ? '+' : '−'}
+                      {money(tx.amount).replace('-', '')}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label="Edit transaction"
+                      onClick={() => setEditing(tx)}
+                      className="rounded-lg p-1.5 text-app-ink-faint hover:bg-app-raised hover:text-app-ink"
+                    >
+                      <Pencil size={15} aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Delete transaction"
+                      disabled={deleteTransaction.isPending}
+                      onClick={() => deleteTransaction.mutate(tx.id)}
+                      className="rounded-lg p-1.5 text-app-ink-faint hover:bg-app-raised hover:text-accent-red"
+                    >
+                      <Trash2 size={15} aria-hidden="true" />
+                    </button>
+                  </div>
                 </div>
               )
             })
@@ -238,14 +262,13 @@ export function FinancePage() {
         </Card>
       </div>
 
-      {modalOpen ? (
+      {(modalOpen || editing) && (
         <TransactionFormModal
-          open={modalOpen}
-          onClose={() => setModalOpen(false)}
-          onSubmit={submit}
-          pending={createTransaction.isPending}
+          open={modalOpen || !!editing}
+          onClose={closeModal}
+          editing={editing ?? undefined}
         />
-      ) : null}
+      )}
     </div>
   )
 }

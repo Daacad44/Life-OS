@@ -35,6 +35,7 @@ const user: PublicUser = {
   soundEnabled: true,
   alarmSound: 'chime',
   alarmVolume: 70,
+  customRingtoneUrl: null,
   onboardedAt: new Date().toISOString(),
   createdAt: new Date().toISOString(),
 }

@@ -1,10 +1,16 @@
 import { Router } from 'express'
-import { createHealthLogSchema, healthTrendsQuerySchema } from '@life-os/shared'
+import {
+  createHealthLogSchema,
+  healthTrendsQuerySchema,
+  updateHealthLogSchema,
+} from '@life-os/shared'
 import { validateBody, validateQuery } from '../middleware/validate.js'
 import { requireAuth } from '../middleware/requireAuth.js'
 import {
   handleList,
   handleCreate,
+  handleUpdate,
+  handleDelete,
   handleTrends,
 } from '../controllers/healthLogController.js'
 
@@ -17,4 +23,6 @@ healthLogsRouter.use(requireAuth)
 
 healthLogsRouter.get('/logs', handleList)
 healthLogsRouter.post('/logs', validateBody(createHealthLogSchema), handleCreate)
+healthLogsRouter.patch('/logs/:id', validateBody(updateHealthLogSchema), handleUpdate)
+healthLogsRouter.delete('/logs/:id', handleDelete)
 healthLogsRouter.get('/trends', validateQuery(healthTrendsQuerySchema), handleTrends)

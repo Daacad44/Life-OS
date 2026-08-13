@@ -14,6 +14,8 @@ import { cn } from '@/lib/utils'
 import {
   useCurrentUser,
   useUpdateProfile,
+  useUploadRingtone,
+  useDeleteRingtone,
   useLogout,
 } from '@/features/auth/hooks/useAuth'
 import { exportData, deleteAccount } from '@/features/auth/api'
@@ -83,6 +85,8 @@ function timezoneList(): string[] {
 export function SettingsPage() {
   const { data: user } = useCurrentUser()
   const updateProfile = useUpdateProfile()
+  const uploadRingtone = useUploadRingtone()
+  const deleteRingtone = useDeleteRingtone()
   const logout = useLogout()
   const navigate = useNavigate()
   const { theme, setTheme } = useThemeStore()
@@ -102,6 +106,28 @@ export function SettingsPage() {
   )
   const [alarmVolume, setAlarmVolume] = useState(user?.alarmVolume ?? 70)
   const [soundSaved, setSoundSaved] = useState(false)
+  const [ringtoneError, setRingtoneError] = useState<string | null>(null)
+  const customRingtoneUrl = user?.customRingtoneUrl ?? null
+
+  function handleRingtoneFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = '' // allow re-selecting the same file after an error
+    if (!file) return
+    setRingtoneError(null)
+    const isMp3 = file.type === 'audio/mpeg' || file.name.toLowerCase().endsWith('.mp3')
+    if (!isMp3) {
+      setRingtoneError('Please choose an MP3 file.')
+      return
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      setRingtoneError('Ringtone must be 3 MB or smaller.')
+      return
+    }
+    uploadRingtone.mutate(file, {
+      onError: (err) =>
+        setRingtoneError(err instanceof Error ? err.message : 'Upload failed.'),
+    })
+  }
 
   // Hydrate alarm controls once the profile loads (query resolves after mount).
   useEffect(() => {
@@ -389,7 +415,7 @@ export function SettingsPage() {
                   const next = e.target.value as AlarmSoundName
                   setAlarmSound(next)
                   setSoundSaved(false)
-                  previewAlarm(next, alarmVolume)
+                  previewAlarm(next, alarmVolume, customRingtoneUrl)
                 }}
                 className={selectClass}
               >
@@ -424,6 +450,51 @@ export function SettingsPage() {
             </div>
           </div>
 
+          <div className="mt-5 rounded-xl border border-app-hairline bg-app-raised p-4">
+            <p className="text-[13px] font-bold text-app-ink-soft">Custom ringtone</p>
+            <p className="mt-0.5 mb-3 text-xs font-medium text-app-ink-muted">
+              Upload your own MP3 (max 3 MB) to use as your alarm. When set, it plays
+              instead of the preset above and rings for up to a minute until you stop it.
+            </p>
+            {customRingtoneUrl ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <audio
+                  controls
+                  src={customRingtoneUrl}
+                  className="h-9 max-w-full"
+                  aria-label="Your custom ringtone"
+                />
+                <Button
+                  variant="surface"
+                  size="sm"
+                  disabled={deleteRingtone.isPending}
+                  onClick={() => {
+                    setRingtoneError(null)
+                    deleteRingtone.mutate()
+                  }}
+                >
+                  {deleteRingtone.isPending ? 'Removing…' : 'Remove'}
+                </Button>
+              </div>
+            ) : (
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-app-hairline bg-app-surface px-3.5 py-2 text-sm font-semibold text-app-ink-soft hover:bg-app-raised">
+                {uploadRingtone.isPending ? 'Uploading…' : 'Choose MP3'}
+                <input
+                  type="file"
+                  accept="audio/mpeg,.mp3"
+                  className="sr-only"
+                  disabled={uploadRingtone.isPending}
+                  onChange={handleRingtoneFile}
+                />
+              </label>
+            )}
+            {ringtoneError ? (
+              <p className="mt-2 text-xs font-semibold text-accent-red">
+                {ringtoneError}
+              </p>
+            ) : null}
+          </div>
+
           <div className="mt-5 flex items-center gap-3">
             <Button size="md" onClick={saveSound} disabled={updateProfile.isPending}>
               {updateProfile.isPending ? 'Saving…' : 'Save'}
@@ -432,7 +503,7 @@ export function SettingsPage() {
               variant="surface"
               size="md"
               disabled={!soundEnabled}
-              onClick={() => previewAlarm(alarmSound, alarmVolume)}
+              onClick={() => previewAlarm(alarmSound, alarmVolume, customRingtoneUrl)}
             >
               Test alarm
             </Button>

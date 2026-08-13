@@ -15,3 +15,7 @@ export function createReflection(input: CreateReflectionInput) {
     body: JSON.stringify(input),
   })
 }
+
+export async function deleteReflection(id: string) {
+  await apiFetch<null>(`/v1/reflections/${id}`, { method: 'DELETE' })
+}

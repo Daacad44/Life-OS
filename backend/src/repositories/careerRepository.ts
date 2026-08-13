@@ -45,3 +45,19 @@ export function createMilestone(
 export function updateMilestone(id: string, done: boolean) {
   return prisma.milestone.update({ where: { id }, data: { done } })
 }
+
+export function softDeleteCareerGoal(id: string) {
+  return prisma.careerGoal.update({ where: { id }, data: { deletedAt: new Date() } })
+}
+
+export function findSkillById(userId: string, id: string) {
+  return prisma.skill.findFirst({ where: { id, userId } })
+}
+
+export function deleteSkill(id: string) {
+  return prisma.skill.delete({ where: { id } })
+}
+
+export function deleteMilestone(id: string) {
+  return prisma.milestone.delete({ where: { id } })
+}

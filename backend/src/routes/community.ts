@@ -16,6 +16,7 @@ import {
   handleShare,
   handleFeed,
   handleReportPost,
+  handleDeletePost,
 } from '../controllers/communityController.js'
 
 export const communityRouter = Router()
@@ -34,3 +35,4 @@ communityRouter.patch(
 communityRouter.post('/share', validateBody(shareGoalSchema), handleShare)
 communityRouter.get('/feed', handleFeed)
 communityRouter.post('/posts/:id/report', handleReportPost)
+communityRouter.delete('/posts/:id', handleDeletePost)

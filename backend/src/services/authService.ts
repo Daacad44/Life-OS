@@ -17,6 +17,7 @@ export function toPublicUser(user: User): PublicUser {
     soundEnabled: user.soundEnabled,
     alarmSound: user.alarmSound,
     alarmVolume: user.alarmVolume,
+    customRingtoneUrl: user.customRingtoneUrl,
     onboardedAt: user.onboardedAt ? user.onboardedAt.toISOString() : null,
     createdAt: user.createdAt.toISOString(),
   }

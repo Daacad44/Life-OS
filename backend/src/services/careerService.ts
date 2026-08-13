@@ -76,6 +76,30 @@ export async function updateMilestone(userId: string, id: string, done: boolean)
   return toMilestoneDTO(milestone)
 }
 
+export async function deleteCareerGoal(userId: string, id: string): Promise<void> {
+  const existing = await careerRepo.findCareerGoalById(userId, id)
+  if (!existing) {
+    throw new ApiError(404, 'NOT_FOUND', 'Career goal not found')
+  }
+  await careerRepo.softDeleteCareerGoal(id)
+}
+
+export async function deleteSkill(userId: string, id: string): Promise<void> {
+  const existing = await careerRepo.findSkillById(userId, id)
+  if (!existing) {
+    throw new ApiError(404, 'NOT_FOUND', 'Skill not found')
+  }
+  await careerRepo.deleteSkill(id)
+}
+
+export async function deleteMilestone(userId: string, id: string): Promise<void> {
+  const existing = await careerRepo.findMilestoneById(userId, id)
+  if (!existing) {
+    throw new ApiError(404, 'NOT_FOUND', 'Milestone not found')
+  }
+  await careerRepo.deleteMilestone(id)
+}
+
 // Maps skills + milestones toward a career goal — see Career Planner.md Section 6.
 export async function generatePlan(
   userId: string,

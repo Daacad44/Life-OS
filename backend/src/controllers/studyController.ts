@@ -25,6 +25,16 @@ export async function handleUpdateSession(req: Request, res: Response) {
   res.json({ success: true, data: session })
 }
 
+export async function handleDeleteSubject(req: Request, res: Response) {
+  await studyService.deleteSubject(req.user!.id, req.params.id as string)
+  res.status(204).send()
+}
+
+export async function handleDeleteSession(req: Request, res: Response) {
+  await studyService.deleteSession(req.user!.id, req.params.id as string)
+  res.status(204).send()
+}
+
 export async function handleGeneratePlan(req: Request, res: Response) {
   const result = await studyService.generatePlan(req.user!.id, req.body)
   res.status(201).json({ success: true, data: result })

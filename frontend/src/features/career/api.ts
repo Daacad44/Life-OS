@@ -41,3 +41,15 @@ export function generatePlan(input: GenerateCareerPlanInput) {
     body: JSON.stringify(input),
   })
 }
+
+export async function deleteCareerGoal(id: string) {
+  await apiFetch<null>(`/v1/career/goals/${id}`, { method: 'DELETE' })
+}
+
+export async function deleteSkill(id: string) {
+  await apiFetch<null>(`/v1/career/skills/${id}`, { method: 'DELETE' })
+}
+
+export async function deleteMilestone(id: string) {
+  await apiFetch<null>(`/v1/career/milestones/${id}`, { method: 'DELETE' })
+}

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Plus, Sparkles } from 'lucide-react'
+import { Plus, Sparkles, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -8,6 +8,9 @@ import {
   useCreateCareerGoal,
   useCreateMilestone,
   useCreateSkill,
+  useDeleteCareerGoal,
+  useDeleteMilestone,
+  useDeleteSkill,
   useGenerateCareerPlan,
   useUpdateMilestone,
 } from '@/features/career/hooks/useCareer'
@@ -21,6 +24,9 @@ export function CareerPage() {
   const createSkill = useCreateSkill()
   const createMilestone = useCreateMilestone()
   const updateMilestone = useUpdateMilestone()
+  const deleteGoal = useDeleteCareerGoal()
+  const deleteSkill = useDeleteSkill()
+  const deleteMilestone = useDeleteMilestone()
   const generatePlan = useGenerateCareerPlan()
 
   const [goalTitle, setGoalTitle] = useState('')
@@ -111,15 +117,26 @@ export function CareerPage() {
                     <p className="text-xs text-text-muted">{goal.targetRole}</p>
                   )}
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={generatePlan.isPending}
-                  onClick={() => generatePlan.mutate({ careerGoalId: goal.id })}
-                >
-                  <Sparkles className="size-4" />
-                  Plan
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={generatePlan.isPending}
+                    onClick={() => generatePlan.mutate({ careerGoalId: goal.id })}
+                  >
+                    <Sparkles className="size-4" />
+                    Plan
+                  </Button>
+                  <button
+                    type="button"
+                    aria-label="Delete career goal"
+                    disabled={deleteGoal.isPending}
+                    onClick={() => deleteGoal.mutate(goal.id)}
+                    className="rounded p-1.5 text-text-muted hover:bg-primary-muted hover:text-danger"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -160,13 +177,24 @@ export function CareerPage() {
                   className="flex items-center justify-between gap-2 text-sm"
                 >
                   <span className="text-text">{skill.name}</span>
-                  <div className="flex gap-0.5">
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <span
-                        key={n}
-                        className={`size-2 rounded-full ${n <= skill.level ? 'bg-primary' : 'bg-primary-muted'}`}
-                      />
-                    ))}
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <span
+                          key={n}
+                          className={`size-2 rounded-full ${n <= skill.level ? 'bg-primary' : 'bg-primary-muted'}`}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      aria-label="Delete skill"
+                      disabled={deleteSkill.isPending}
+                      onClick={() => deleteSkill.mutate(skill.id)}
+                      className="rounded p-0.5 text-text-muted hover:text-danger"
+                    >
+                      <X className="size-3.5" />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -220,6 +248,15 @@ export function CareerPage() {
                   <span className={m.done ? 'text-text-muted line-through' : 'text-text'}>
                     {m.title}
                   </span>
+                  <button
+                    type="button"
+                    aria-label="Delete milestone"
+                    disabled={deleteMilestone.isPending}
+                    onClick={() => deleteMilestone.mutate(m.id)}
+                    className="ml-auto rounded p-0.5 text-text-muted hover:text-danger"
+                  >
+                    <X className="size-3.5" />
+                  </button>
                 </label>
               ))}
             </CardContent>

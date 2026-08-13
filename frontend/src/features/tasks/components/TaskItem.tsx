@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle, Trash2 } from 'lucide-react'
+import { CheckCircle2, Circle, Pencil, Trash2 } from 'lucide-react'
 import type { Task } from '@life-os/shared'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -13,11 +13,14 @@ export function TaskItem({
   task,
   onToggleDone,
   onDelete,
+  onEdit,
   dragHandle,
 }: {
   task: Task
   onToggleDone: () => void
   onDelete: () => void
+  /** When provided, an edit (pencil) button appears to open an editor. */
+  onEdit?: () => void
   dragHandle?: React.ReactNode
 }) {
   const done = task.status === 'DONE'
@@ -68,6 +71,12 @@ export function TaskItem({
       >
         {task.priority}
       </span>
+
+      {onEdit && (
+        <Button variant="ghost" size="icon" aria-label="Edit task" onClick={onEdit}>
+          <Pencil className="size-4" />
+        </Button>
+      )}
 
       <Button variant="ghost" size="icon" aria-label="Delete task" onClick={onDelete}>
         <Trash2 className="size-4" />

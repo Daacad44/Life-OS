@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 import { useCurrentUser } from '@/features/auth/hooks/useAuth'
 import { useUserTimezone } from '@/features/auth/hooks/useTimezone'
 import { useDashboard } from '@/features/dashboard/hooks/useDashboard'
+import { GroupHub } from '@/features/dashboard/components/GroupHub'
 import { useUpdateTask } from '@/features/tasks/hooks/useTasks'
 import { useFocusSessions } from '@/features/focus/hooks/useFocus'
 import { dayKeyInTz, formatDueLabel, formatMinutes } from '@/lib/datetime'
@@ -331,6 +332,9 @@ export function DashboardPage() {
           />
         )}
       </Card>
+
+      {/* Explore hub — every workspace, grouped Core / AI / Life / Growth */}
+      <GroupHub />
     </div>
   )
 }

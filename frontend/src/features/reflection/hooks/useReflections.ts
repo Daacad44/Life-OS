@@ -20,3 +20,11 @@ export function useCreateReflection() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reflections'] }),
   })
 }
+
+export function useDeleteReflection() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: reflectionApi.deleteReflection,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reflections'] }),
+  })
+}

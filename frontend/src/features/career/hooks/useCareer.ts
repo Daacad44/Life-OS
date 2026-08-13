@@ -34,6 +34,21 @@ export function useUpdateMilestone() {
   })
 }
 
+export function useDeleteCareerGoal() {
+  const invalidate = useInvalidateCareer()
+  return useMutation({ mutationFn: careerApi.deleteCareerGoal, onSuccess: invalidate })
+}
+
+export function useDeleteSkill() {
+  const invalidate = useInvalidateCareer()
+  return useMutation({ mutationFn: careerApi.deleteSkill, onSuccess: invalidate })
+}
+
+export function useDeleteMilestone() {
+  const invalidate = useInvalidateCareer()
+  return useMutation({ mutationFn: careerApi.deleteMilestone, onSuccess: invalidate })
+}
+
 export function useGenerateCareerPlan() {
   const invalidate = useInvalidateCareer()
   return useMutation({ mutationFn: careerApi.generatePlan, onSuccess: invalidate })

@@ -7,6 +7,7 @@ import {
   destroySession,
   clearSessionCookie,
 } from '../services/sessionService.js'
+import { isStorageConfigured, uploadObject } from '../services/storageService.js'
 
 export async function handleUpdateProfile(req: Request, res: Response) {
   const user = await updateUser(req.user!.id, req.body)
@@ -17,6 +18,35 @@ export async function handleUpdateProfile(req: Request, res: Response) {
 // just refreshes the timestamp rather than erroring.
 export async function handleCompleteOnboarding(req: Request, res: Response) {
   const user = await updateUser(req.user!.id, { onboardedAt: new Date() })
+  res.json({ success: true, data: toPublicUser(user) })
+}
+
+// Custom alarm ringtone (Global Requirement A). Accepts a single MP3 (≤3 MB),
+// stores it in object storage, and points the user's customRingtoneUrl at it.
+export async function handleUploadRingtone(req: Request, res: Response) {
+  if (!isStorageConfigured()) {
+    return res.status(501).json({
+      success: false,
+      error: 'Ringtone upload is not configured on this server.',
+    })
+  }
+  const file = req.file
+  if (!file) {
+    return res.status(400).json({ success: false, error: 'No file uploaded.' })
+  }
+  const okType =
+    file.mimetype === 'audio/mpeg' || file.originalname.toLowerCase().endsWith('.mp3')
+  if (!okType) {
+    return res.status(400).json({ success: false, error: 'Ringtone must be an MP3.' })
+  }
+  const { url } = await uploadObject('ringtones', file.buffer, 'audio/mpeg', 'mp3')
+  const user = await updateUser(req.user!.id, { customRingtoneUrl: url })
+  res.json({ success: true, data: toPublicUser(user) })
+}
+
+// Clear the custom ringtone, reverting the user to their chosen preset chime.
+export async function handleDeleteRingtone(req: Request, res: Response) {
+  const user = await updateUser(req.user!.id, { customRingtoneUrl: null })
   res.json({ success: true, data: toPublicUser(user) })
 }
 
