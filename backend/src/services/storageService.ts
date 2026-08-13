@@ -4,38 +4,39 @@ import { env } from '../config/env.js'
 import { logger } from '../config/logger.js'
 
 /**
- * Object storage (S3 / Cloudflare R2) for user-uploaded assets — currently the
- * custom alarm ringtone (Global Requirement A). Configuration is optional: when
- * the S3_* env vars are absent, {@link isStorageConfigured} is false and callers
- * return a clear "not configured" error instead of crashing.
+ * Cloudflare R2 object storage for user-uploaded assets — currently the custom
+ * alarm ringtone (Global Requirement A). R2 speaks the S3 API, so we talk to it
+ * with the AWS S3 SDK. Configuration is optional: when the R2_* env vars are
+ * absent, {@link isStorageConfigured} is false and callers return a clear
+ * "not configured" error instead of crashing.
  */
 
-let client: S3Client | null = null
+let r2Client: S3Client | null = null
 
 export function isStorageConfigured(): boolean {
   return Boolean(
-    env.S3_ENDPOINT &&
-    env.S3_BUCKET &&
-    env.S3_ACCESS_KEY_ID &&
-    env.S3_SECRET_ACCESS_KEY &&
-    env.S3_PUBLIC_URL,
+    env.R2_ENDPOINT &&
+    env.R2_BUCKET &&
+    env.R2_ACCESS_KEY_ID &&
+    env.R2_SECRET_ACCESS_KEY &&
+    env.R2_PUBLIC_URL,
   )
 }
 
 function getClient(): S3Client {
-  if (!client) {
-    client = new S3Client({
-      endpoint: env.S3_ENDPOINT,
-      region: env.S3_REGION,
+  if (!r2Client) {
+    r2Client = new S3Client({
+      endpoint: env.R2_ENDPOINT,
+      region: env.R2_REGION,
       credentials: {
-        accessKeyId: env.S3_ACCESS_KEY_ID!,
-        secretAccessKey: env.S3_SECRET_ACCESS_KEY!,
+        accessKeyId: env.R2_ACCESS_KEY_ID!,
+        secretAccessKey: env.R2_SECRET_ACCESS_KEY!,
       },
-      // R2 and most S3-compatible endpoints need path-style addressing.
+      // R2 needs path-style addressing.
       forcePathStyle: true,
     })
   }
-  return client
+  return r2Client
 }
 
 export interface UploadResult {
@@ -59,15 +60,15 @@ export async function uploadObject(
   const key = `${prefix}/${randomUUID()}.${extension.replace(/^\./, '')}`
   await getClient().send(
     new PutObjectCommand({
-      Bucket: env.S3_BUCKET,
+      Bucket: env.R2_BUCKET,
       Key: key,
       Body: body,
       ContentType: contentType,
       CacheControl: 'public, max-age=31536000, immutable',
     }),
   )
-  const base = env.S3_PUBLIC_URL!.replace(/\/$/, '')
+  const base = env.R2_PUBLIC_URL!.replace(/\/$/, '')
   const url = `${base}/${key}`
-  logger.info({ key }, 'Uploaded object to storage')
+  logger.info({ key }, 'Uploaded object to R2 storage')
   return { url, key }
 }

@@ -65,7 +65,7 @@ The core rule: **build the skeleton first, add intelligence later.** You never b
 | Vector Store | pgvector (Postgres extension) | AI memory / semantic search |
 | Cache/Queue | Redis | Sessions, background jobs, rate limits |
 | Hosting | VPS + Coolify | Self-hosted, cost-controlled |
-| Files | S3-compatible storage | Attachments, uploads |
+| Files | Cloudflare R2 | Attachments, uploads |
 
 > This stack matches your existing infrastructure (VPS + Coolify) and keeps a clear separation between a React frontend and an Express API, both written in TypeScript — flexible and easy to reason about for a solo founder.
 

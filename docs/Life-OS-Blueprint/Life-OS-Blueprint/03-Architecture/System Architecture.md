@@ -63,7 +63,7 @@ The frontend and backend are fully separated. They communicate only over HTTP(S)
                  └─────────────┘ └─────────┘ └────────────────┘
                             │
                  ┌──────────▼──────────┐
-                 │  S3-compatible      │
+                 │  Cloudflare R2      │
                  │  file storage       │
                  └─────────────────────┘
 

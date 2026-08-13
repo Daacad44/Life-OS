@@ -10,10 +10,11 @@ change builds and type-checks; new tests pass.
   chosen sound for up to ~60s (`RING_DURATION_MS`) or until `stop()` — not a 3s beep.
   Returns a real `AlarmHandle`. Options-object API (`{ sound, volume, ringtoneUrl,
 durationMs }`).
-- **Custom MP3 ringtone.** Uploaded to object storage (S3 / Cloudflare R2) and played
-  on loop via `HTMLAudioElement`; presets remain as synthesized Web-Audio chimes.
-  - Backend: `services/storageService.ts` (S3 client + `uploadObject`,
-    `isStorageConfigured` guard); env `S3_ENDPOINT/REGION/BUCKET/ACCESS_KEY_ID/
+- **Custom MP3 ringtone.** Uploaded to Cloudflare R2 object storage (via the S3
+  SDK — R2 speaks the S3 API) and played on loop via `HTMLAudioElement`; presets
+  remain as synthesized Web-Audio chimes.
+  - Backend: `services/storageService.ts` (R2 client + `uploadObject`,
+    `isStorageConfigured` guard); env `R2_ENDPOINT/REGION/BUCKET/ACCESS_KEY_ID/
 SECRET_ACCESS_KEY/PUBLIC_URL` (+ `.env.example`); `POST`/`DELETE
 /v1/users/me/ringtone` (multer memory upload, 3 MB MP3 cap). Returns **501** when
     storage is unconfigured, so the app degrades to preset chimes.

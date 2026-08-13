@@ -90,9 +90,11 @@ GEMINI_MODEL=
 GEMINI_EMBEDDING_MODEL=
 GEMINI_EMBEDDING_DIM=
 FRONTEND_ORIGIN=
-S3_ENDPOINT=
-S3_ACCESS_KEY=
-S3_SECRET_KEY=
+R2_ENDPOINT=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET=
+R2_PUBLIC_URL=
 NODE_ENV=
 ```
 
@@ -118,7 +120,7 @@ A typed config module validates these on startup and fails fast if any are missi
 ## 8. Backups & Recovery
 
 - **Automated database backups** on a schedule (daily), encrypted.
-- Backups stored off the primary volume (S3-compatible storage).
+- Backups stored off the primary volume (Cloudflare R2).
 - A documented restore procedure, tested periodically.
 - File storage (uploads) backed up alongside the database.
 
